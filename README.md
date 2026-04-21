@@ -53,3 +53,26 @@ git clone https://github.com/autopawn/tex-thesis-template.git
 cd tex-thesis-template
 make
 ```
+
+## Configurar setings.json para compilar localmente
+```
+mkdir -p .vscode
+cat > .vscode/settings.json << 'EOF'
+{
+  "latex-workshop.latex.tools": [
+    {
+      "name": "latexmk",
+      "command": "latexmk",
+      "args": ["-synctex=1", "-interaction=nonstopmode", "-file-line-error", "-pdfxe", "-outdir=%OUTDIR%", "%DOC%"]
+    }
+  ],
+  "latex-workshop.latex.recipes": [
+    { "name": "latexmk (xelatex)", "tools": ["latexmk"] }
+  ],
+  "latex-workshop.latex.recipe.default": "latexmk (xelatex)",
+  "latex-workshop.latex.autoBuild.run": "onSave",
+  "latex-workshop.latex.outDir": "%DIR%/build",
+  "latex-workshop.latex.clean.fileTypes": ["*.aux","*.log","*.toc","*.out","*.lof","*.lot","*.bbl","*.blg","*.synctex.gz","*.fls","*.fdb_latexmk","*.bcf","*.run.xml"]
+}
+EOF
+```
