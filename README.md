@@ -45,3 +45,11 @@ La font principal debería ser `Calibri`, pero hay que pagar por ella al menos q
 ## Descargar la font `Carlito`
 
 Si desea usar `Carlito` y no está instalada en su sistema, la puede descargar en del siguiente [enlace](https://fontlibrary.org/en/font/carlito), luego de descargarla, recuerde instalarla en su sistema operativo.
+
+## Comandos para instalar paquetes y poder compilar
+```
+sudo apt install texlive-xetex texlive-lang-spanish texlive-latex-recommended texlive-latex-extra texlive-bibtex-extra fonts-crosextra-carlito make -y
+git clone https://github.com/autopawn/tex-thesis-template.git
+cd tex-thesis-template
+make
+```
