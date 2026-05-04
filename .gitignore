@@ -1,7 +1,7 @@
 ## Compiled pdf file:
 *.pdf
 *.xdv
-*.vscode/
+*settings.json
 ## Core latex/pdflatex auxiliary files:
 *.aux
 *.lof
