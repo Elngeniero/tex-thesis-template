@@ -1,30 +1,115 @@
 \secnumbersection{DEFINICIÓN DEL PROBLEMA}
 
-Se debe definir el problema, es importante no confundir definir el problema con describir la solución. Por ejemplo: ``diseñar una arquitectura e implementar una plataforma ...'' es una solución, no un problema.
+Santiago de Chile, capital de la Región Metropolitana y ciudad de aproximadamente siete millones de habitantes, alberga uno de los sistemas de transporte urbano más complejos de América Latina. Su red de movilidad integra el sistema de buses RED, las líneas del Metro, el tren de Rancagua y una significativa presencia de taxis colectivos y transporte informal, generando diariamente millones de desplazamientos entre sus más de cincuenta comunas. Comprender la distribución espacial de esos flujos de movilidad origen-destino (OD) es un insumo esencial para la planificación del transporte, el diseño de infraestructura y la formulación de políticas urbanas basadas en evidencia \cite{liu2024interdisciplinary}. La presente memoria se inscribe en la línea de movilidad urbana y ciencia de datos espaciales, en la intersección entre el aprendizaje profundo, los sistemas de información geográfica voluntaria y la planificación del transporte.
 
-Algunos elementos que podrían ir en este capítulo son (no es necesario que vayan todos):
+Actualmente, la planificación del transporte en Santiago se apoya en tres fuentes principales. La \textit{Encuesta Origen-Destino} (EOD) de SECTRA\footnote{Secretaría de Planificación del Transporte, organismo dependiente del Ministerio de Transportes y Telecomunicaciones de Chile.}, cuya última versión fue levantada en 2012 con actualizaciones parciales en 2017, constituye la referencia canónica de flujos de movilidad en la ciudad; sin embargo, su periodicidad de siete a diez años y su elevado costo hacen que los datos disponibles puedan no reflejar la realidad de movilidad actual. Los datos anonimizados de la \textit{tarjeta bip!}, administrados por el DTPM\footnote{Directorio de Transporte Público Metropolitano.}, registran validaciones en Metro y buses, pero no cubren etapas caminadas, viajes en taxi o colectivo pagados en efectivo, ni modos no motorizados relevantes en sectores periféricos de la ciudad. Finalmente, los modelos de asignación y distribución de viajes vigentes —como el \textit{Strategic Transit Model} del DTPM— se basan en zonas de análisis de transporte (ZAT) y en modelos de gravedad calibrados que imponen supuestos de linealidad que la movilidad urbana real no siempre satisface.
+
+En este contexto, Santiago no dispone de un modelo de generación de flujos OD que combine las tres capacidades que la literatura reciente identifica como determinantes \cite{simini2021deep, liu2024interdisciplinary}: la incorporación de \textit{amenities} geográficas de OpenStreetMap (POIs, uso de suelo, red vial, equipamiento) como variables explicativas; el uso de redes neuronales profundas capaces de capturar relaciones no lineales entre el tejido urbano y los flujos; y la provisión de explicabilidad mediante técnicas de Inteligencia Artificial Explicable (XAI) que permita a los planificadores comprender qué factores impulsan cada predicción. Adicionalmente, el Departamento de Transporte de la Universidad dispone de un dataset de viajes y etapas del mes de noviembre de 2024 de mayor resolución temporal que la EOD, pero cuya explotación mediante aprendizaje profundo para la generación de flujos aún no se ha realizado.
+
+% ---------------------------------------------------------------
+% ÁRBOL DEL PROBLEMA
+% Aquí se incluirá la Figura 1 (Diagrama del árbol del problema)
+% una vez diseñada y exportada como imagen.
+% Ver borrador en: arbol_del_problema.md
+%
+% \begin{figure}[h]
+% \centering
+% \includegraphics[width=\textwidth]{arbol_del_problema}
+% \caption{\label{fig:arbol} Diagrama del árbol del problema.}
+% Fuente: Elaboración propia.
+% \end{figure}
+% ---------------------------------------------------------------
+
+\subsection{ACTORES Y USUARIOS INVOLUCRADOS}
+
+Los resultados de esta memoria son de interés para un conjunto amplio de actores del sistema de movilidad urbana de Santiago. Entre los \textbf{actores primarios} —quienes podrían utilizar directamente el modelo y sus predicciones— se encuentran el DTPM y la SECTRA, organismos públicos responsables de planificar y regular el transporte metropolitano; el Ministerio de Transportes y Telecomunicaciones (MTT), instancia decisional a nivel nacional; las 52 municipalidades de la Región Metropolitana, que requieren estimaciones de flujo para planificar infraestructura local, ciclovías y permisos de circulación; y los grupos de investigación en movilidad urbana, ciencia urbana y transporte sostenible de universidades chilenas, entre ellas la Pontificia Universidad Católica de Chile, la Universidad de Chile y la Universidad Adolfo Ibáñez.
+
+Entre los \textbf{actores secundarios} —beneficiados de forma indirecta por mejoras en la calidad de la planificación— se cuentan las empresas de movilidad compartida (Moovit, Uber, Cabify, operadores de scooters) interesadas en estimaciones de demanda; las consultoras especializadas en transporte y movilidad sostenible que asesoran a organismos públicos; y la ciudadanía en general, que se beneficia de mejores decisiones de inversión en infraestructura pública.
+
+\subsection{JUSTIFICACIÓN DEL PROBLEMA}
+
+La planificación del transporte en Santiago enfrenta al menos cinco dificultades estructurales que justifican el desarrollo de nuevos modelos de generación de flujos OD.
+
+En primer lugar, la \textbf{volatilidad post-pandemia} ha dejado obsoletos los modelos de distribución de viajes calibrados antes de 2020. El teletrabajo, la desconcentración de empleos hacia subcentros y la persistente caída en el uso del Metro —cuyas validaciones en 2024 aún no recuperan los niveles de 2019— han reconfigurado los patrones de movilidad de forma que la EOD 2012/2017 no logra reflejar.
+
+En segundo lugar, el \textbf{costo y la baja periodicidad} de la EOD impiden contar con estimaciones intermedias entre un levantamiento y el siguiente. Una nueva EOD metropolitana supone varios millones de dólares y se levanta cada siete a diez años, un horizonte temporal incompatible con la velocidad de los cambios urbanos actuales.
+
+En tercer lugar, los \textbf{modelos de gravedad clásicos} —los únicos implementados a escala metropolitana en Santiago— presentan limitaciones técnicas ampliamente documentadas \cite{simini2012universal}: imponen relaciones paramétricas monótonas entre población, distancia y flujo, lo que genera \textit{underfitting} ante fenómenos no lineales como hubs de empleo secundarios o corredores de transporte masivo; exhiben sobredispersión respecto a los flujos empíricos; e ignoran el tejido urbano al no incorporar amenities, puntos de interés ni uso de suelo como variables explicativas.
+
+En cuarto lugar, la \textbf{opacidad de los modelos de distribución de viajes vigentes} impide que planificadores y ciudadanía puedan auditar las predicciones. Ningún modelo actualmente en uso en Santiago es capaz de responder por qué un par de zonas atrae más viajes que otro con características aparentemente similares, lo que reduce la confianza en la planificación y dificulta la rendición de cuentas pública \cite{liu2024interdisciplinary}.
+
+Finalmente, existe una marcada \textbf{escasez de modelos neuronales de flujos validados en América Latina}. Los modelos de aprendizaje profundo que han demostrado superar a los modelos clásicos han sido desarrollados y evaluados exclusivamente en ciudades del Norte Global \cite{simini2021deep}, sin considerar las particularidades latinoamericanas: segregación socioespacial, informalidad en el transporte, polarización centro-periferia y cobertura heterogénea de OpenStreetMap. Esta brecha tiene alcance regional: en Chile, al menos tres organismos públicos (DTPM, SECTRA, MTT), 52 municipalidades de la Región Metropolitana y más de diez centros universitarios con líneas de movilidad podrían beneficiarse de un modelo de generación de flujos explicativo; a escala regional, las capitales latinoamericanas con problemáticas similares —Lima, Bogotá, Buenos Aires, Ciudad de México, São Paulo— suman más de 50 millones de habitantes, lo que justifica la transferibilidad metodológica del trabajo.
+
+Las consecuencias de no abordar estas dificultades son concretas: nuevas líneas de Metro, extensiones de BRT, redes de ciclovías y planes de densificación se continuarán diseñando sobre datos de hace más de una década, sin reflejar la redistribución post-pandémica de la demanda. Los modelos vigentes no permiten anticipar el impacto de intervenciones urbanas —apertura de un centro comercial, cierre de un eje vial, inauguración de una estación— sobre los flujos de movilidad. La ausencia de explicabilidad reduce la confianza ciudadana en la planificación pública. Y el dataset de viajes del DTPM de noviembre de 2024, de mayor resolución que la EOD, permanece subutilizado para modelado generativo.
+
+\subsection{SOLUCIONES EXISTENTES Y SUS LIMITACIONES}
+
+La estimación de flujos OD cuenta con una tradición de modelos que puede agruparse en dos categorías: modelos clásicos parametrizados y modelos basados en aprendizaje profundo. La Tabla~\ref{tab:modelos} resume las soluciones más relevantes para el contexto de esta memoria.
+
+\begin{table}[h]
+\centering
+\caption{\label{tab:modelos} Comparación de soluciones existentes para la generación de flujos OD.} Fuente: Elaboración propia.
+\begin{tabular}{|p{3.2cm}|p{2.2cm}|p{2.2cm}|p{2.2cm}|p{2.8cm}|}
+\hline
+\textbf{Modelo / Solución} & \textbf{Tipo} & \textbf{Amenities OSM} & \textbf{Explicable} & \textbf{Validado en LatAm} \\
+\hline
+Gravity model \cite{zipf1946p} & Clásico & No & Parcial & Sí (baseline) \\
+\hline
+Radiation model \cite{simini2012universal} & Clásico & No & Parcial & Parcial \\
+\hline
+Deep Gravity \cite{simini2021deep} & Deep Learning & Sí & No & No \\
+\hline
+GNNs espaciales & Deep Learning & Sí & No & No \\
+\hline
+Modelos SECTRA/DTPM & Calibrado & No & No & Sí (Santiago) \\
+\hline
+\end{tabular}
+\end{table}
+
+El \textit{gravity model} clásico \cite{zipf1946p} es el modelo \textit{de facto} en planificación del transporte y sirve como primer baseline en esta memoria, pero no captura no-linealidades ni utiliza datos geográficos voluntarios. El \textit{radiation model} \cite{simini2012universal}, libre de parámetros, supera al gravity en algunos contextos, pero comparte la restricción de no incorporar amenities y ofrece explicabilidad limitada. El modelo \textit{Deep Gravity} \cite{simini2021deep} representa el estado del arte, validado sobre Inglaterra, Italia y el estado de Nueva York, pero no existe evidencia de su aplicación sobre una metrópolis latinoamericana ni sobre datos post-pandemia; el repositorio oficial carece además de capa de explicabilidad y de empaquetado para su adopción fuera del equipo original. Los modelos con redes neuronales de grafos (GNNs) son más recientes pero no han sido aplicados en Santiago. Finalmente, los modelos de distribución de viajes de SECTRA y el DTPM están calibrados localmente pero son lineales y opacos para fines explicativos.
+
+Esta memoria aporta lo que ninguna solución listada ofrece de forma conjunta: la primera aplicación del modelo Deep Gravity sobre una metrópolis latinoamericana con datos post-pandemia, la integración de baselines clásicos que permiten aislar la contribución del aprendizaje profundo, y una capa de explicabilidad múltiple —SHAP e Integrated Gradients \cite{lundberg2017shap}— sobre las amenities de OSM, ausente tanto en el paper original como en los modelos vigentes en Santiago.
+
+\subsection{OBJETIVOS}
+
+\subsubsection{Objetivo General}
+
+Estudiar empíricamente en qué medida la incorporación de amenities geográficas de OpenStreetMap, mediante el modelo Deep Gravity, mejora la predicción de flujos de movilidad en Santiago de Chile respecto a los modelos de gravedad y radiación, e interpretar la contribución de cada tipología de amenity al desempeño del modelo mediante técnicas de explicabilidad.
+
+\subsubsection{Objetivos Específicos}
+
+\begin{enumerate}
+    \item \textbf{Reproducir y adaptar} el modelo Deep Gravity sobre el dataset de referencia New York del repositorio original, validando el pipeline y las métricas reportadas en el paper original \cite{simini2021deep}, y documentando el proceso de refactorización del repositorio para garantizar la trazabilidad y reproducibilidad del pipeline en el contexto de esta memoria.
+    \item \textbf{Caracterizar} el dataset de viajes y etapas de noviembre de 2024 del DTPM y construir una tessellation cuadrada para el Gran Santiago, evaluando la sensibilidad de los resultados ante distintas resoluciones de grilla (500\,m, 1\,km, 2\,km y 5\,km).
+    \item \textbf{Extraer} las amenities de OpenStreetMap para el área de estudio, utilizando inicialmente el conjunto de categorías del paper original, y evaluar la pertinencia de un conjunto extendido y adaptado a las características del tejido urbano latinoamericano.
+    \item \textbf{Entrenar y evaluar} el modelo Deep Gravity sobre Santiago, comparando cuantitativamente su desempeño con el de los baselines —gravity model y radiation model— mediante la métrica CPC (\textit{Common Part of Commuters}) \cite{simini2021deep} y su descomposición espacial por tile.
+    \item \textbf{Cuantificar el impacto} de las amenities de OSM sobre el desempeño del modelo mediante técnicas de XAI: SHAP (Kernel y Deep SHAP) \cite{lundberg2017shap} para la importancia global y local de cada feature, Integrated Gradients para la atribución por par origen-destino, y análisis de sensibilidad para evaluar la robustez ante perturbaciones de cada categoría de amenity.
+    \item \textbf{Comparar} la importancia relativa de las amenities entre Santiago y Nueva York, discutiendo las diferencias a la luz del tejido urbano y la cobertura de OpenStreetMap en cada contexto.
+\end{enumerate}
+
+\subsection{ALCANCES Y LIMITACIONES}
+
+\subsubsection{Alcances}
+
+La presente memoria se circunscribe a los siguientes alcances:
+
 \begin{itemize}
-    \item Breve descripción del contexto donde se realizará la memoria (organización, línea dentro de la Informática en la que se basa, etc.)
-    \item ¿Qué y cómo se realiza actualmente la situación que mejorarás con tu memoria?
-    \item ¿Qué actores o usuarios están involucrados?
-    \item ¿Qué dificultades tienen esos actores actualmente? ¿cuántos son? (ideal si se pueden poner estadísticas para así saber si existe un mercado razonable para la solución que propondrás en tu memoria, en el fondo saber cuántas personas u organizaciones tienen el mismo problema que estás definiendo)
-    \item ¿Qué podría pasar si en el corto o mediano plazo no se solucionan esas dificultades (¿es decir, si no se hiciera tu memoria, qué pasaría?; en el fondo justificar por qué conviene hacer tu memoria, ¿cuál es la motivación o interés de hacerla?).
-    \item ¿Qué competencia existe actualmente? (a lo mejor ya existe una solución al problema, pero por qué no sirve, o por qué tu solución sería mejor, también se puede enfocar a si este problema existe en otras realidades y cómo ha sido solucionado allí).
-    \item Precisar los objetivos y alcances de la memoria (o solución al problema).
+    \item \textbf{Área geográfica}: Gran Santiago, correspondiente a las comunas del área metropolitana del DTPM, con eventual extensión a la Región Metropolitana completa.
+    \item \textbf{Período temporal}: Noviembre de 2024, período post-pandemia.
+    \item \textbf{Modos de transporte}: todos los modos presentes en el dataset del DTPM, registrados a nivel de viaje y etapa.
+    \item \textbf{Modelos}: Deep Gravity como modelo principal; gravity model clásico y radiation model como baselines de comparación.
+    \item \textbf{Features de entrada}: conjunto de categorías del paper original, con exploración de extensiones adaptadas al contexto latinoamericano.
+    \item \textbf{Técnicas XAI}: SHAP (Kernel y Deep SHAP), Integrated Gradients y análisis de sensibilidad por feature.
 \end{itemize}
 
-En este capítulo, de ser necesario puede usar referencias bibliográficas (velar porque sean recientes), una cita de ejemplo \cite{schwab2002cure} y otras más \cite{georget1994study,beaumont1990patient}.
+\subsubsection{Fuera de Alcance}
 
-Recuerde poner notas al pie de página que sean explicativas \footnote{Este es un ejemplo de una nota al pie de página. Puede indicar alguna URL, definiciones, aclarar alguna información pertinente del texto, citar algunas referencias, etc..}.
+Los siguientes aspectos quedan explícitamente fuera del alcance de esta memoria:
 
-\subsection{SUBSECCIÓN DE PRUEBA}
-
-Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.
-
-\subsubsection{SUBSUBSECCIÓN DE PRUEBA}
-
-Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet.
-
-\subsubsection{OTRA SUBSUBSECCIÓN DE PRUEBA}
-
-Nemo enim ipsam voluptatem quia voluptas sit aspernatur aut odit aut fugit, sed quia consequuntur magni dolores eos qui ratione voluptatem sequi nesciunt. Neque porro quisquam est, qui dolorem ipsum quia dolor sit amet.
+\begin{itemize}
+    \item \textbf{Predicción temporal} (\textit{forecasting}): el modelo genera flujos espaciales en un corte temporal definido, no proyecciones de demanda futura.
+    \item \textbf{Calibración de políticas públicas}: la memoria entrega insumos de modelado, no recomendaciones operativas para organismos públicos.
+    \item \textbf{Datos de telecomunicaciones}: no se utilizarán trazas de operadores de telefonía móvil.
+    \item \textbf{Modos no observados por el dataset}: no se cubren desplazamientos no detectados por el DTPM, como caminata, bicicleta o taxi en efectivo.
+    \item \textbf{Otros modelos neuronales}: no se implementarán redes neuronales de grafos (GNNs) ni transformers espaciales; el alcance se limita a Deep Gravity y sus baselines clásicos.
+\end{itemize}
