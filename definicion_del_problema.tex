@@ -38,13 +38,13 @@ Generar flujos de movilidad origen-destino en Santiago de Chile mediante el mode
 \begin{enumerate}
 	\item Reproducir y adaptar el modelo Deep Gravity sobre el dataset de referencia del repositorio original, validando el pipeline y las métricas reportadas, para garantizar la trazabilidad y reproducibilidad del proceso.
 
-	\item Caracterizar el dataset de viajes y etapas de noviembre de 2024 del DTPM y construir una tessellation cuadrada para el Gran Santiago, evaluando la sensibilidad de los resultados ante distintas resoluciones de grilla (500\,m, 1\,km, 2\,km y 5\,km).
+	\item Caracterizar el dataset de viajes y etapas de noviembre de 2024 del DTPM y construir una tessellation cuadrada para el Gran Santiago, evaluando la sensibilidad de los resultados ante distintas resoluciones de grilla \textbf{(500\,m, 1\,km, 2\,km y 5\,km)}.
 
 	\item Extraer las \textit{amenities} de OpenStreetMap para el área de estudio, utilizando el conjunto de categorías del paper original y evaluando la pertinencia de un conjunto extendido adaptado a las características del tejido urbano latinoamericano.
 
 	\item Entrenar y evaluar el modelo Deep Gravity sobre Santiago, comparando cuantitativamente su desempeño con el de los modelos de gravedad clásico y de radiación mediante la métrica CPC (\textit{Common Part of Commuters}) y su descomposición espacial por \textit{tile}.
 
-	\item Cuantificar el impacto de las \textit{amenities} de OSM sobre el desempeño del modelo mediante la técnica SHAP (\textit{SHapley Additive exPlanations}) \cite{lundberg2017shap}, determinando la importancia global y local de cada categoría de \textit{amenity} en la generación de flujos.
+	\item Cuantificar el impacto de las \textit{amenities} de OSM sobre el desempeño del modelo mediante la técnica SHAP (\textit{SHapley Additive exPlanations}), determinando la importancia global y local de cada categoría de \textit{amenity} en la generación de flujos.
 
-	\item Comparar la importancia relativa de las \textit{amenities} entre Santiago y Nueva York, discutiendo las diferencias a la luz del tejido urbano y la cobertura de OpenStreetMap en cada contexto.
+	\item Analizar la sensibilidad de las explicaciones obtenidas (valores SHAP) frente a la escala de agregación espacial de la grilla y a las distintas temporalidades del flujo (períodos punta y fuera de punta), discutiendo la coherencia de las \textit{amenities} identificadas con las dinámicas socioespaciales de Santiago.
 \end{enumerate}
