@@ -14,15 +14,15 @@ Esta brecha entre la necesidad de datos actualizados y su disponibilidad real mo
 
 \subsection{Limitaciones de los modelos vigentes}
 
-Los modelos utilizados en la práctica para la estimación de flujos en Santiago corresponden a modelos de gravedad clásicos. Estos modelos presentan limitaciones ampliamente documentadas en la literatura \cite{zipf1946p, simini2012universal, liu2024interdisciplinary}. Imponen relaciones paramétricas monótonas entre población, distancia y flujo. Esto genera un ajuste deficiente ante fenómenos no lineales, como la existencia de subcentros de empleo o corredores de transporte masivo. Requieren además calibración manual para cada contexto geográfico, lo que limita su transferibilidad. Finalmente, no incorporan el tejido urbano —puntos de interés, uso de suelo, infraestructura de transporte— como variables explicativas.
+Los modelos utilizados en la práctica para la estimación de flujos en Santiago corresponden a modelos de gravedad clásicos. Estos modelos presentan limitaciones ampliamente documentadas en la literatura \cite{zipf1946p, simini2012universal, liu2024interdisciplinary}. Imponen relaciones paramétricas monótonas entre población, distancia y flujo, lo que genera un ajuste deficiente ante fenómenos no lineales, como la existencia de subcentros de empleo o corredores de transporte masivo. Requieren además calibración manual para cada contexto geográfico, lo que limita su transferibilidad. Finalmente, no incorporan como variables explicativas el tejido urbano: puntos de interés, uso de suelo ni infraestructura de transporte.
 
 Modelos basados en aprendizaje profundo, como Deep Gravity \cite{simini2021deep}, han demostrado superar estas limitaciones incorporando variables geoespaciales de OpenStreetMap. Su arquitectura y su desempeño reportado se detallan en el Marco Conceptual de esta memoria. Sin embargo, su aplicación en ciudades latinoamericanas no ha sido explorada.
 
 \subsection{Especificidad del contexto latinoamericano}
 
-Esta ausencia de validación es relevante porque las ciudades latinoamericanas presentan características estructurales que las diferencian de los contextos donde estos modelos han sido desarrollados y evaluados. Entre ellas se cuentan la segregación socioeconómica, la coexistencia de sistemas de transporte formales e informales y diferencias en la completitud y desarrollo de los datos geoespaciales colaborativos disponibles en OpenStreetMap entre distintas regiones del mundo \cite{BarringtonLeigh2017}. Estas diferencias impiden anticipar si un modelo como Deep Gravity mantendría su desempeño al ser aplicado sobre Santiago.
+Esta ausencia de validación es relevante porque las ciudades latinoamericanas presentan características estructurales que las diferencian de los contextos donde estos modelos han sido desarrollados y evaluados. Entre ellas se cuentan la segregación socioeconómica, la coexistencia de sistemas de transporte formales e informales y diferencias en la completitud de los datos geoespaciales de OpenStreetMap entre regiones del mundo \cite{BarringtonLeigh2017}. Estas diferencias impiden anticipar si un modelo como Deep Gravity mantendría su desempeño al ser aplicado sobre Santiago.
 
-Adicionalmente, el modelo carece de una capa de explicabilidad que permita a los planificadores comprender qué factores del tejido urbano impulsan cada predicción.
+Más allá del contexto geográfico, el modelo carece de una capa de explicabilidad que permita a los planificadores comprender qué factores del tejido urbano impulsan cada predicción.
 
 \subsection{Síntesis del problema}
 
@@ -63,4 +63,4 @@ Generar flujos de movilidad origen-destino en Santiago de Chile mediante el mode
 	%chequear este ultimo ítem.
 	\item \textit{Analizar la sensibilidad de las explicaciones obtenidas (valores SHAP) frente a la escala de agregación espacial de la grilla y a las distintas temporalidades del flujo (períodos punta y fuera de punta), discutiendo la coherencia de las \textit{amenities} identificadas con las dinámicas socioespaciales de Santiago.}
 	
-\end{enumerate}
+\end{enumerate}
