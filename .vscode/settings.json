@@ -3,7 +3,7 @@
     {
       "name": "latexmk",
       "command": "latexmk",
-      "args": ["-synctex=1", "-interaction=nonstopmode", "-file-line-error", "-pdfxe", "-outdir=%OUTDIR%", "%DOC%"]
+      "args": ["-synctex=1", "-interaction=nonstopmode", "-file-line-error", "-xelatex", "-outdir=%OUTDIR%", "%DOC%"]
     }
   ],
   "latex-workshop.latex.recipes": [
