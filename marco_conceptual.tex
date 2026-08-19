@@ -1,5 +1,200 @@
 \secnumbersection{MARCO CONCEPTUAL}
 
-Se debe describir la base conceptual o fundamentos en los que se basa tu memoria, es decir, todos los conceptos técnicos, metodologías, herramientas, etc. que están involucradas en la solución propuesta. En el fondo esta parte permite precisar y delimitar el problema, estableciendo definiciones para unificar conceptos y lenguaje y fijar relaciones con otros trabajos o soluciones encontradas por otros al mismo problema evitando así plagios o repetir errores ya conocidos o abordados por otros.
+Este capítulo presenta los fundamentos teóricos y técnicos en que se apoya esta memoria. Se introducen, en primer lugar, los conceptos centrales de movilidad urbana y flujos origen-destino. Luego se describen los modelos clásicos de generación de flujos, que constituyen la base histórica del problema y los \textit{baselines} de esta investigación. A continuación se expone cómo el aprendizaje profundo ha permitido superar las limitaciones de esos modelos, culminando en la arquitectura \textit{Deep Gravity}. El capítulo continúa con los fundamentos de la explicabilidad de modelos de inteligencia artificial mediante SHAP, la descripción de OpenStreetMap como fuente de datos geoespaciales, y concluye con el contexto de la movilidad en Santiago de Chile.
 
-En esta parte es importante relacionar estos conceptos con la memoria y es fundamental utilizar referencias bibliográficas (o de la web) recientes, por ejemplo \cite{gettelfinger2004will}.
+% ----------------------------------------------------------------
+\subsection{Movilidad urbana y flujos origen-destino}
+% ----------------------------------------------------------------
+
+La movilidad urbana comprende el conjunto de desplazamientos que realizan las personas entre distintas ubicaciones de la ciudad en un período de tiempo determinado \cite{liu2024interdisciplinary}. Comprender estos desplazamientos es un insumo fundamental para la planificación del transporte, el diseño de infraestructura vial y la formulación de políticas públicas basadas en evidencia.
+
+Una representación sintética y cuantitativa de la movilidad urbana es la \textbf{matriz origen-destino} (matriz OD). Formalmente, dado un conjunto de $n$ zonas geográficas $\mathcal{Z} = \{z_1, z_2, \dots, z_n\}$ que particionan el área de estudio, el flujo $T_{ij}$ representa el número de viajes que se realizan desde la zona de origen $z_i$ hasta la zona de destino $z_j$ en un intervalo de tiempo fijo:
+\begin{equation}
+    \mathbf{T} \in \mathbb{R}^{n \times n}, \quad T_{ij} \geq 0 \quad \forall\, i, j \in \{1, \dots, n\}
+    \label{eq:matriz_od}
+\end{equation}
+La colección de todos los flujos posibles entre pares de zonas conforma la matriz OD. Cada fila $i$ representa los flujos salientes desde una zona de origen, y cada columna $j$ los flujos entrantes hacia una zona de destino.
+
+Obtener la matriz OD mediante observación directa —a través de encuestas domiciliarias, aforos de tráfico o registros de tarjetas de pago— es costoso y poco frecuente. Esta limitación ha motivado el desarrollo de \textbf{modelos generativos de flujos}, capaces de estimar $\mathbf{T}$ a partir de características observables del territorio, como la distribución de la población o la presencia de equipamientos urbanos, sin depender exclusivamente de mediciones directas \cite{simini2021deep}.
+
+El problema de generación de flujos se formula de la siguiente manera: dado un conjunto de zonas $\mathcal{Z}$, sus características geoespaciales y los flujos totales salientes por zona $O_i = \sum_j T_{ij}$, estimar los flujos por par origen-destino $\hat{T}_{ij}$ para todos los pares $(i, j)$.
+
+% ----------------------------------------------------------------
+\subsection{Modelos clásicos de generación de flujos}
+% ----------------------------------------------------------------
+
+La estimación de flujos origen-destino cuenta con una tradición extensa en la geografía cuantitativa. Los modelos que se describen a continuación han dominado históricamente esta área y constituyen los \textit{baselines} de referencia en esta memoria.
+
+\subsubsection{Modelo gravitatorio}
+
+El modelo gravitatorio de movilidad establece una analogía con la ley de gravitación universal de Newton. Propuesto formalmente por Zipf \cite{zipf1946p} en 1946, postula que el volumen de desplazamientos entre dos zonas es directamente proporcional al producto de sus masas —representadas habitualmente por la población— e inversamente proporcional a la distancia que las separa:
+\begin{equation}
+    T_{ij} = k \cdot \frac{P_i^{\,\alpha} \cdot P_j^{\,\beta}}{d_{ij}^{\,\gamma}}
+    \label{eq:gravedad}
+\end{equation}
+donde $P_i$ y $P_j$ son las poblaciones de las zonas de origen y destino, $d_{ij}$ es la distancia entre sus centroides, $k$ es una constante de proporcionalidad, y $\alpha$, $\beta$, $\gamma$ son parámetros que deben calibrarse con datos observados. Zipf verificó empíricamente esta relación mediante datos de tráfico de buses, ferrocarriles y llamadas telefónicas entre ciudades de Estados Unidos, encontrando que los coeficientes se aproximan a la unidad en todos los casos.
+
+La formulación de la ecuación \eqref{eq:gravedad} recibe el nombre de \textit{modelo de gravedad no restringido}. En la práctica, para garantizar que los flujos generados sean consistentes con los totales salientes observados, se utiliza la versión \textit{restringida en origen} (\textit{singly-constrained}), que normaliza los flujos de cada origen sobre todos sus destinos posibles:
+\begin{equation}
+    \hat{T}_{ij} = O_i \cdot \frac{P_j^{\,\beta}\, f(d_{ij})}{\displaystyle\sum_{k} P_k^{\,\beta}\, f(d_{ik})}
+    \label{eq:gravedad_restringida}
+\end{equation}
+donde $O_i = \sum_j T_{ij}$ es el flujo total saliente de la zona $i$ y $f(d_{ij})$ es una función de disuasión por distancia, que puede adoptar forma exponencial ($e^{\beta_2 d}$) o de ley de potencia ($d^{\beta_2}$).
+
+El modelo gravitatorio presenta limitaciones ampliamente documentadas \cite{liu2024interdisciplinary}. Impone una relación paramétrica monótona entre población, distancia y flujo, lo que genera un ajuste deficiente ante fenómenos no lineales como la existencia de subcentros de empleo o corredores de transporte masivo. Requiere además calibración manual para cada contexto geográfico, lo que limita su transferibilidad. Finalmente, no incorpora como variables explicativas el tejido urbano: puntos de interés, uso de suelo ni infraestructura de transporte.
+
+\subsubsection{Modelo de oportunidades intervinientes}
+
+Stouffer \cite{stouffer1940intervening} propuso en 1940 una perspectiva alternativa al modelo gravitatorio, argumentando que la distancia no es en sí misma el factor determinante de la movilidad, sino que actúa como un contenedor espacial de oportunidades. Su hipótesis central es que el número de personas que se desplazan a una zona de destino es directamente proporcional al número de oportunidades en ese destino e inversamente proporcional al número de oportunidades intervinientes entre el origen y el destino.
+
+Formalmente, sea $y$ el número de personas que se desplazan desde un origen hasta una banda circular de anchura $\Delta s$, y sea $x$ el número acumulado de oportunidades entre el origen y la distancia $s$. Stouffer postula:
+\begin{equation}
+    \Delta y = a \cdot \frac{\Delta x}{x}
+    \label{eq:stouffer}
+\end{equation}
+Integrando esta expresión diferencial, el número total de personas que se detienen dentro de un círculo de radio $s$ desde el origen es:
+\begin{equation}
+    y = a \cdot \ln f(s) + c
+    \label{eq:stouffer_integral}
+\end{equation}
+donde $f(s)$ es el número acumulado de oportunidades dentro de ese radio y $c$ es una constante de integración. Stouffer verificó empíricamente esta formulación con datos de movilidad residencial en Cleveland, Ohio (1933-1935), obteniendo una buena correspondencia entre los flujos observados y los predichos por el modelo.
+
+El modelo fue validado originalmente para movilidad intrazonal. Su principal dificultad de aplicación radica en la definición operacional de \textit{oportunidad}, que varía según el tipo de desplazamiento estudiado (empleos, viviendas, comercios). Este concepto fue posteriormente formalizado y generalizado en el modelo de radiación.
+
+\subsubsection{Modelo de radiación}
+
+Simini et al. \cite{simini2012universal} propusieron en 2012 el \textbf{modelo de radiación} como una alternativa libre de parámetros al modelo gravitatorio. El modelo parte de una analogía con los procesos de radiación y absorción en física de partículas: cada individuo en un origen busca la mejor oportunidad disponible dentro de radios geográficos crecientes, y se desplaza hacia el destino donde la encuentra.
+
+El mecanismo es el siguiente. Se asigna a cada oportunidad un valor de beneficio $z$ extraído de una distribución de probabilidad $p(z)$. La probabilidad de que un individuo en la zona $i$ elija la zona $j$ como destino es la probabilidad de que el mejor beneficio dentro de $j$ supere al mejor beneficio disponible dentro del círculo de radio $d_{ij}$ centrado en $i$ (excluyendo $i$ y $j$). Esta probabilidad es:
+\begin{equation}
+    p(n_j \mid m_i, s_{ij}) = \frac{m_i \, n_j}{(m_i + s_{ij})(m_i + n_j + s_{ij})}
+    \label{eq:radiacion}
+\end{equation}
+donde $m_i$ es la población de la zona de origen $i$, $n_j$ es la población de la zona de destino $j$, y $s_{ij}$ es la población total dentro de un círculo de radio $d_{ij}$ centrado en $i$, excluyendo las poblaciones de $i$ y de $j$. El flujo esperado entre $i$ y $j$ es entonces:
+\begin{equation}
+    \langle T_{ij} \rangle = T_i \cdot \frac{m_i \, n_j}{(m_i + s_{ij})(m_i + n_j + s_{ij})}
+    \label{eq:radiacion_flujo}
+\end{equation}
+donde $T_i = \sum_j T_{ij}$ es el flujo total saliente de la zona $i$. Una propiedad destacable del modelo de radiación es que satisface automáticamente la restricción de conservación de flujos: $\sum_j \langle T_{ij} \rangle = T_i$, sin necesidad de calibración de parámetros adicionales.
+
+Simini et al. \cite{simini2012universal} validaron el modelo sobre datos de commuting del censo de Estados Unidos (2000), demostrando que supera al modelo gravitatorio en la reproducción de flujos observados, especialmente en la predicción de viajes de corta distancia que el modelo gravitatorio tiende a sobreestimar. A pesar de sus ventajas, el modelo de radiación utiliza exclusivamente la población como \textit{proxy} de oportunidades, sin incorporar características del tejido urbano como el uso de suelo o la distribución de actividades económicas. Esta limitación fue el punto de partida para el desarrollo de modelos basados en aprendizaje profundo.
+
+% ----------------------------------------------------------------
+\subsection{Aprendizaje profundo aplicado a la movilidad}
+% ----------------------------------------------------------------
+
+El aprendizaje profundo (\textit{deep learning}) es un subcampo del aprendizaje automático que utiliza redes neuronales con múltiples capas de transformaciones no lineales para aprender representaciones jerárquicas de los datos \cite{liu2024interdisciplinary}. Su aplicación a la predicción de flujos de movilidad ha permitido incorporar un conjunto amplio de variables geoespaciales y capturar relaciones no lineales que los modelos clásicos no pueden representar.
+
+Una red neuronal \textit{feedforward} (de propagación hacia adelante) con $L$ capas ocultas transforma un vector de entrada $\mathbf{x} \in \mathbb{R}^d$ mediante una secuencia de transformaciones afines seguidas de funciones de activación no lineales:
+\begin{equation}
+    \mathbf{z}^{(0)} = \sigma\!\left(W^{(0)}\,\mathbf{x}\right), \qquad
+    \mathbf{z}^{(\ell)} = \sigma\!\left(W^{(\ell)}\,\mathbf{z}^{(\ell-1)}\right), \quad \ell = 1, \dots, L-1
+    \label{eq:feedforward}
+\end{equation}
+donde $W^{(\ell)}$ es la matriz de pesos de la capa $\ell$ y $\sigma(\cdot)$ es la función de activación, comúnmente ReLU ($\max(0, x)$) o su variante LeakyReLU ($\max(\alpha x, x)$ con $\alpha$ pequeño), que mitiga el problema del gradiente desvanecido en redes profundas.
+
+En el contexto de la generación de flujos, el aprendizaje profundo ha sido aplicado de múltiples formas: como extensión no lineal del modelo gravitatorio \cite{simini2021deep}, mediante redes neuronales de grafos que modelan la estructura espacial de las zonas, y mediante modelos de series de tiempo que capturan la evolución temporal de los flujos \cite{luca2024tsmob}. Esta memoria se enfoca en el primero de estos enfoques, implementado a través del modelo \textit{Deep Gravity}.
+
+% ----------------------------------------------------------------
+\subsection{Deep Gravity}
+% ----------------------------------------------------------------
+
+\textit{Deep Gravity} es un modelo de generación de flujos de movilidad propuesto por Simini et al. \cite{simini2021deep} en 2021. Su contribución central es demostrar que el modelo gravitatorio clásico restringido en origen (ecuación \ref{eq:gravedad_restringida}) es formalmente equivalente a una red neuronal lineal de una sola capa con salida \textit{softmax}, y que reemplazar esa capa lineal por una red neuronal profunda permite capturar relaciones no lineales entre las características del territorio y los flujos observados.
+
+\subsubsection{Formulación matemática}
+
+El modelo gravitatorio restringido en origen puede reescribirse como un modelo lineal generalizado con distribución multinomial. Para un origen $i$, la probabilidad de que un viaje se dirija al destino $j$ es:
+\begin{equation}
+    p_{ij} = \frac{\exp\!\left(\boldsymbol{\beta}^{\top}\,\mathbf{x}(l_i, l_j)\right)}{\displaystyle\sum_{k} \exp\!\left(\boldsymbol{\beta}^{\top}\,\mathbf{x}(l_i, l_k)\right)}
+    \label{eq:dg_glm}
+\end{equation}
+donde $\mathbf{x}(l_i, l_j) = \bigl[\ln P_j,\, d_{ij}\bigr]$ es el vector de características del par $(i, j)$, y $\boldsymbol{\beta} = [\beta_1, \beta_2]$ son los parámetros del modelo. Esta formulación es entrenada maximizando la log-verosimilitud multinomial, cuya función de pérdida es equivalente a la entropía cruzada:
+\begin{equation}
+    H = -\sum_i \sum_j \frac{T_{ij}}{O_i} \ln p_{ij}
+    \label{eq:dg_loss}
+\end{equation}
+\textit{Deep Gravity} reemplaza el producto interno lineal $\boldsymbol{\beta}^{\top}\,\mathbf{x}(l_i, l_j)$ por una red neuronal profunda $f_\theta(\mathbf{x}(l_i, l_j))$ que produce un \textit{score} escalar. Las probabilidades de destino se obtienen mediante \textit{softmax} sobre los \textit{scores} de todos los destinos candidatos desde el origen $i$:
+\begin{equation}
+    p_{ij} = \frac{\exp\!\left(f_\theta\!\left(\mathbf{x}(l_i, l_j)\right)\right)}{\displaystyle\sum_{k} \exp\!\left(f_\theta\!\left(\mathbf{x}(l_i, l_k)\right)\right)}
+    \label{eq:dg_softmax}
+\end{equation}
+El flujo estimado desde $i$ hacia $j$ es entonces $\hat{T}_{ij} = O_i \cdot p_{ij}$.
+
+\subsubsection{Arquitectura de la red neuronal}
+
+La función $f_\theta$ es implementada como una red neuronal \textit{feedforward} de 15 capas ocultas con activación LeakyReLU. Las primeras 6 capas tienen dimensión 256 y las 9 restantes dimensión 128. La capa de salida produce un escalar:
+\begin{align}
+    \mathbf{z}^{(0)} &= \text{LeakyReLU}\!\left(W^{(0)}\,\mathbf{x}(l_i, l_j)\right) \nonumber \\
+    \mathbf{z}^{(\ell)} &= \text{LeakyReLU}\!\left(W^{(\ell)}\,\mathbf{z}^{(\ell-1)}\right), \quad \ell = 1, \dots, 14 \nonumber \\
+    f_\theta\!\left(\mathbf{x}(l_i, l_j)\right) &= \mathbf{w}^{\top}\,\mathbf{z}^{(14)}
+    \label{eq:dg_red}
+\end{align}
+El modelo se entrena con el optimizador RMSprop (momentum $= 0{,}9$; tasa de aprendizaje $= 5 \times 10^{-6}$), con \textit{batches} de 64 zonas de origen. Para cada origen, se aplica \textit{negative sampling}: se seleccionan hasta 512 destinos candidatos por origen, combinando destinos con flujos observados y destinos aleatorios sin flujos observados, lo que hace computacionalmente tratable la normalización del \textit{softmax} sobre todas las zonas.
+
+\subsubsection{Vector de características geoespaciales}
+
+El vector de entrada $\mathbf{x}(l_i, l_j) \in \mathbb{R}^{39}$ concatena las características del origen, el destino y la distancia entre ellos:
+\begin{equation}
+    \mathbf{x}(l_i, l_j) = \bigl[\mathbf{f}(l_i),\; \mathbf{f}(l_j),\; \ln P_i,\; \ln P_j,\; d_{ij}\bigr]
+    \label{eq:dg_features}
+\end{equation}
+donde $\mathbf{f}(l) \in \mathbb{R}^{18}$ es el vector de 18 características geoespaciales extraídas de OpenStreetMap para la zona $l$, $P_i$ y $P_j$ son las poblaciones de origen y destino, y $d_{ij}$ es la distancia geodésica entre sus centroides (en kilómetros). Las 18 características se organizan en 7 categorías: uso del suelo (5 features), red vial (3 features), instalaciones de transporte (2 features), alimentación (2 features), salud (2 features), educación (2 features) y comercio (2 features). Todas ellas se normalizan dividiendo por el área de la zona, expresando su valor por kilómetro cuadrado.
+
+\subsubsection{Resultados y desempeño}
+
+Simini et al. \cite{simini2021deep} evaluaron \textit{Deep Gravity} sobre datos de commuting de Inglaterra, Italia y el estado de Nueva York, utilizando la métrica \textit{Common Part of Commuters} (CPC), definida como:
+\begin{equation}
+    \text{CPC}(\hat{\mathbf{T}}, \mathbf{T}) = \frac{2\,\displaystyle\sum_{i,j} \min\!\left(\hat{T}_{ij},\, T_{ij}\right)}{\displaystyle\sum_{i,j} \hat{T}_{ij} + \displaystyle\sum_{i,j} T_{ij}}
+    \label{eq:cpc}
+\end{equation}
+La métrica CPC toma valores en $[0,1]$, donde 1 indica coincidencia exacta entre flujos generados y reales. Es equivalente al índice de Sørensen-Dice aplicado a flujos. Los resultados muestran que \textit{Deep Gravity} supera al modelo gravitatorio clásico en todos los contextos evaluados, con mejoras de hasta un 190\% en CPC global en Inglaterra y del 1.066\% en el estado de Nueva York. El modelo también demostró transferibilidad geográfica: entrenado en algunas ciudades del Reino Unido, mantiene un desempeño similar cuando se evalúa en ciudades no vistas durante el entrenamiento.
+
+% ----------------------------------------------------------------
+\subsection{Explicabilidad en modelos de inteligencia artificial (XAI)}
+% ----------------------------------------------------------------
+
+La explicabilidad de la inteligencia artificial (\textit{eXplainable Artificial Intelligence}, XAI) se refiere al conjunto de técnicas que permiten comprender e interpretar las predicciones de modelos de aprendizaje automático complejos \cite{lundberg2017shap}. En el contexto de la planificación del transporte, la explicabilidad es relevante no solo desde el punto de vista académico —para entender qué variables del territorio impulsan los flujos— sino también desde el punto de vista institucional, ya que permite a los planificadores auditar las predicciones del modelo.
+
+\subsubsection{Valores SHAP}
+
+SHAP (\textit{SHapley Additive exPlanations}), propuesto por Lundberg y Lee \cite{lundberg2017shap}, es un método de explicabilidad que fundamenta la importancia de cada variable en la teoría de juegos cooperativos de Shapley. La contribución de la característica $i$ a la predicción del modelo para una instancia $\mathbf{x}$ se define como:
+\begin{equation}
+    \phi_i(f, \mathbf{x}) = \sum_{S \subseteq \mathcal{F} \setminus \{i\}} \frac{|S|!\,(|\mathcal{F}|-|S|-1)!}{|\mathcal{F}|!}\,\bigl[f(S \cup \{i\}) - f(S)\bigr]
+    \label{eq:shap}
+\end{equation}
+donde $\mathcal{F}$ es el conjunto de todas las características, $S$ es una coalición de características que no incluye a $i$, y $f(S)$ es la predicción del modelo usando solo las características en $S$. El valor $\phi_i$ representa la contribución marginal promedio de la característica $i$ sobre todas las posibles coaliciones de características.
+
+Los valores SHAP satisfacen tres propiedades deseables: \textit{eficiencia} (la suma de todos los valores SHAP es igual a la diferencia entre la predicción y el valor base), \textit{simetría} (características con igual contribución marginal reciben igual valor SHAP) y \textit{dummy} (características sin influencia reciben valor cero). En conjunto, estas propiedades garantizan una atribución justa y consistente de importancias.
+
+En esta memoria se utilizan los valores SHAP para cuantificar el impacto de cada categoría de \textit{amenity} de OpenStreetMap sobre la predicción de flujos del modelo \textit{Deep Gravity}. El análisis SHAP permite determinar qué tipos de equipamiento urbano —educación, salud, comercio, transporte, entre otros— son los más determinantes en la generación de flujos para el contexto de Santiago de Chile.
+
+\subsubsection{Gradientes integrados}
+
+Los \textit{Integrated Gradients} \cite{sundararajan2017axiomatic} son un método de atribución basado en el gradiente de la función del modelo con respecto a las variables de entrada. Para una predicción $f(\mathbf{x})$ y una entrada de referencia $\mathbf{x}'$ (típicamente el vector nulo), la atribución de la característica $i$ se define como:
+\begin{equation}
+    \text{IG}_i(\mathbf{x}) = (x_i - x_i') \cdot \int_0^1 \frac{\partial f\!\left(\mathbf{x}' + \alpha(\mathbf{x} - \mathbf{x}')\right)}{\partial x_i}\,\mathrm{d}\alpha
+    \label{eq:ig}
+\end{equation}
+En esta memoria, los \textit{Integrated Gradients} se utilizan como técnica complementaria a SHAP para obtener atribuciones a nivel de par origen-destino específico, permitiendo identificar qué características son más relevantes para flujos particulares.
+
+% ----------------------------------------------------------------
+\subsection{OpenStreetMap como fuente de datos geoespaciales}
+% ----------------------------------------------------------------
+
+OpenStreetMap (OSM) es una base de datos geoespacial colaborativa y de libre acceso, construida y mantenida por una comunidad global de voluntarios desde su creación en 2004 \cite{haklay2008openstreetmap}. Su modelo de datos se articula en tres tipos de objetos geométricos: \textit{nodos} (puntos), \textit{vías} (secuencias de nodos que representan líneas o polígonos) y \textit{relaciones} (agrupaciones de nodos y vías con un significado semántico compartido). Cada objeto puede llevar asociados pares clave-valor denominados \textit{etiquetas} (\textit{tags}), que codifican su naturaleza (por ejemplo, \texttt{amenity=hospital} o \texttt{landuse=residential}).
+
+Para el modelado de flujos de movilidad, OSM provee información sobre la distribución espacial de equipamientos y servicios urbanos —comúnmente denominados \textit{amenities}— que el modelo \textit{Deep Gravity} utiliza como variables explicativas. Estas incluyen establecimientos de salud, educación, comercio, alimentación, transporte, y áreas de uso de suelo residencial, comercial e industrial, entre otras categorías.
+
+Una limitación reconocida de OSM en el contexto latinoamericano es la \textbf{heterogeneidad espacial de su cobertura}. Estudios previos \cite{BarringtonLeigh2017} han documentado que la densidad y completitud de los datos OSM varía significativamente según el nivel socioeconómico y la accesibilidad de las distintas áreas de una ciudad. En Santiago, esto se manifiesta en una mayor completitud en comunas de ingresos medios y altos —como Providencia, Las Condes y Vitacura— y menor cobertura en comunas periféricas de menores ingresos. Esta heterogeneidad es un factor metodológico relevante que se abordará en el análisis de resultados de esta memoria, dado que puede sesgar la estimación de las características geoespaciales de entrada al modelo en las zonas con menor presencia de datos voluntarios.
+
+% ----------------------------------------------------------------
+\subsection{Contexto de la movilidad en Santiago de Chile}
+% ----------------------------------------------------------------
+
+Santiago de Chile es la capital de la Región Metropolitana y alberga aproximadamente siete millones de habitantes, distribuidos en más de cuarenta comunas. Es una de las ciudades de América Latina con mayor complejidad en su sistema de transporte público, que integra buses (\textit{Red Metropolitana de Movilidad}), Metro, tren suburbano (Metrotren Nos) y sistemas de transporte activo \cite{dtpm_informe}.
+
+La principal fuente histórica de datos de movilidad en Santiago es la \textbf{Encuesta Origen-Destino (EOD)} del SECTRA\footnote{Secretaría de Planificación del Transporte, organismo dependiente del Ministerio de Transportes y Telecomunicaciones de Chile.}. Su última versión fue levantada en 2012, con actualizaciones parciales en 2017. Esta encuesta constituye la referencia canónica de flujos de movilidad en la ciudad. Sin embargo, su periodicidad de siete a diez años, combinada con el elevado costo de levantamiento, implica que los datos disponibles pueden no reflejar la movilidad actual, especialmente tras la reconfiguración de los patrones de desplazamiento producida por la pandemia de COVID-19.
+
+Una fuente complementaria, de mayor resolución temporal, son los registros de validación de la \textbf{tarjeta bip!}, administrados por el DTPM\footnote{Directorio de Transporte Público Metropolitano.}. Estos datos registran cada validación en Metro y buses con información de paradero, zona y hora, lo que permite construir matrices OD a nivel de viaje individual. No obstante, no cubren etapas caminadas, viajes en taxi o colectivo pagados en efectivo, ni modos no motorizados.
+
+Esta memoria utiliza el \textbf{dataset de viajes y etapas de noviembre de 2024 del DTPM}, que comprende aproximadamente 3{,}6 millones de viajes en un mes completo, con información de zona de inicio, zona de fin, modo de transporte, hora, factor de expansión y coordenadas estimadas de subida y bajada. Este dataset, de mayor resolución temporal y amplitud que la EOD, permite construir matrices OD a escala diaria o por período horario (punta mañana, punta tarde, fuera de punta) y constituye la principal fuente de flujos observados para el entrenamiento y evaluación del modelo \textit{Deep Gravity} en Santiago.
