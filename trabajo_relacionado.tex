@@ -4,6 +4,7 @@ El estudio de la movilidad humana y la predicción de flujos origen-destino (OD)
 
 % ----------------------------------------------------------------
 \subsection{Descubrimiento de patrones en la movilidad individual}
+\label{sec:patrones_movilidad}
 % ----------------------------------------------------------------
 
 Durante mucho tiempo, la falta de datos de trayectoria masivos obligó a los investigadores a extrapolar los patrones de movilidad humana a partir de la dispersión de billetes de banco, asumiendo que los desplazamientos individuales seguían trayectorias puramente aleatorias y no acotadas, similares a los vuelos de Lévy (\textit{Lévy flights}). 
@@ -14,6 +15,7 @@ Esta contribución fue clave porque estableció que la movilidad urbana no es un
 
 % ----------------------------------------------------------------
 \subsection{Unificación de modelos clásicos y enfoques continuos}
+\label{sec:modelos_clasicos_continuos}
 % ----------------------------------------------------------------
 
 Con la confirmación de la regularidad en la movilidad humana, los esfuerzos se centraron en predecir los volúmenes de viaje entre distintas zonas de una ciudad o país. Tradicionalmente, este problema se abordó mediante el modelo gravitatorio \cite{zipf1946p} y el modelo de oportunidades intervinientes \cite{stouffer1940intervening}. Más tarde, el modelo de radiación \cite{simini2012universal} ofreció una solución libre de parámetros que superaba varias limitaciones empíricas de la formulación gravitatoria.
@@ -26,6 +28,7 @@ A pesar de su solidez teórica y elegancia matemática, este paradigma continuo 
 
 % ----------------------------------------------------------------
 \subsection{Deep Learning y modelos espacio-temporales en movilidad}
+\label{sec:deep_learning_movilidad}
 % ----------------------------------------------------------------
 
 Para superar las limitaciones lineales y la dependencia exclusiva de la densidad poblacional, la literatura reciente ha migrado hacia el aprendizaje automático (\textit{Machine Learning}) y el aprendizaje profundo (\textit{Deep Learning}) \cite{liu2024interdisciplinary}. Las arquitecturas neuronales han demostrado una capacidad superior para capturar la no linealidad del entorno urbano.
@@ -36,6 +39,7 @@ No obstante, la transición hacia arquitecturas profundas introdujo nuevos desaf
 
 % ----------------------------------------------------------------
 \subsection{Generación de flujos mediante datos no convencionales}
+\label{sec:flujos_no_convencionales}
 % ----------------------------------------------------------------
 
 En el estado del arte más reciente (2024-2025), la investigación ha explorado métodos para mitigar la dependencia de datos socioeconómicos hiperlocales o de costosas encuestas de transporte. Destaca el paradigma de inferencia mediante imágenes satelitales y modelos generativos de grafos.
@@ -51,8 +55,8 @@ A pesar del salto tecnológico que representan estos modelos generativos satelit
 La revisión de la literatura evidencia un claro \textit{trade-off} en la evolución de los modelos de movilidad:
 
 \begin{itemize}
-    \item Los modelos físicos y estadísticos clásicos (Secciones 3.1 y 3.2) ofrecen transparencia matemática, rigor explicativo y garantías de aditividad, pero fracasan al intentar modelar las complejidades y no linealidades del uso de suelo moderno al depender exclusivamente de la distancia y la masa poblacional como variables \textit{proxy} de oportunidad.
-    \item Los modelos avanzados basados en Deep Learning, series de tiempo temporales e imágenes satelitales (Secciones 3.3 y 3.4) alcanzan una alta precisión predictiva y transferibilidad global, pero se estructuran como cajas negras inflexibles, opacas y computacionalmente costosas que limitan su utilidad para fundamentar políticas públicas explicables.
+    \item Los modelos físicos y estadísticos clásicos (Secciones \ref{sec:patrones_movilidad} y \ref{sec:modelos_clasicos_continuos}) ofrecen transparencia matemática, rigor explicativo y garantías de aditividad, pero fracasan al intentar modelar las complejidades y no linealidades del uso de suelo moderno al depender exclusivamente de la distancia y la masa poblacional como variables \textit{proxy} de oportunidad.
+    \item Los modelos avanzados basados en Deep Learning, series de tiempo temporales e imágenes satelitales (Secciones \ref{sec:deep_learning_movilidad} y \ref{sec:flujos_no_convencionales}) alcanzan una alta precisión predictiva y transferibilidad global, pero se estructuran como cajas negras inflexibles, opacas y computacionalmente costosas que limitan su utilidad para fundamentar políticas públicas explicables.
 \end{itemize}
 
 En este contexto metodológico, el uso del modelo \textit{Deep Gravity} \cite{simini2021deep} alimentado con datos de OpenStreetMap (OSM) y analizado mediante técnicas de explicabilidad SHAP \cite{lundberg2017shap} se posiciona como una solución de equilibrio o \textit{sweet spot} para el caso de Santiago de Chile. 
