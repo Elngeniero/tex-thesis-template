@@ -15,7 +15,7 @@ Una representación sintética y cuantitativa de la movilidad urbana es la \text
 \end{equation}
 La colección de todos los flujos posibles entre pares de zonas conforma la matriz OD. Cada fila $i$ representa los flujos salientes desde una zona de origen, y cada columna $j$ los flujos entrantes hacia una zona de destino.
 
-Obtener la matriz OD mediante observación directa —a través de encuestas domiciliarias, aforos de tráfico o registros de tarjetas de pago— es costoso y poco frecuente. Esta limitación ha motivado el desarrollo de \textbf{modelos generativos de flujos}, capaces de estimar $\mathbf{T}$ a partir de características observables del territorio, como la distribución de la población o la presencia de equipamientos urbanos, sin depender exclusivamente de mediciones directas \cite{simini2021deep}.
+Obtener la matriz OD mediante observación directa, a través de encuestas domiciliarias, aforos de tráfico o registros de tarjetas de pago, es costoso y poco frecuente. Esta limitación ha motivado el desarrollo de \textbf{modelos generativos de flujos}, capaces de estimar $\mathbf{T}$ a partir de características observables del territorio, como la distribución de la población o la presencia de equipamientos urbanos, sin depender exclusivamente de mediciones directas \cite{simini2021deep}.
 
 El problema de generación de flujos se formula de la siguiente manera: dado un conjunto de zonas $\mathcal{Z}$, sus características geoespaciales y los flujos totales salientes por zona $O_i = \sum_j T_{ij}$, estimar los flujos por par origen-destino $\hat{T}_{ij}$ para todos los pares $(i, j)$.
 
@@ -27,7 +27,7 @@ La estimación de flujos origen-destino cuenta con una tradición extensa en la 
 
 \subsubsection{Modelo gravitatorio}
 
-El modelo gravitatorio de movilidad establece una analogía con la ley de gravitación universal de Newton. Propuesto formalmente por Zipf \cite{zipf1946p} en 1946, postula que el volumen de desplazamientos entre dos zonas es directamente proporcional al producto de sus masas —representadas habitualmente por la población— e inversamente proporcional a la distancia que las separa:
+El modelo gravitatorio de movilidad establece una analogía con la ley de gravitación universal de Newton. Propuesto formalmente por Zipf \cite{zipf1946p} en 1946, postula que el volumen de desplazamientos entre dos zonas es directamente proporcional al producto de sus masas, representadas habitualmente por la población, e inversamente proporcional a la distancia que las separa:
 \begin{equation}
     T_{ij} = k \cdot \frac{P_i^{\,\alpha} \cdot P_j^{\,\beta}}{d_{ij}^{\,\gamma}}
     \label{eq:gravedad}
@@ -153,7 +153,7 @@ La métrica CPC toma valores en $[0,1]$, donde 1 indica coincidencia exacta entr
 \subsection{Explicabilidad en modelos de inteligencia artificial (XAI)}
 % ----------------------------------------------------------------
 
-La explicabilidad de la inteligencia artificial (\textit{eXplainable Artificial Intelligence}, XAI) se refiere al conjunto de técnicas que permiten comprender e interpretar las predicciones de modelos de aprendizaje automático complejos \cite{lundberg2017shap}. En el contexto de la planificación del transporte, la explicabilidad es relevante no solo desde el punto de vista académico —para entender qué variables del territorio impulsan los flujos— sino también desde el punto de vista institucional, ya que permite a los planificadores auditar las predicciones del modelo.
+La explicabilidad de la inteligencia artificial (\textit{eXplainable Artificial Intelligence}, XAI) se refiere al conjunto de técnicas que permiten comprender e interpretar las predicciones de modelos de aprendizaje automático complejos \cite{lundberg2017shap}. En el contexto de la planificación del transporte, la explicabilidad es relevante no solo desde el punto de vista académico, para entender qué variables del territorio impulsan los flujos, sino también desde el punto de vista institucional, ya que permite a los planificadores auditar las predicciones del modelo.
 
 \subsubsection{Valores SHAP}
 
@@ -183,9 +183,9 @@ En esta memoria, los \textit{Integrated Gradients} se utilizan como técnica com
 
 OpenStreetMap (OSM) es una base de datos geoespacial colaborativa y de libre acceso, construida y mantenida por una comunidad global de voluntarios desde su creación en 2004 \cite{haklay2008openstreetmap}. Su modelo de datos se articula en tres tipos de objetos geométricos: \textit{nodos} (puntos), \textit{vías} (secuencias de nodos que representan líneas o polígonos) y \textit{relaciones} (agrupaciones de nodos y vías con un significado semántico compartido). Cada objeto puede llevar asociados pares clave-valor denominados \textit{etiquetas} (\textit{tags}), que codifican su naturaleza (por ejemplo, \texttt{amenity=hospital} o \texttt{landuse=residential}).
 
-Para el modelado de flujos de movilidad, OSM provee información sobre la distribución espacial de equipamientos y servicios urbanos —comúnmente denominados \textit{amenities}— que el modelo \textit{Deep Gravity} utiliza como variables explicativas. Estas incluyen establecimientos de salud, educación, comercio, alimentación, transporte, y áreas de uso de suelo residencial, comercial e industrial, entre otras categorías.
+Para el modelado de flujos de movilidad, OSM provee información sobre la distribución espacial de equipamientos y servicios urbanos, comúnmente denominados \textit{amenities}, que el modelo \textit{Deep Gravity} utiliza como variables explicativas. Estas incluyen establecimientos de salud, educación, comercio, alimentación, transporte, y áreas de uso de suelo residencial, comercial e industrial, entre otras categorías.
 
-Una limitación reconocida de OSM en el contexto latinoamericano es la \textbf{heterogeneidad espacial de su cobertura}. Estudios previos \cite{BarringtonLeigh2017} han documentado que la densidad y completitud de los datos OSM varía significativamente según el nivel socioeconómico y la accesibilidad de las distintas áreas de una ciudad. En Santiago, esto se manifiesta en una mayor completitud en comunas de ingresos medios y altos —como Providencia, Las Condes y Vitacura— y menor cobertura en comunas periféricas de menores ingresos. Esta heterogeneidad es un factor metodológico relevante que se abordará en el análisis de resultados de esta memoria, dado que puede sesgar la estimación de las características geoespaciales de entrada al modelo en las zonas con menor presencia de datos voluntarios.
+Una limitación reconocida de OSM en el contexto latinoamericano es la \textbf{heterogeneidad espacial de su cobertura}. Estudios previos \cite{BarringtonLeigh2017} han documentado que la densidad y completitud de los datos OSM varía significativamente según el nivel socioeconómico y la accesibilidad de las distintas áreas de una ciudad. En Santiago, esto se manifiesta en una mayor completitud en comunas de ingresos medios y altos, como Providencia, Las Condes y Vitacura, y menor cobertura en comunas periféricas de menores ingresos. Esta heterogeneidad es un factor metodológico relevante que se abordará en el análisis de resultados de esta memoria, dado que puede sesgar la estimación de las características geoespaciales de entrada al modelo en las zonas con menor presencia de datos voluntarios.
 
 % ----------------------------------------------------------------
 \subsection{Contexto de la movilidad en Santiago de Chile}
