@@ -32,7 +32,7 @@ El modelo gravitatorio de movilidad establece una analogía con la ley de gravit
     T_{ij} = k \cdot \frac{P_i^{\,\alpha} \cdot P_j^{\,\beta}}{d_{ij}^{\,\gamma}}
     \label{eq:gravedad}
 \end{equation}
-donde $P_i$ y $P_j$ son las poblaciones de las zonas de origen y destino, $d_{ij}$ es la distancia entre sus centroides, $k$ es una constante de proporcionalidad, y $\alpha$, $\beta$, $\gamma$ son parámetros que deben calibrarse con datos observados. Zipf verificó empíricamente esta relación mediante datos de tráfico de buses, ferrocarriles y llamadas telefónicas entre ciudades de Estados Unidos, encontrando que los coeficientes se aproximan a la unidad en todos los casos.
+donde $P_i$ y $P_j$ son las poblaciones de las zonas de origen y destino, $d_{ij}$ es la distancia entre sus centroides, $k$ es una constante de proporcionalidad, y $\alpha$, $\beta$, $\gamma$ son parámetros que deben calibrarse con datos observados. Zipf verificó empíricamente esta relación mediante datos de tráfico de buses, ferrocarriles y llamadas telefónicas entre ciudades de Estados Unidos. Los coeficientes obtenidos se aproximan a la unidad en todos los casos.
 
 La formulación de la ecuación \eqref{eq:gravedad} recibe el nombre de \textit{modelo de gravedad no restringido}. En la práctica, para garantizar que los flujos generados sean consistentes con los totales salientes observados, se utiliza la versión \textit{restringida en origen} (\textit{singly-constrained}), que normaliza los flujos de cada origen sobre todos sus destinos posibles:
 \begin{equation}
@@ -41,7 +41,7 @@ La formulación de la ecuación \eqref{eq:gravedad} recibe el nombre de \textit{
 \end{equation}
 donde $O_i = \sum_j T_{ij}$ es el flujo total saliente de la zona $i$ y $f(d_{ij})$ es una función de disuasión por distancia, que puede adoptar forma exponencial ($e^{\beta_2 d}$) o de ley de potencia ($d^{\beta_2}$).
 
-El modelo gravitatorio presenta limitaciones ampliamente documentadas \cite{liu2024interdisciplinary}. Impone una relación paramétrica monótona entre población, distancia y flujo, lo que genera un ajuste deficiente ante fenómenos no lineales como la existencia de subcentros de empleo o corredores de transporte masivo. Requiere además calibración manual para cada contexto geográfico, lo que limita su transferibilidad. Finalmente, no incorpora como variables explicativas el tejido urbano: puntos de interés, uso de suelo ni infraestructura de transporte.
+El modelo gravitatorio presenta limitaciones ampliamente documentadas \cite{liu2024interdisciplinary}. Su formulación impone una relación paramétrica monótona entre población, distancia y flujo, lo que restringe su capacidad de representar fenómenos no lineales. No incorpora variables del tejido urbano como puntos de interés, uso de suelo o infraestructura de transporte. Requiere además calibración manual para cada contexto geográfico, lo que limita su transferibilidad. La implicancia concreta de estas restricciones para el caso de Santiago se detalla en la Sección de Definición del Problema de esta memoria.
 
 \subsubsection{Modelo de oportunidades intervinientes}
 
@@ -57,7 +57,7 @@ Integrando esta expresión diferencial, el número total de personas que se deti
     y = a \cdot \ln f(s) + c
     \label{eq:stouffer_integral}
 \end{equation}
-donde $f(s)$ es el número acumulado de oportunidades dentro de ese radio y $c$ es una constante de integración. Stouffer verificó empíricamente esta formulación con datos de movilidad residencial en Cleveland, Ohio (1933-1935), obteniendo una buena correspondencia entre los flujos observados y los predichos por el modelo.
+donde $f(s)$ es el número acumulado de oportunidades dentro de ese radio y $c$ es una constante de integración. Stouffer verificó empíricamente esta formulación con datos de movilidad residencial en Cleveland, Ohio (1933-1935). Los resultados muestran una buena correspondencia entre los flujos observados y los predichos por el modelo.
 
 El modelo fue validado originalmente para movilidad intrazonal. Su principal dificultad de aplicación radica en la definición operacional de \textit{oportunidad}, que varía según el tipo de desplazamiento estudiado (empleos, viviendas, comercios). Este concepto fue posteriormente formalizado y generalizado en el modelo de radiación.
 
@@ -77,7 +77,7 @@ donde $m_i$ es la población de la zona de origen $i$, $n_j$ es la población de
 \end{equation}
 donde $T_i = \sum_j T_{ij}$ es el flujo total saliente de la zona $i$. Una propiedad destacable del modelo de radiación es que satisface automáticamente la restricción de conservación de flujos: $\sum_j \langle T_{ij} \rangle = T_i$, sin necesidad de calibración de parámetros adicionales.
 
-Simini et al. \cite{simini2012universal} validaron el modelo sobre datos de commuting del censo de Estados Unidos (2000), demostrando que supera al modelo gravitatorio en la reproducción de flujos observados, especialmente en la predicción de viajes de corta distancia que el modelo gravitatorio tiende a sobreestimar. A pesar de sus ventajas, el modelo de radiación utiliza exclusivamente la población como \textit{proxy} de oportunidades, sin incorporar características del tejido urbano como el uso de suelo o la distribución de actividades económicas. Esta limitación fue el punto de partida para el desarrollo de modelos basados en aprendizaje profundo.
+Simini et al. \cite{simini2012universal} validaron el modelo sobre datos de commuting del censo de Estados Unidos (2000). Los resultados muestran que el modelo de radiación supera al modelo gravitatorio en la reproducción de flujos observados. La mejora es particularmente marcada en viajes de corta distancia, que el modelo gravitatorio tiende a sobreestimar. A pesar de sus ventajas, el modelo de radiación utiliza exclusivamente la población como \textit{proxy} de oportunidades, sin incorporar características del tejido urbano como el uso de suelo o la distribución de actividades económicas. Esta limitación fue el punto de partida para el desarrollo de modelos basados en aprendizaje profundo.
 
 % ----------------------------------------------------------------
 \subsection{Aprendizaje profundo aplicado a la movilidad}
@@ -147,7 +147,7 @@ Simini et al. \cite{simini2021deep} evaluaron \textit{Deep Gravity} sobre datos 
     \text{CPC}(\hat{\mathbf{T}}, \mathbf{T}) = \frac{2\,\displaystyle\sum_{i,j} \min\!\left(\hat{T}_{ij},\, T_{ij}\right)}{\displaystyle\sum_{i,j} \hat{T}_{ij} + \displaystyle\sum_{i,j} T_{ij}}
     \label{eq:cpc}
 \end{equation}
-La métrica CPC toma valores en $[0,1]$, donde 1 indica coincidencia exacta entre flujos generados y reales. Es equivalente al índice de Sørensen-Dice aplicado a flujos. Los resultados muestran que \textit{Deep Gravity} supera al modelo gravitatorio clásico en todos los contextos evaluados, con mejoras de hasta un 190\% en CPC global en Inglaterra y del 1.066\% en el estado de Nueva York. El modelo también demostró transferibilidad geográfica: entrenado en algunas ciudades del Reino Unido, mantiene un desempeño similar cuando se evalúa en ciudades no vistas durante el entrenamiento.
+La métrica CPC toma valores en $[0,1]$, donde 1 indica coincidencia exacta entre flujos generados y reales. Es equivalente al índice de Sørensen-Dice aplicado a flujos. Los resultados muestran que \textit{Deep Gravity} supera al modelo gravitatorio clásico en todos los contextos evaluados. Las mejoras en CPC global alcanzan hasta un 190\% en Inglaterra y un 1.066\% en el estado de Nueva York. El modelo también demostró transferibilidad geográfica. Entrenado en algunas ciudades del Reino Unido, mantiene un desempeño similar al evaluarse en ciudades no vistas durante el entrenamiento.
 
 % ----------------------------------------------------------------
 \subsection{Explicabilidad en modelos de inteligencia artificial (XAI)}
@@ -185,7 +185,7 @@ OpenStreetMap (OSM) es una base de datos geoespacial colaborativa y de libre acc
 
 Para el modelado de flujos de movilidad, OSM provee información sobre la distribución espacial de equipamientos y servicios urbanos, comúnmente denominados \textit{amenities}, que el modelo \textit{Deep Gravity} utiliza como variables explicativas. Estas incluyen establecimientos de salud, educación, comercio, alimentación, transporte, y áreas de uso de suelo residencial, comercial e industrial, entre otras categorías.
 
-Una limitación reconocida de OSM en el contexto latinoamericano es la heterogeneidad espacial de su cobertura. Estudios previos \cite{BarringtonLeigh2017} han documentado que la densidad y completitud de los datos OSM varía significativamente según el nivel socioeconómico y la accesibilidad de las distintas áreas de una ciudad. En Santiago, esto se manifiesta en una mayor completitud en comunas de ingresos medios y altos, como Providencia, Las Condes y Vitacura, y menor cobertura en comunas periféricas de menores ingresos. Esta heterogeneidad es un factor metodológico relevante que se abordará en el análisis de resultados de esta memoria, dado que puede sesgar la estimación de las características geoespaciales de entrada al modelo en las zonas con menor presencia de datos voluntarios.
+Una limitación reconocida de OSM en el contexto latinoamericano es la heterogeneidad espacial de su cobertura. Estudios previos \cite{BarringtonLeigh2017} han documentado que la densidad y completitud de los datos OSM varía significativamente según el nivel socioeconómico y la accesibilidad de las distintas áreas de una ciudad. En Santiago, esto se manifiesta en una mayor completitud en comunas de ingresos medios y altos, como Providencia, Las Condes y Vitacura, y menor cobertura en comunas periféricas de menores ingresos. Esta heterogeneidad es un factor metodológico relevante para esta memoria. Puede sesgar la estimación de las características geoespaciales de entrada al modelo en las zonas con menor presencia de datos voluntarios. Este aspecto se aborda en el análisis de resultados.
 
 % ----------------------------------------------------------------
 \subsection{Contexto de la movilidad en Santiago de Chile}
@@ -197,4 +197,4 @@ La principal fuente histórica de datos de movilidad en Santiago es la Encuesta 
 
 Una fuente complementaria, de mayor resolución temporal, son los registros de validación de la tarjeta bip!, administrados por el DTPM\footnote{Directorio de Transporte Público Metropolitano.}. Estos datos registran cada validación en Metro y buses con información de paradero, zona y hora, lo que permite construir matrices OD a nivel de viaje individual. No obstante, no cubren etapas caminadas, viajes en taxi o colectivo pagados en efectivo, ni modos no motorizados.
 
-Esta memoria utiliza el dataset de viajes y etapas de noviembre de 2024 del DTPM, que comprende aproximadamente 3{,}6 millones de viajes en un mes completo, con información de zona de inicio, zona de fin, modo de transporte, hora, factor de expansión y coordenadas estimadas de subida y bajada. Este dataset, de mayor resolución temporal y amplitud que la EOD, permite construir matrices OD a escala diaria o por período horario (punta mañana, punta tarde, fuera de punta) y constituye la principal fuente de flujos observados para el entrenamiento y evaluación del modelo \textit{Deep Gravity} en Santiago.
+Esta memoria utiliza el dataset de viajes y etapas de noviembre de 2024 del DTPM, que comprende aproximadamente 3{,}6 millones de viajes en un mes completo, con información de zona de inicio, zona de fin, modo de transporte, hora, factor de expansión y coordenadas estimadas de subida y bajada. Este dataset, de mayor resolución temporal y amplitud que la EOD, permite construir matrices OD a escala diaria o por período horario (punta mañana, punta tarde, fuera de punta). Constituye la principal fuente de flujos observados para el entrenamiento y evaluación del modelo \textit{Deep Gravity} en Santiago.
