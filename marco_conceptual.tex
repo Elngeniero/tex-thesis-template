@@ -63,7 +63,7 @@ El modelo fue validado originalmente para movilidad intrazonal. Su principal dif
 
 \subsubsection{Modelo de radiación}
 
-Simini et al. \cite{simini2012universal} propusieron en 2012 el modelo de radiación como una alternativa libre de parámetros al modelo gravitatorio, consolidándose como el baseline mecanicista indispensable. Partiendo de una analogía con los procesos de radiación y absorción en física de partículas, el modelo de radiación se fundamenta en un proceso estocástico de toma de decisiones locales: cada individuo en un origen busca la mejor oportunidad disponible dentro de radios geográficos crecientes, y se desplaza hacia el destino donde la encuentra. Este enfoque permite modelar de forma realista la asimetría y dispersión de los viajes.
+Simini et al. \cite{simini2012universal} propusieron en 2012 el modelo de radiación como una alternativa libre de parámetros al modelo gravitatorio. El modelo establece una analogía con los procesos de radiación y absorción en física de partículas. Su mecanismo se basa en un proceso estocástico de toma de decisiones locales: cada individuo en un origen busca la mejor oportunidad disponible dentro de radios geográficos crecientes y se desplaza hacia el destino donde la encuentra.
 
 El mecanismo es el siguiente. Se asigna a cada oportunidad un valor de beneficio $z$ extraído de una distribución de probabilidad $p(z)$. La probabilidad de que un individuo en la zona $i$ elija la zona $j$ como destino es la probabilidad de que el mejor beneficio dentro de $j$ supere al mejor beneficio disponible dentro del círculo de radio $d_{ij}$ centrado en $i$ (excluyendo $i$ y $j$). Esta probabilidad es:
 \begin{equation}
