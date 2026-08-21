@@ -34,14 +34,20 @@ En síntesis, el problema que aborda esta memoria se formula de la siguiente man
 
 \subsection{Árbol del problema}
 
-A continuación se presenta el diagrama del árbol del problema (Figura \ref{fig:arbol_problema}), el cual sintetiza de manera visual las relaciones causales identificadas. En la parte inferior se ubican las causas que originan el problema central: la desactualización y alto costo de la EOD, las limitaciones de los modelos de gravedad clásicos, la ausencia de variables geoespaciales en los modelos vigentes, la falta de explicabilidad en los modelos de distribución de viajes, y la inexistencia de validación de modelos de aprendizaje profundo en metrópolis latinoamericanas. En la parte superior se presentan los efectos derivados del problema: decisiones de inversión en infraestructura basadas en datos obsoletos, incapacidad de anticipar el impacto de intervenciones urbanas sobre los flujos, opacidad en la decisión pública, rezago metodológico frente al estado del arte internacional, y subutilización de datasets administrativos de alta resolución.
+A continuación se presenta el diagrama del árbol del problema (Figura \ref{fig:arbol_problema}):
 
 \begin{figure}[H]
 	\centering
-	 \includegraphics[width=\textwidth]{figures/arbol_del_problema.png}
-	\caption{Diagrama del árbol del problema. En la parte inferior se presentan las causas que originan el problema central: la planificación del transporte en Santiago opera con datos desactualizados y modelos que ignoran la complejidad del tejido urbano, sin capacidad de explicar sus predicciones. En la parte superior se muestran los efectos que estas limitaciones generan sobre la toma de decisiones en infraestructura y planificación. Fuente: Elaboración propia.}
+	\includegraphics[width=\textwidth]{figures/arbol_del_problema.png}
+	\caption{Diagrama del árbol del problema. Fuente: Elaboración propia.}
 	\label{fig:arbol_problema}
 \end{figure}
+
+La Figura \ref{fig:arbol_problema} presenta el árbol del problema que resume los principales desafíos asociados a la modelación de la movilidad urbana en el Gran Santiago. En el centro se identifica el problema fundamental: la inexactitud y obsolescencia en la estimación de flujos de movilidad urbana.
+
+Este problema surge a partir de cuatro causas principales: la desactualización y cobertura incompleta de fuentes de datos tradicionales, explicada por el elevado costo y desfase temporal de la EOD junto a la omisión de etapas caminadas e informalidad en los registros de la tarjeta bip!; la rigidez de modelos clásicos y omisión de variables del tejido urbano, al ignorar el rol de las amenities territoriales y el uso de suelo; los supuestos teóricos simplistas basados únicamente en distancia física y masa poblacional, incapaces de modelar la existencia de subcentros y patrones no lineales de viaje; y la ausencia de validación y explicabilidad de modelos Deep Learning en la región, ya que estas arquitecturas avanzadas no han sido evaluadas frente a la segregación e informalidad latinoamericana y operan como cajas negras sin capacidad de interpretación para los planificadores.
+
+Como consecuencia directa de esta problemática, se desprenden cuatro efectos críticos: las decisiones de inversión en infraestructura basadas en datos obsoletos, que no capturan los patrones de desplazamiento contemporáneos; la incapacidad de anticipar el impacto de intervenciones territoriales y nuevos equipamientos sobre los flujos; la opacidad en la decisión pública y la subutilización de datos masivos y abiertos (DTPM y OpenStreetMap); y, finalmente, la asignación ineficiente de recursos públicos y el diseño de políticas urbanas desalineadas de la dinámica real. Esta estructura causal justifica la necesidad de adoptar y explicar modelos generativos basados en aprendizaje profundo adaptados a la realidad de Santiago.
 
 \subsection{Objetivo General}
 
