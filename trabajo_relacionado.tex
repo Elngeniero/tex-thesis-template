@@ -27,6 +27,55 @@ Para resolver esto, Simini, Maritan y N\'eda \cite{simini2013human} propusieron 
 A pesar de su solidez teórica y elegancia matemática, este paradigma continuo arrastra una limitación fundamental de representación: asume que la cantidad de oportunidades en una región es estrictamente proporcional a su masa poblacional. En la realidad urbana, existe una profunda segregación funcional del suelo (zonas industriales, distritos financieros, áreas puramente residenciales) que rompe esta proporcionalidad lineal, exigiendo modelos capaces de entender el tejido urbano más allá de la simple aglomeración de personas.
 
 % ----------------------------------------------------------------
+\subsection{Evolución de los modelos de oportunidades intervinientes}
+\label{sec:modelos_evolucion}
+% ----------------------------------------------------------------
+
+El concepto de oportunidades intervinientes de Stouffer \cite{stouffer1940intervening} inspiró, a lo largo de las décadas siguientes, una familia de modelos cada vez más sofisticados que buscaron superar las limitaciones paramétricas y escalares del modelo original. Liu y Yan \cite{liu2020intervening} ofrecen una revisión sistemática de esta evolución, identificando una línea de progresión que va desde el modelo de radiación hasta un marco unificado de comportamiento de destino. Esta sección sigue esa trayectoria, enfatizando los modelos más relevantes para el contexto intraurbano de la presente memoria.
+
+\subsubsection{Modelo de oportunidades ponderadas por población}
+
+Yan et al. \cite{yan2014population} identificaron en sus experimentos que el modelo de radiación falla sistemáticamente al predecir flujos dentro de una ciudad: sobreestima los flujos de corto alcance y subestima los de largo alcance intraurbano. Los autores argumentaron que el supuesto de selección secuencial por proximidad no refleja la realidad del viajero urbano, quien considera simultáneamente el conjunto completo de destinos disponibles en la ciudad.
+
+Para corregir esto, Yan et al. \cite{yan2014population} propusieron el \textit{Modelo de Oportunidades Ponderadas por Población} (Population-Weighted Opportunity, PWO), en el que la probabilidad de elegir el destino $j$ desde el origen $i$ es proporcional a las oportunidades del destino e inversamente proporcional a las oportunidades totales dentro de un círculo centrado en el \emph{destino} $j$ con radio $d_{ij}$:
+\begin{equation}
+    P_{ij} = \frac{m_j}{S_{ji}}
+    \label{eq:pwo}
+\end{equation}
+donde $m_j$ es la cantidad de oportunidades (población) del destino $j$, y $S_{ji} = m_j + s_{ji} + m_i$ es el total de oportunidades dentro del círculo de radio $d_{ij}$ centrado en $j$, incluyendo origen y destino. El cambio conceptual respecto al modelo de radiación es fundamental: en lugar de evaluar la competencia desde el origen, el modelo PWO evalúa la competencia desde el destino, capturando la lógica de atracción de un lugar sobre su entorno geográfico inmediato.
+
+Al igual que el modelo de radiación, el modelo PWO es libre de parámetros: requiere únicamente la distribución de población de las zonas para generar predicciones, sin necesidad de calibración con datos históricos. Validado sobre datos de transporte público en múltiples ciudades chinas, el modelo PWO supera consistentemente al modelo de radiación en la predicción de viajes intraurbanos \cite{yan2014population}. Yan et al. \cite{yan2017unified} extendieron posteriormente este modelo combinándolo con un proceso de caminata aleatoria con memoria, logrando reproducir simultáneamente los patrones de movilidad a nivel individual y los flujos agregados a nivel poblacional.
+
+\subsubsection{Modelos exploratorios: más allá de la selección secuencial}
+
+Tanto el modelo de radiación como el modelo PWO comparten un supuesto implícito sobre el comportamiento del viajero. El modelo de radiación asume una \textit{tendencia cautelosa}: el individuo elige el destino más cercano que supera el beneficio del origen. El modelo PWO también incorpora una lógica de competencia local. En ambos casos, la distancia juega un papel restrictivo en la selección.
+
+Investigaciones posteriores mostraron que este supuesto no aplica universalmente. Sim et al. \cite{sim2015deliberate} identificaron, en el contexto de la selección de contactos sociales, una \textit{tendencia exploratoria}: los individuos que buscan el mejor resultado posible no se restringen a las opciones más cercanas, sino que aceptan recorrer distancias mayores si el destino ofrece un beneficio suficientemente alto. Trasladando esta lógica a la movilidad espacial, Liu y Yan \cite{liu2019opportunity} propusieron el \textit{Modelo de Selección Prioritaria de Oportunidades} (Opportunity Priority Selection), en el que un individuo en $i$ elige el destino $j$ si su beneficio supera tanto al del origen como al de todas las oportunidades intervinientes:
+\begin{equation}
+    P_{ij} = \frac{m_j}{S_{ij}} = \frac{m_j}{m_i + s_{ij} + m_j}
+    \label{eq:ops}
+\end{equation}
+donde $S_{ij} = m_i + s_{ij} + m_j$ es el total de oportunidades en el círculo de radio $d_{ij}$ centrado en el \emph{origen} $i$. Este modelo, al igual que el PWO, es libre de parámetros y fue validado con buenos resultados tanto para viajes intraurbanos como interurbanos.
+
+\subsubsection{Modelo Unificado de Oportunidades}
+
+La existencia de modelos con supuestos comportamentales tan distintos —el cauteloso modelo de radiación y el exploratorio modelo de selección prioritaria— planteó una pregunta natural: ¿qué modelo aplicar en cada contexto? Liu y Yan \cite{liu2020intervening} respondieron esta pregunta proponiendo el \textit{Modelo Unificado de Oportunidades} (Universal Opportunity Model), un marco general con dos parámetros que engloba a los modelos anteriores como casos especiales. La probabilidad de que un individuo en $i$ elija el destino $j$ se formula como:
+\begin{equation}
+    P_{ij} = \frac{(m_i + \alpha\, s_{ij})\, m_j}{\bigl[m_i + (\alpha + \beta)\, s_{ij}\bigr]\bigl[m_i + (\alpha + \beta)\, s_{ij} + m_j\bigr]}
+    \label{eq:uom}
+\end{equation}
+donde $\alpha \geq 0$ es el parámetro de \textit{tendencia exploratoria} (cuán dispuesto está el individuo a alejarse buscando mayor beneficio) y $\beta \geq 0$ es el parámetro de \textit{tendencia cautelosa} (preferencia por destinos cercanos), sujetos a $\alpha + \beta \leq 1$. Los modelos previos emergen como casos particulares de esta formulación:
+
+\begin{itemize}
+    \item Si $\alpha = 0$, $\beta = 1$: la ecuación \eqref{eq:uom} se reduce a la ecuación \eqref{eq:radiacion} del modelo de radiación (comportamiento puramente cauteloso).
+    \item Si $\alpha = 1$, $\beta = 0$: la ecuación \eqref{eq:uom} se reduce a la ecuación \eqref{eq:ops} del modelo de selección prioritaria (comportamiento puramente exploratorio).
+\end{itemize}
+
+Liu y Yan \cite{liu2020intervening} validaron el modelo sobre 14 conjuntos de datos de movilidad a distintas escalas: carga de mercancías, commuting interurbano (EE.UU., Italia, Hungría), búsqueda de empleo, migración, viajes entre ciudades y viajes intraurbanos (Berlín, Londres, Beijing, Shenzhen, Suzhou). Sus resultados revelan un patrón sistemático: los flujos de commuting y carga exhiben alta tendencia cautelosa (los individuos priorizan destinos cercanos de alto beneficio), mientras que los desplazamientos intraurbanos presentan valores bajos de ambos parámetros, indicando que la masa poblacional por sí sola es insuficiente para capturar la complejidad de la elección de destino en la ciudad. Este hallazgo es particularmente relevante para la presente memoria: sugiere que las variables de oportunidad basadas en población deben complementarse con atributos del tejido urbano para modelar adecuadamente los flujos en Santiago de Chile.
+
+Vale mencionar que esta familia de modelos ha demostrado una versatilidad que trasciende la movilidad de transporte. En el campo de la epidemiología, modelos como el de radiación y el PWO han sido utilizados para estimar probabilidades de contacto entre poblaciones y parametrizar la difusión espacial de enfermedades infecciosas, incluyendo estudios sobre la propagación de COVID-19 \cite{liu2020intervening}. Esta amplitud de aplicación evidencia la robustez conceptual del marco de oportunidades intervinientes.
+
+% ----------------------------------------------------------------
 \subsection{Deep Learning y modelos espacio-temporales en movilidad}
 \label{sec:deep_learning_movilidad}
 % ----------------------------------------------------------------
@@ -58,9 +107,11 @@ La revisión de la literatura evidencia un claro \textit{trade-off} en la evoluc
 
 \begin{itemize}
     \item Los modelos físicos y estadísticos clásicos (Secciones \ref{sec:patrones_movilidad} y \ref{sec:modelos_clasicos_continuos}) ofrecen transparencia matemática, rigor explicativo y garantías de aditividad. Sin embargo, dependen exclusivamente de la distancia y la masa poblacional como variables \textit{proxy} de oportunidad, lo que les impide modelar las no linealidades del uso de suelo urbano contemporáneo.
+    \item Los modelos de la familia de oportunidades intervinientes (Sección \ref{sec:modelos_evolucion}) avanzaron hacia marcos libres de parámetros y comportamentalmente ricos, revelando que los desplazamientos intraurbanos requieren variables del tejido urbano para ser bien predichos. Sin embargo, continúan dependiendo de la población como único proxy de oportunidades.
     \item Los modelos avanzados basados en aprendizaje profundo, series de tiempo e imágenes satelitales (Secciones \ref{sec:deep_learning_movilidad} y \ref{sec:flujos_no_convencionales}) alcanzan alta precisión predictiva y transferibilidad global. No obstante, operan como \textit{cajas negras} opacas y computacionalmente costosas, lo que limita su utilidad para fundamentar políticas públicas explicables.
 \end{itemize}
 
-En este contexto metodológico, el uso del modelo \textit{Deep Gravity} \cite{simini2021deep} alimentado con datos de OpenStreetMap (OSM) y analizado mediante técnicas de explicabilidad SHAP \cite{lundberg2017shap} se posiciona como una solución de equilibrio o \textit{sweet spot} para el caso de Santiago de Chile. 
+En este contexto metodológico, el uso del modelo \textit{Deep Gravity} \cite{simini2021deep} alimentado con datos de OpenStreetMap (OSM) y analizado mediante técnicas de explicabilidad SHAP \cite{lundberg2017shap} se posiciona como una solución de equilibrio o \textit{sweet spot} para el caso de Santiago de Chile.
 
 Por un lado, \textit{Deep Gravity} reemplaza la rigidez heurística de los exponentes gravitacionales por una red neuronal profunda capaz de capturar relaciones no lineales entre el territorio y los flujos. A diferencia de los \textit{embeddings} satelitales, utiliza variables explícitas y semánticamente interpretables provistas por OSM: centros de salud, red vial, escuelas y comercio. Por otro lado, su arquitectura relativamente simple facilita la aplicación de métodos de explicabilidad como SHAP. Ello permite no solo estimar los flujos con alta precisión, sino también auditar \textit{por qué} ocurren, proveyendo evidencia interpretable para la planificación territorial en el Gran Santiago.
+

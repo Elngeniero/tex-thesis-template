@@ -59,7 +59,22 @@ Integrando esta expresión diferencial, el número total de personas que se deti
 \end{equation}
 donde $f(s)$ es el número acumulado de oportunidades dentro de ese radio y $c$ es una constante de integración. Stouffer verificó empíricamente esta formulación con datos de movilidad residencial en Cleveland, Ohio (1933-1935). Los resultados muestran una buena correspondencia entre los flujos observados y los predichos por el modelo.
 
-El modelo fue validado originalmente para movilidad intrazonal. Su principal dificultad de aplicación radica en la definición operacional de \textit{oportunidad}, que varía según el tipo de desplazamiento estudiado (empleos, viviendas, comercios). Este concepto fue posteriormente formalizado y generalizado en el modelo de radiación.
+Liu y Yan \cite{liu2020intervening} formalizaron y extendieron esta familia de modelos de manera rigurosa. Para describir su funcionamiento, es necesario precisar tres conceptos fundamentales:
+
+\begin{itemize}
+    \item \textbf{Oportunidades de un lugar} ($m_l$): cantidad de oportunidades que ofrece el lugar $l$ para satisfacer el propósito del desplazamiento. En la práctica se asume que $m_l$ es proporcional a la población del lugar.
+    \item \textbf{Oportunidades intervinientes} ($s_{ij}$): suma de oportunidades de todos los lugares cuya distancia al origen $i$ es menor que $d_{ij}$, excluyendo el propio origen $i$ y el destino $j$. Si se incluyen origen y destino se utiliza la notación $S_{ij} = m_i + s_{ij} + m_j$.
+    \item \textbf{Valor de beneficio de una oportunidad} ($z$): utilidad o recompensa que una oportunidad reporta al viajero. Se modela como variable aleatoria continua con distribución $p(z)$.
+\end{itemize}
+
+El modelo de Stouffer establece que cada individuo que parte del origen $i$ ordena todos los destinos potenciales por distancia creciente y se detiene en cada lugar con una probabilidad fija proporcional al parámetro $\alpha$. Bajo este mecanismo, la probabilidad de que un individuo en $i$ elija el destino $j$ adopta la forma \cite{stouffer1940intervening, liu2020intervening}:
+\begin{equation}
+    P_{ij} = \frac{e^{-\alpha(S_{ij} - m_j)} - e^{-\alpha S_{ij}}}{1 - e^{-\alpha M}}
+    \label{eq:io_formal}
+\end{equation}
+donde $m_j$ es la cantidad de oportunidades del destino $j$, $S_{ij}$ es el total de oportunidades en el círculo de radio $d_{ij}$ centrado en $i$ (incluyendo origen y destino), $\alpha$ es el parámetro de absorción a calibrar con datos históricos, y $M = \sum_k m_k$ es el total de oportunidades del sistema. La ecuación \eqref{eq:io_formal} muestra que la probabilidad de elegir $j$ crece con las oportunidades del destino $m_j$ y decrece con el número de oportunidades intervinientes $s_{ij}$: cuanto mayor es la competencia en el camino, menor la probabilidad de alcanzar el destino.
+
+La principal limitación del modelo original de Stouffer es que contiene el parámetro $\alpha$, que debe calibrarse mediante datos históricos de flujo observado. Esta dependencia paramétrica restringe su aplicabilidad cuando no se dispone de matrices OD previas, y motivó el desarrollo de modelos libres de parámetros basados en el mismo concepto de oportunidades intervinientes.
 
 \subsubsection{Modelo de radiación}
 
@@ -77,7 +92,13 @@ donde $m_i$ es la población de la zona de origen $i$, $n_j$ es la población de
 \end{equation}
 donde $T_i = \sum_j T_{ij}$ es el flujo total saliente de la zona $i$. Una propiedad destacable del modelo de radiación es que satisface automáticamente la restricción de conservación de flujos: $\sum_j \langle T_{ij} \rangle = T_i$, sin necesidad de calibración de parámetros adicionales.
 
-Simini et al. \cite{simini2012universal} validaron el modelo sobre datos de commuting del censo de Estados Unidos (2000). Los resultados muestran que el modelo de radiación supera al modelo gravitatorio en la reproducción de flujos observados. La mejora es particularmente marcada en viajes de corta distancia, que el modelo gravitatorio tiende a sobreestimar. A pesar de sus ventajas, el modelo de radiación utiliza exclusivamente la población como proxy\footnote{Una variable proxy es una medida indirecta que se emplea en sustitución de una variable inobservable, asumiendo que existe una fuerte correlación estadística entre ambas.} de oportunidades, sin incorporar características del tejido urbano como el uso de suelo o la distribución de actividades económicas. Esta limitación fue el punto de partida para el desarrollo de modelos basados en aprendizaje profundo.
+Simini et al. \cite{simini2012universal} validaron el modelo sobre datos de commuting del censo de Estados Unidos (2000). Los resultados muestran que el modelo de radiación supera al modelo gravitatorio en la reproducción de flujos observados, especialmente en viajes de corta distancia, que el modelo gravitatorio tiende a sobreestimar.
+
+\paragraph{Variantes del modelo de radiación.} La solidez del modelo original motivó diversas extensiones para adaptar su mecanismo a diferentes contextos. Ren et al. \cite{ren2014predicting} propusieron una versión basada en tiempo de viaje en lugar de distancia euclidiana, incorporando así la resistencia real de la red de transporte. Kang et al. \cite{kang2015generalized} formularon un modelo de radiación generalizado que introduce parámetros de escala y restricciones explícitas de producción y atracción, mejorando la precisión en contextos con heterogeneidad espacial marcada. Yang et al. \cite{yang2014limits} extendieron el modelo para incorporar la distribución no homogénea de oportunidades en el espacio, relevante en regiones con alta segregación funcional del suelo.
+
+\paragraph{Limitación del modelo de radiación a escala intraurbana.} A pesar de su éxito en la predicción de commuting interurbano, el modelo de radiación presenta una limitación estructural cuando se aplica a la escala intraurbana \cite{yan2014population, liu2020intervening}. Su supuesto central —que cada individuo elige el destino más cercano cuyo beneficio supera al del origen— refleja adecuadamente el comportamiento en la búsqueda de empleo a larga distancia (donde la proximidad es costosa), pero no captura la lógica real de los desplazamientos dentro de una ciudad. En entornos urbanos, las personas consideran simultáneamente el conjunto de destinos disponibles en toda la ciudad, sin restringirse a los más cercanos. Estudios empíricos sobre datos de transporte público en diversas ciudades confirman que el modelo de radiación subestima sistemáticamente los flujos intraurbanos de largo alcance \cite{yan2014population}. Esta limitación fue el punto de partida para el desarrollo del modelo de oportunidades ponderadas por población, descrito en la Sección \ref{sec:modelos_evolucion}, y justifica el uso de modelos capaces de representar el tejido urbano más allá de la simple distribución poblacional, como \textit{Deep Gravity}.
+
+A pesar de sus ventajas, el modelo de radiación utiliza exclusivamente la población como \textit{proxy}\footnote{Una variable proxy es una medida indirecta que se emplea en sustitución de una variable inobservable, asumiendo que existe una fuerte correlación estadística entre ambas.} de oportunidades, sin incorporar características del tejido urbano como el uso de suelo o la distribución de actividades económicas. Esta limitación fue el punto de partida para el desarrollo de modelos basados en aprendizaje profundo.
 
 % ----------------------------------------------------------------
 \subsection{Aprendizaje profundo aplicado a la movilidad}
