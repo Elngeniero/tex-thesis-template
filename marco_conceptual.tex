@@ -178,31 +178,37 @@ La Tabla~\ref{tab:comparacion_modelos} compara los modelos de generación de flu
 \centering
 \caption{Comparación de modelos de generación de flujos de movilidad. \textbf{Sí}~= cumple la dimensión; \textbf{No}~= no cumple; \textit{Parc.}~= cumple parcialmente.}
 \label{tab:comparacion_modelos}
+
+\vspace{0.2cm}
+Fuente: Elaboración Propia
+\vspace{0.1cm}
+
 \small
 \begin{tabular}{lp{1.7cm}p{1.8cm}p{1.8cm}p{1.8cm}p{1.8cm}}
 \hline
+\noalign{\smallskip}
 \textbf{Modelo} &
 \textbf{Variables urbanas} &
 \textbf{Libre de parámetros} &
 \textbf{Escala intra\-urbana} &
 \textbf{Explicable (XAI)} &
 \textbf{Validado en LatAm} \\
+\noalign{\smallskip}
 \hline
-Gravitatorio
+\noalign{\smallskip}
+Gravitatorio \cite{zipf1946p}
     & No & No & \textit{Parc.} & No & \textit{Parc.} \\
-IO Model
+IO Model \cite{stouffer1940intervening}
     & No & No & \textit{Parc.} & No & No \\
-Radiación
+Radiación \cite{simini2012universal}
     & No & Sí & No & No & No \\
-Mod.\@ avanz.\@ IO
+Mod.\@ avanz.\@ IO \cite{yan2014population, liu2020intervening}
     & No & Sí & Sí & No & No \\
-Deep Gravity
-    & \textbf{Sí} & No & \textbf{Sí} & \textbf{Sí} & $\dagger$ \\
+\textbf{Deep Gravity} \cite{simini2021deep}
+    & \textbf{Sí} & No & \textbf{Sí} & \textbf{Sí} & No \\
+\noalign{\smallskip}
 \hline
 \end{tabular}
-
-\smallskip
-\raggedright\footnotesize{$\dagger$~Esta memoria constituye la primera validación de \textit{Deep Gravity} en una metrópolis latinoamericana.}
 \end{table}
 
 \textit{Deep Gravity} es el único modelo que combina simultáneamente las tres capacidades centrales para esta investigación: incorpora variables geoespaciales del tejido urbano provenientes de OSM, es apto para la escala intraurbana, y admite análisis de explicabilidad mediante SHAP e Integrated Gradients. La ausencia de validación en el contexto latinoamericano constituye precisamente la brecha que esta memoria busca cubrir para el caso del Gran Santiago de Chile.
