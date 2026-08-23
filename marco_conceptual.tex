@@ -170,6 +170,43 @@ Simini et al. \cite{simini2021deep} evaluaron \textit{Deep Gravity} sobre datos 
 \end{equation}
 La métrica CPC toma valores en $[0,1]$, donde 1 indica coincidencia exacta entre flujos generados y reales. Es equivalente al índice de Sørensen-Dice aplicado a flujos. Los resultados muestran que \textit{Deep Gravity} supera al modelo gravitatorio clásico en todos los contextos evaluados. Las mejoras en CPC global alcanzan hasta un 190\% en Inglaterra y un 1.066\% en el estado de Nueva York. El modelo también demostró transferibilidad geográfica. Entrenado en algunas ciudades del Reino Unido, mantiene un desempeño similar al evaluarse en ciudades no vistas durante el entrenamiento.
 
+\subsubsection{Síntesis comparativa de modelos}
+
+La Tabla~\ref{tab:comparacion_modelos} compara los modelos de generación de flujos presentados en este capítulo en cinco dimensiones clave para esta memoria: incorporación de variables del tejido urbano, ausencia de calibración paramétrica, aptitud para la escala intraurbana, compatibilidad con técnicas de explicabilidad (XAI), y existencia de validación empírica en el contexto latinoamericano.
+
+\begin{table}[ht]
+\centering
+\caption{Comparación de modelos de generación de flujos de movilidad. \textbf{Sí}~= cumple la dimensión; \textbf{No}~= no cumple; \textit{Parc.}~= cumple parcialmente.}
+\label{tab:comparacion_modelos}
+\small
+\begin{tabular}{lp{1.7cm}p{1.8cm}p{1.8cm}p{1.8cm}p{1.8cm}}
+\hline
+\textbf{Modelo} &
+\textbf{Variables urbanas} &
+\textbf{Libre de parámetros} &
+\textbf{Escala intra\-urbana} &
+\textbf{Explicable (XAI)} &
+\textbf{Validado en LatAm} \\
+\hline
+Gravitatorio \cite{zipf1946p}
+    & No & No & \textit{Parc.} & No & \textit{Parc.} \\
+IO Model \cite{stouffer1940intervening}
+    & No & No & \textit{Parc.} & No & No \\
+Radiación \cite{simini2012universal}
+    & No & Sí & No & No & No \\
+Mod.\@ avanz.\@ IO \cite{yan2014population, liu2020intervening}
+    & No & Sí & Sí & No & No \\
+\textbf{Deep Gravity} \cite{simini2021deep}
+    & \textbf{Sí} & No & \textbf{Sí} & \textbf{Sí} & $\dagger$ \\
+\hline
+\end{tabular}
+
+\smallskip
+\raggedright\footnotesize{$\dagger$~Esta memoria constituye la primera validación de \textit{Deep Gravity} en una metrópolis latinoamericana.}
+\end{table}
+
+\textit{Deep Gravity} es el único modelo que combina simultáneamente las tres capacidades centrales para esta investigación: incorpora variables geoespaciales del tejido urbano provenientes de OSM, es apto para la escala intraurbana, y admite análisis de explicabilidad mediante SHAP e Integrated Gradients. La ausencia de validación en el contexto latinoamericano constituye precisamente la brecha que esta memoria busca cubrir para el caso del Gran Santiago de Chile.
+
 % ----------------------------------------------------------------
 \subsection{Explicabilidad en modelos de inteligencia artificial (XAI)}
 % ----------------------------------------------------------------
