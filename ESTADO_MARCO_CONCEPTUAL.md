@@ -1,4 +1,4 @@
-﻿# Estado del Marco Conceptual — Cap. 2
+# Estado del Marco Conceptual — Cap. 2
 
 > **Última actualización:** 23 de agosto de 2026
 > **Rol de este archivo:** registro de estado, trazabilidad y material reservado para capítulos siguientes.
@@ -8,7 +8,7 @@
 
 ## 1. Estado actual de `marco_conceptual.tex`
 
-Todas las secciones están completas y compilando. El capítulo tiene **8 subsecciones** y **12 ecuaciones numeradas**.
+Todas las secciones están completas y compilando. El capítulo tiene **7 subsecciones** y **12 ecuaciones numeradas**.
 
 | Sección | Contenido clave | Estado |
 |---|---|---|
@@ -20,7 +20,7 @@ Todas las secciones están completas y compilando. El capítulo tiene **8 subsec
 | §2.4 Deep Gravity | Eqs. GLM→DG, arquitectura, 39 features, CPC, resultados, tabla comparativa | ✅ Completa (tabla agregada 23 ago. 2026) |
 | §2.5 XAI | Eq. SHAP (`eq:shap`), 3 propiedades, Integrated Gradients (`eq:ig`) | ✅ Completa |
 | §2.6 OpenStreetMap | Modelo de datos, amenities, cobertura heterogénea en Santiago | ✅ Completa |
-| §2.7 Contexto Santiago | EOD 2012/2017, DTPM Nov 2024, 3.6M viajes | ✅ Completa |
+| §2.7 Contexto Santiago | Ref. a Cap. 1 para EOD/bip!, DTPM Nov 2024, 3.6M viajes | ✅ Completa (actualizada 23 ago. 2026) |
 
 ---
 
