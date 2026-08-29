@@ -39,7 +39,7 @@ La formulación de la ecuación \eqref{eq:gravedad} recibe el nombre de \textit{
     \hat{T}_{ij} = O_i \cdot \frac{P_j^{\,\beta}\, f(d_{ij})}{\displaystyle\sum_{k} P_k^{\,\beta}\, f(d_{ik})}
     \label{eq:gravedad_restringida}
 \end{equation}
-donde $O_i = \sum_j T_{ij}$ es el flujo total saliente de la zona $i$ y $f(d_{ij})$ es una función de disuasión por distancia, que puede adoptar forma exponencial ($e^{\beta_2 d}$) o de ley de potencia ($d^{\beta_2}$).
+donde $O_i = \sum_j T_{ij}$ es el flujo total saliente de la zona $i$ y $f(d_{ij})$ es una función de disuasión por distancia, que puede adoptar forma exponencial ($e^{\beta_2 d}$) o de ley de potencia ($d^{\beta_2}$)\footnote{Existe también la versión \textit{doblemente restringida} (\textit{doubly-constrained}), que impone conservación tanto de los flujos salientes $O_i$ como de los flujos entrantes $D_j = \sum_i T_{ij}$. \textit{Deep Gravity} utiliza exclusivamente la versión restringida en origen.}.
 
 El modelo gravitatorio presenta limitaciones ampliamente documentadas \cite{liu2024interdisciplinary}. Su formulación impone una relación paramétrica monótona entre población, distancia y flujo, lo que restringe su capacidad de representar fenómenos no lineales. No incorpora variables del tejido urbano como puntos de interés, uso de suelo o infraestructura de transporte. Requiere además calibración manual para cada contexto geográfico, lo que limita su transferibilidad. La implicancia concreta de estas restricciones para el caso de Santiago se detalla en la Sección de Definición del Problema de esta memoria.
 
@@ -96,9 +96,7 @@ Simini et al. \cite{simini2012universal} validaron el modelo sobre datos de comm
 
 \paragraph{Variantes del modelo de radiación.} La solidez del modelo original motivó diversas extensiones para adaptar su mecanismo a diferentes contextos. Ren et al. \cite{ren2014predicting} propusieron una versión basada en tiempo de viaje en lugar de distancia euclidiana, incorporando así la resistencia real de la red de transporte. Kang et al. \cite{kang2015generalized} formularon un modelo de radiación generalizado que introduce parámetros de escala y restricciones explícitas de producción y atracción, mejorando la precisión en contextos con heterogeneidad espacial marcada. Yang et al. \cite{yang2014limits} extendieron el modelo para incorporar la distribución no homogénea de oportunidades en el espacio, relevante en regiones con alta segregación funcional del suelo.
 
-\paragraph{Limitación del modelo de radiación a escala intraurbana.} A pesar de su éxito en la predicción de commuting interurbano, el modelo de radiación presenta una limitación estructural cuando se aplica a la escala intraurbana \cite{yan2014population, liu2020intervening}. Su supuesto central, que cada individuo elige el destino más cercano cuyo beneficio supera al del origen, refleja adecuadamente el comportamiento en la búsqueda de empleo a larga distancia (donde la proximidad es costosa), pero no captura la lógica real de los desplazamientos dentro de una ciudad. En entornos urbanos, las personas consideran simultáneamente el conjunto de destinos disponibles en toda la ciudad, sin restringirse a los más cercanos. Estudios empíricos sobre datos de transporte público en diversas ciudades confirman que el modelo de radiación subestima sistemáticamente los flujos intraurbanos de largo alcance \cite{yan2014population}. Esta limitación fue el punto de partida para el desarrollo del modelo de oportunidades ponderadas por población, descrito en la Sección \ref{sec:modelos_evolucion}, y justifica el uso de modelos capaces de representar el tejido urbano más allá de la simple distribución poblacional, como \textit{Deep Gravity}.
-
-A pesar de sus ventajas, el modelo de radiación utiliza exclusivamente la población como \textit{proxy}\footnote{Una variable proxy es una medida indirecta que se emplea en sustitución de una variable inobservable, asumiendo que existe una fuerte correlación estadística entre ambas.} de oportunidades, sin incorporar características del tejido urbano como el uso de suelo o la distribución de actividades económicas. Esta limitación fue el punto de partida para el desarrollo de modelos basados en aprendizaje profundo.
+\paragraph{Limitación del modelo de radiación a escala intraurbana.} A pesar de su éxito en la predicción de commuting interurbano, el modelo de radiación presenta una limitación estructural cuando se aplica a la escala intraurbana \cite{yan2014population, liu2020intervening}. Su supuesto central, que cada individuo elige el destino más cercano cuyo beneficio supera al del origen, refleja adecuadamente el comportamiento en la búsqueda de empleo a larga distancia (donde la proximidad es costosa), pero no captura la lógica real de los desplazamientos dentro de una ciudad. En entornos urbanos, las personas consideran simultáneamente el conjunto de destinos disponibles en toda la ciudad, sin restringirse a los más cercanos. Estudios empíricos sobre datos de transporte público en diversas ciudades confirman que el modelo de radiación subestima sistemáticamente los flujos intraurbanos de largo alcance \cite{yan2014population}. Adicionalmente, el modelo utiliza exclusivamente la población como \textit{proxy}\footnote{Una variable proxy es una medida indirecta que se emplea en sustitución de una variable inobservable, asumiendo que existe una fuerte correlación estadística entre ambas.} de oportunidades, sin incorporar características del tejido urbano como el uso de suelo o la distribución de actividades económicas. Estas limitaciones fueron el punto de partida para el desarrollo del modelo de oportunidades ponderadas por población, descrito en la Sección \ref{sec:modelos_evolucion}, y justifican el uso de modelos basados en aprendizaje profundo capaces de representar el tejido urbano más allá de la simple distribución poblacional, como \textit{Deep Gravity}.
 
 % ----------------------------------------------------------------
 \subsection{Aprendizaje profundo aplicado a la movilidad}
@@ -176,21 +174,18 @@ La Tabla~\ref{tab:comparacion_modelos} compara los modelos de generación de flu
 
 \begin{table}[ht]
 \centering
-\caption{Comparación de modelos de generación de flujos de movilidad.}Fuente: Elaboración Propia
+\caption{Comparación de modelos de generación de flujos de movilidad. Fuente: Elaboración propia.}
 \label{tab:comparacion_modelos}
 \small
 \begin{tabular}{lp{1.8cm}p{2cm}p{2cm}p{1.8cm}p{1.8cm}}
-\hline
-\noalign{\smallskip}
+\toprule
 \textbf{Modelo} &
 \textbf{Variables urbanas} &
 \textbf{Libre de parámetros} &
 \textbf{Escala intra\-urbana} &
 \textbf{Explicable (XAI)} &
 \textbf{Validado en LatAm} \\
-\noalign{\smallskip}
-\hline
-\noalign{\smallskip}
+\midrule
 Gravitatorio
     & No & No & \textit{Parc.} & No & \textit{Parc.} \\
 IO Model
@@ -201,8 +196,7 @@ Mod.\@ avanz.\@ IO
     & No & Sí & Sí & No & No \\
 Deep Gravity
     & \textbf{Sí} & No & \textbf{Sí} & \textbf{Sí} & No \\
-\noalign{\smallskip}
-\hline
+\bottomrule
 \end{tabular}
 \end{table}
 
@@ -229,12 +223,16 @@ En esta memoria se utilizan los valores SHAP para cuantificar el impacto de cada
 
 \subsubsection{Gradientes integrados}
 
-Los \textit{Integrated Gradients} \cite{sundararajan2017axiomatic} son un método de atribución basado en el gradiente de la función del modelo con respecto a las variables de entrada. Para una predicción $f(\mathbf{x})$ y una entrada de referencia $\mathbf{x}'$ (típicamente el vector nulo), la atribución de la característica $i$ se define como:
+Los \textit{Integrated Gradients} \cite{sundararajan2017axiomatic} son un método de atribución basado en el gradiente de la función del modelo con respecto a las variables de entrada. A diferencia de SHAP, que se fundamenta en la teoría de juegos cooperativos, los \textit{Integrated Gradients} derivan las atribuciones directamente de la estructura diferencial de la red neuronal. Para una predicción $f(\mathbf{x})$ y una entrada de referencia $\mathbf{x}'$, la atribución de la característica $i$ se define como:
 \begin{equation}
     \text{IG}_i(\mathbf{x}) = (x_i - x_i') \cdot \int_0^1 \frac{\partial f\!\left(\mathbf{x}' + \alpha(\mathbf{x} - \mathbf{x}')\right)}{\partial x_i}\,\mathrm{d}\alpha
     \label{eq:ig}
 \end{equation}
-En esta memoria, los \textit{Integrated Gradients} se utilizan como técnica complementaria a SHAP para obtener atribuciones a nivel de par origen-destino específico, permitiendo identificar qué características son más relevantes para flujos particulares.
+El método satisface dos propiedades axiomáticas que lo distinguen de otras técnicas de atribución: \textit{sensibilidad} (si la entrada y la referencia difieren en una sola característica y producen predicciones distintas, esa característica recibe atribución no nula) e \textit{invariancia a la implementación} (la atribución depende únicamente de la función matemática que computa la red, no de su arquitectura interna). Estas propiedades lo hacen complementario a SHAP, que satisface eficiencia, simetría y dummy.
+
+La elección de la entrada de referencia $\mathbf{x}'$ es un aspecto crítico del método. El vector nulo ($\mathbf{x}' = \mathbf{0}$) es una convención habitual en clasificación de imágenes, pero puede no ser representativo para variables de densidad urbana, que por definición nunca son cero en zonas habitadas. En esta memoria se evalúa el uso del vector promedio de la distribución de características como referencia alternativa, lo que permite interpretar las atribuciones como desviaciones respecto al comportamiento medio del territorio.
+
+Los \textit{Integrated Gradients} se utilizan como técnica complementaria a SHAP para obtener atribuciones a nivel de par origen-destino específico, permitiendo identificar qué características son más relevantes para flujos particulares.
 
 % ----------------------------------------------------------------
 \subsection{OpenStreetMap como fuente de datos geoespaciales}

@@ -1,6 +1,6 @@
 \secnumbersection{DEFINICIÓN DEL PROBLEMA}
 
-Santiago posee uno de los sistemas de transporte público más avanzados de América Latina. Se caracteriza por la integración de buses, metro y tren suburbano. Este sistema registra más de tres millones de transacciones diarias solo en el modo bus \cite{dtpm_informe}. La red de movilidad de la ciudad conecta a una población metropolitana que supera los siete millones de habitantes, distribuida en más de cuarenta comunas.
+Santiago posee uno de los sistemas de transporte público más masivos y avanzados de América Latina, caracterizado por la integración de buses, metro y tren suburbano. Según registros operativos oficiales, el sistema integrado supera las siete millones de transacciones en un día laboral promedio, de las cuales 5,0 millones corresponden exclusivamente a la red de buses \cite{dtpm_informe_2025}. La red de movilidad de la ciudad conecta a una población metropolitana que supera los siete millones de habitantes, distribuida en más de cuarenta comunas.
 
 Comprender la distribución espacial de los desplazamientos en esta red, representada mediante flujos origen-destino (OD), es un insumo esencial para la planificación del transporte. También lo es para el diseño de infraestructura vial y la formulación de políticas urbanas basadas en evidencia \cite{liu2024interdisciplinary}.
 
@@ -14,15 +14,17 @@ Esta brecha entre la necesidad de datos actualizados y su disponibilidad real mo
 
 \subsection{Limitaciones de los modelos vigentes}
 
-Los modelos utilizados en la práctica para la estimación de flujos en Santiago corresponden a modelos de gravedad clásicos. Estos modelos presentan limitaciones ampliamente documentadas en la literatura \cite{zipf1946p, simini2012universal, liu2024interdisciplinary}. Imponen relaciones paramétricas monótonas entre población, distancia y flujo, lo que genera un ajuste deficiente ante fenómenos no lineales, como la existencia de subcentros de empleo o corredores de transporte masivo. Requieren además calibración manual para cada contexto geográfico, lo que limita su transferibilidad. Finalmente, no incorporan como variables explicativas el tejido urbano: puntos de interés, uso de suelo ni infraestructura de transporte.
+Los modelos utilizados en la práctica para la estimación de flujos en Santiago corresponden a modelos de gravedad clásicos. Estos modelos presentan limitaciones ampliamente documentadas en la literatura \cite{simini2012universal, liu2024interdisciplinary}. Imponen relaciones paramétricas monótonas entre población, distancia y flujo, lo que genera un ajuste deficiente ante fenómenos no lineales, como la existencia de subcentros de empleo o corredores de transporte masivo. Requieren además calibración manual para cada contexto geográfico, lo que limita su transferibilidad. Finalmente, no incorporan como variables explicativas el tejido urbano: puntos de interés, uso de suelo ni infraestructura de transporte.
 
 Modelos basados en aprendizaje profundo, como Deep Gravity \cite{simini2021deep}, han demostrado superar estas limitaciones incorporando variables geoespaciales de OpenStreetMap. Su arquitectura y su desempeño reportado se detallan en el Marco Conceptual de esta memoria. Sin embargo, su aplicación en ciudades latinoamericanas no ha sido explorada.
 
 \subsection{Especificidad del contexto latinoamericano}
 
-Esta ausencia de validación es relevante porque las ciudades latinoamericanas presentan características estructurales que las diferencian de los contextos donde estos modelos han sido desarrollados y evaluados. Entre ellas se cuentan la segregación socioeconómica, la coexistencia de sistemas de transporte formales e informales y diferencias en la completitud de los datos geoespaciales de OpenStreetMap entre regiones del mundo \cite{BarringtonLeigh2017}. Estas diferencias impiden anticipar si un modelo como Deep Gravity mantendría su desempeño al ser aplicado sobre Santiago.
+Esta ausencia de validación es relevante porque las ciudades latinoamericanas presentan características estructurales que las diferencian de los contextos donde estos modelos han sido desarrollados y evaluados. La segregación socio-espacial severa, la existencia de periferias urbanas de bajos ingresos con infraestructura de transporte deficitaria y la coexistencia de sistemas formales e informales de movilidad generan patrones de desplazamiento que no responden a las funciones de disuasión por distancia calibradas en ciudades del Norte Global \cite{vecchio2020transport}. A esto se suma la heterogeneidad en la completitud de los datos geoespaciales abiertos: estudios recientes demuestran que la cobertura de OpenStreetMap en ciudades latinoamericanas alcanza apenas un 10 a 20\% en datos de edificaciones, frente a más del 50\% en Europa y Norteamérica, con un sesgo intra-ciudad correlacionado con el nivel de desarrollo humano subnacional \cite{herfort2023spatio, BarringtonLeigh2017}.
 
-Más allá del contexto geográfico, el modelo carece de una capa de explicabilidad que permita a los planificadores comprender qué factores del tejido urbano impulsan cada predicción.
+En el caso específico de Santiago, evidencia empírica reciente basada en datos de telefonía móvil y enrutamiento multimodal demuestra que la proximidad espacial no se traduce en accesibilidad equitativa \cite{marinflores2026proximity}. Las poblaciones periféricas de menores ingresos enfrentan penalizaciones estructurales de accesibilidad y un conjunto restringido de opciones de destino, lo que implica que modelos que asumen un comportamiento uniforme de proximidad-a-oportunidad generarán predicciones sesgadas en este contexto. Esta dinámica contrasta con las ciudades europeas y norteamericanas donde \textit{Deep Gravity} fue validado, donde la distribución de oportunidades urbanas es comparativamente más homogénea.
+
+Más allá del contexto geográfico, el modelo carece de una capa de explicabilidad que permita a los planificadores comprender qué factores del tejido urbano impulsan cada predicción. Esta carencia es especialmente crítica en el contexto latinoamericano, donde la auditoría de las predicciones es un requisito para fundamentar inversiones públicas en un escenario de recursos limitados.
 
 \subsection{Síntesis del problema}
 
@@ -66,7 +68,6 @@ Generar flujos de movilidad origen-destino en Santiago de Chile mediante el mode
 
 	\item Cuantificar el impacto de las \textit{amenities} de OSM sobre el desempeño del modelo mediante la técnica SHAP (\textit{SHapley Additive exPlanations}), determinando la importancia global y local de cada categoría de \textit{amenity} en la generación de flujos.
 
-	%chequear este ultimo ítem.
-	\item \textit{Analizar la sensibilidad de las explicaciones obtenidas (valores SHAP) frente a la escala de agregación espacial de la grilla y a las distintas temporalidades del flujo (períodos punta y fuera de punta), discutiendo la coherencia de las \textit{amenities} identificadas con las dinámicas socioespaciales de Santiago.}
+	\item Analizar la sensibilidad de las explicaciones obtenidas (valores SHAP) frente a la escala de agregación espacial de la grilla y a las distintas temporalidades del flujo, discutiendo la coherencia de las \textit{amenities} identificadas con las dinámicas socioespaciales de Santiago.
 	
 \end{enumerate}
