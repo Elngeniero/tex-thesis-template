@@ -1,27 +1,105 @@
 \secnumbersection{VALIDACIÓN DE LA SOLUCIÓN}
 
-Se debe validar la solución propuesta. Esto significa probar o demostrar que la solución propuesta es válida para el entorno donde fue planteada.
+% ===================================================================
+% INSTRUCCIONES DE REDACCIÓN — Fase por desarrollar
+% Este capítulo requiere resultados técnicos de las Fases 3–5 del
+% pipeline (entrenamiento Modelo 1, Modelo 2 y análisis SHAP).
+% La estructura, referencias y protocolo están definidos.
+% Redactar el texto final una vez disponibles los resultados.
+% Basarse en: arquitectura_santiago.md §8, ADR-004 §Análisis CPC+SHAP.
+% ===================================================================
 
-Tradicionalmente es una etapa crítica, pues debe comprobarse por algún medio que vuestra propuesta es básicamente válida. En el caso de un desarrollo de software es la construcción y sus pruebas; en el caso de propuestas de modelos, guías o metodologías podrían ser desde la aplicación a un caso real hasta encuestas o entrevistas con especialistas; en el caso de mejoras de procesos u optimizaciones, podría ser comparar la situación actual (previa a la memoria) con la situación final (cuando la memoria está ya implementada) en base a un conjunto cuantitativo de indicadores o criterios.
+% ----------------------------------------------------------------
+% §5.1 — PROTOCOLO DE EVALUACIÓN EXPERIMENTAL
+% ----------------------------------------------------------------
+%
+% CONTENIDO A DESARROLLAR:
+%   - Describir los tres escenarios horarios definidos en arquitectura_santiago.md §8:
+%       1. Punta Mañana (07:00–09:00): flujos masivos hogar→trabajo/estudio.
+%       2. Periodo Valle (10:00–16:00): movilidad discrecional dispersa.
+%       3. Punta Tarde (18:00–20:00): flujos de retorno, alta sensibilidad a distancia.
+%   - Especificar días de semana vs. fin de semana.
+%   - Describir la partición de datos: entrenamiento / validación / prueba.
+%   - Enunciar la hipótesis experimental central (ADR-004 §Análisis CPC+SHAP):
+%     "La regularidad geométrica de la grilla H3 (Modelo 2) permite que las
+%      variables de destino recuperen importancia en el ranking SHAP respecto
+%      al Modelo 1 (zonas irregulares), donde se replica el sesgo de Vicente (2026)."
+%
+% \subsection{Protocolo de evaluación experimental}
 
-\subsection{EJEMPLO DE COMO CITAR TABLAS}
+% ----------------------------------------------------------------
+% §5.2 — MÉTRICAS DE EVALUACIÓN
+% ----------------------------------------------------------------
+%
+% CONTENIDO A DESARROLLAR:
+%   - Justificar por qué métricas estándar de regresión (RMSE, R²) son
+%     inadecuadas para matrices OD con esparsidad extrema (>80–95\% de ceros).
+%     Usar como argumento principal:
+%       \cite{lenormand2012universal} — Lenormand, Huet, Gargiulo & Deffuant (2012).
+%         PLOS ONE. Demuestra que RMSE colapsa ante matrices esparsas.
+%       \cite{lenormand2016systematic} — Lenormand, Bassolas & Ramasco (2016).
+%         Journal of Transport Geography. Comparación sistemática de métricas.
+%   - Recordar que la definición formal de CPC ya está en eq:cpc (marco_conceptual.tex
+%     §2.4.4, L164–169). NO repetir la ecuación; referenciarla con \eqref{eq:cpc}.
+%   - Añadir la justificación del CPC como equivalente al índice Sørensen-Dice
+%     para la preservación de la estructura topológica de las líneas de deseo.
+%   - Añadir el CPC por origen (CPC_i) como métrica de descomposición espacial.
+%
+% ENTRADAS BIBTEX A AÑADIR EN bibliografia.bib ANTES DE REDACTAR:
+%   @article{lenormand2012universal,
+%     title={A universal model of commuting networks},
+%     author={Lenormand, Maxime and Huet, Sylvie and Gargiulo, Floriana and Deffuant, Guillaume},
+%     journal={PLoS ONE}, volume={7}, number={10}, pages={e45985}, year={2012}
+%   }
+%   @article{lenormand2016systematic,
+%     title={Systematic comparison of trip distribution laws and models},
+%     author={Lenormand, Maxime and Bassolas, Aleix and Ramasco, Jos{\'e} J},
+%     journal={Journal of Transport Geography}, volume={51}, pages={158--169}, year={2016},
+%     publisher={Elsevier}
+%   }
+%
+% \subsection{Métricas de evaluación}
 
-Se colocó una tabla que se puede referenciar también desde el texto (Ver tabla \ref{table:coloquios}).
+% ----------------------------------------------------------------
+% §5.3 — RESULTADOS: COMPARATIVA CPC MODELO 1 vs. MODELO 2
+% ----------------------------------------------------------------
+%
+% CONTENIDO A DESARROLLAR (requiere resultados del pipeline):
+%   - Tabla de CPC global por escenario horario para cada modelo:
+%       Modelo 0 (si aplica) | Modelo 1 (zona 777) | Modelo 2 (H3) | Gravitatorio | Radiación
+%   - Análisis de mejoras relativas respecto al baseline gravitatorio.
+%   - Comparar con el CPC de referencia de Vicente (2026): máx. 0.2566 (Periodo Valle).
+%   - Descomposición espacial por zona/celda de origen (CPC_i).
+%
+% \subsection{Comparativa de desempeño entre modelos}
 
-\begin{table}[h]
-    \centering
-    \caption{\label{table:coloquios} Coloquios del Ciclo de Charlas Informática.} Fuente: Elaboración Propia.
-    \begin{tabular}{|p{7cm}|p{7cm}|}
-        \hline
-        Título Coloquio & Presentador, País \\
-        \hline
-        ``Sensible, invisible, sometimes tolerant, heterogeneous, decentralized and interoperable... and we still need to assure its quality...''' & Guilherme Horta Travassos, Brasil.\\
-        \hline
-        ``Dispersed Multiphase Flow Modeling: From Environmental to Industrial Applications''' & Orlando Ayala, EE.UU.\\
-        \hline
-        ``Líneas de Producto Software Dinámicas para Sistemas atentos el Contexto''' & Rafael Capilla, España.\\
-        \hline
-        ... & ... \\
-        \hline
-    \end{tabular}
-\end{table}
+% ----------------------------------------------------------------
+% §5.4 — ANÁLISIS DE EXPLICABILIDAD SHAP COMPARATIVO
+% ----------------------------------------------------------------
+%
+% CONTENIDO A DESARROLLAR (requiere resultados SHAP de ambos modelos):
+%   - Ranking de importancia SHAP global para Modelo 1 y Modelo 2.
+%   - Hipótesis a testear (ADR-004): ¿recuperan las variables de destino
+%     importancia en Modelo 2 respecto al sesgo observado en Vicente/Modelo 1?
+%   - Análisis por periodo horario: ¿cambia la importancia relativa de
+%     amenities entre Punta Mañana, Valle y Punta Tarde?
+%   - Interpretación en clave socioespacial del Gran Santiago:
+%     coherencia de los atractores identificados (comercio, educación, salud)
+%     con la estructura urbana conocida.
+%
+% \subsection{Análisis de explicabilidad comparativa (SHAP)}
+
+% ----------------------------------------------------------------
+% §5.5 — DISCUSIÓN: LIMITACIONES Y VALIDEZ EXTERNA
+% ----------------------------------------------------------------
+%
+% CONTENIDO A DESARROLLAR:
+%   - Limitaciones de la delimitación al Gran Santiago (ADR-005 §Consecuencias):
+%     viajes de la periferia excluidos del entrenamiento.
+%   - Cobertura heterogénea de OSM en comunas periféricas (ya discutida en §2.6).
+%     No repetir; referenciar con \ref.
+%   - Validez externa: ¿qué condiciones deben darse para aplicar el modelo a
+%     otra ciudad latinoamericana con datos bip! equivalentes?
+%
+% \subsection{Limitaciones y validez externa}
+
