@@ -1,5 +1,6 @@
 ## Compiled pdf file:
 *.pdf
+!figures/*.pdf
 *.xdv
 *settings.json
 ## Core latex/pdflatex auxiliary files:
