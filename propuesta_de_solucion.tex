@@ -1,242 +1,204 @@
 \secnumbersection{PROPUESTA DE SOLUCIÓN}
 
-Este capítulo describe la solución propuesta para la estimación de flujos de movilidad origen-destino en el Gran Santiago de Chile mediante el modelo \textit{Deep Gravity}. La propuesta se articula en torno a un diseño de doble modelo comparativo: el primero replica la unidad espacial de teselación zonal irregular del sistema DTPM como referencia de control; el segundo introduce una grilla hexagonal regular del sistema \textit{Uber H3} como contribución metodológica original. La estructura del capítulo sigue el flujo de procesamiento integral, desde la ingesta de datos hasta la configuración del entrenamiento, pasando por la delimitación espacial, la extracción de características urbanas y la justificación teórica de la arquitectura.
+Este capítulo especifica el procedimiento reproducible para estudiar la sensibilidad de \textit{Deep Gravity} frente a la discretización espacial en Santiago. La comparación no presupone que una representación supere a otra: construye las ramas Zona 777, H3-r7 y H3-r8 a partir de una cohorte común, con atributos, particiones y protocolo de evaluación explícitos. Los resultados del piloto se usan para documentar la factibilidad del procedimiento; la elección de las configuraciones y el presupuesto de los experimentos finales permanece separada de esta especificación.
 
-% ----------------------------------------------------------------
-\subsection{Diseño general de la solución}
+\subsection{Diseño general y trazabilidad}
 \label{sec:diseno_general}
-% ----------------------------------------------------------------
 
-La solución propuesta se organiza en torno a un \textit{pipeline} de procesamiento dual que opera sobre tres fuentes de entrada y produce modelos entrenados para dos tipos de unidades espaciales distintas. El flujo comprende desde la ingesta y recorte territorial hasta la evaluación y explicabilidad de las predicciones.
+La solución parte de registros DTPM de viajes y etapas, reconstruye extremos válidos a nivel de viaje y aplica una delimitación territorial común. A continuación, dos adaptadores espaciales asignan esos mismos viajes a zonas operativas DTPM o a celdas H3. Cada rama recibe atributos externos, forma pares origen--destino y utiliza la misma familia de modelos y reglas de evaluación. La Figura~\ref{fig:pipeline_santiago} resume esta separación entre núcleo común y adaptadores.
 
-Las fuentes de entrada son: (1) las transacciones de validación del sistema de transporte público metropolitano administradas por el Directorio de Transporte Público Metropolitano (DTPM), que constituyen la fuente de flujos observados; (2) los datos geoespaciales de OpenStreetMap (OSM), que proveen las características del tejido urbano empleadas como variables explicativas; y (3) los datos de población del Censo INE 2017, utilizados como variable de masa para cada unidad espacial.
-
-El \textit{pipeline} se bifurca tras la delimitación del área de estudio en dos ramas paralelas:
-
-\begin{itemize}
-    \item \textbf{Rama Modelo 1 (Control):} agrega los viajes individuales por zona operativa DTPM, utilizando directamente los campos \texttt{zona\_subida} y \texttt{zona\_bajada} presentes en los datos. No requiere redistribución espacial.
-    \item \textbf{Rama Modelo 2 (Propuesto):} asigna cada validación individual a su celda hexagonal H3 correspondiente mediante reproyección de coordenadas UTM a WGS84 y la función \texttt{h3.latlng\_to\_cell(lat, lon, resolution)} de la librería \texttt{h3-py}.
-\end{itemize}
-
-Ambas ramas convergen en la misma arquitectura neuronal \textit{Deep Gravity}, que recibe como entrada el vector de características geoespaciales y produce las probabilidades de destino mediante la función \textit{softmax}. La comparación de desempeño entre modelos, mediante la métrica CPC (\textit{Common Part of Commuters}), y el análisis de explicabilidad mediante valores SHAP constituyen el núcleo de la validación experimental, descrita en el Capítulo~5.
-
-Adicionalmente, se contempla un \textbf{Modelo 0 (Baseline)}, de carácter opcional, que opera a nivel comunal (~33 comunas del Gran Santiago). Su propósito es proporcionar un punto de referencia macroscópico e institucional, sin información de alta resolución geoespacial.
-
-% ----------------------------------------------------------------
-\subsection{Ingesta y procesamiento de datos de movilidad}
-\label{sec:ingesta_datos}
-% ----------------------------------------------------------------
-
-\subsubsection{Descripción del conjunto de datos}
-
-La fuente primaria de flujos observados es el dataset de transacciones de noviembre de 2024 del DTPM, correspondiente al sistema de tarjeta inteligente \textit{bip!}. Este dataset ha sido procesado institucionalmente mediante algoritmos de encadenamiento de etapas (\textit{trip chaining}), que permiten inferir el punto de bajada de cada validación a partir del análisis secuencial de las etapas de un viaje completo \cite{munizaga2012estimation}. El método infiere la parada de destino de cada etapa como la parada de subida de la etapa inmediatamente siguiente del mismo viajero, o como la parada más cercana al hogar estimado si la etapa es la última del día. Esta inferencia es especialmente relevante para el sistema \textit{bip!}, que registra únicamente las validaciones de subida y no las de bajada.
-
-Los archivos base del dataset son los siguientes:
-
-\begin{itemize}
-    \item \texttt{viajes.csv}: aproximadamente 3{,}6 millones de registros que representan viajes completos consolidados, resultantes del encadenamiento de etapas individuales.
-    \item \texttt{etapas.csv}: aproximadamente 1{,}5 millones de registros de transacciones unitarias por etapa de viaje en buses Red, Metro y Tren Nos.
-\end{itemize}
-
-Los campos espaciales clave son las coordenadas proyectadas UTM del punto de subida y bajada (\texttt{x\_subida}, \texttt{y\_subida}, \texttt{x\_bajada}, \texttt{y\_bajada}) en el sistema de referencia EPSG:32719 (WGS84 UTM zona 19S), junto con las unidades zonales DTPM (\texttt{zona\_subida}, \texttt{zona\_bajada}) y administrativas (\texttt{comuna\_subida}, \texttt{comuna\_bajada}).
-
-\subsubsection{Factor de expansión}
-
-Cada viaje en el dataset lleva asociado un campo \texttt{factor\_expansion}, que corrige el sesgo de cobertura introducido por la evasión tarifaria en la red de buses. La evasión no es uniformemente distribuida en el espacio ni en el tiempo: varía según la unidad de negocio, el periodo horario y la línea de servicio. El DTPM calcula y aplica institucionalmente factores de expansión diferenciados por estos estratos, de modo que los flujos expandidos son representativos del universo total de viajes realizados, incluyendo los no registrados electrónicamente \cite{espinoza2018assessing}. En el procesamiento de este trabajo se retienen únicamente los registros con \texttt{factor\_expansion} > 0, descartando aquellos que el sistema institucional ha marcado como inválidos o no expandibles.
-
-\subsubsection{Construcción de matrices origen-destino}
-
-A partir de los datos filtrados, se construyen las matrices origen-destino $\mathbf{T}$ (definidas en la Ecuación~\eqref{eq:matriz_od} del Marco Conceptual) para cada unidad espacial y escenario horario. El flujo $T_{ij}$ entre el origen $i$ y el destino $j$ se obtiene como la suma ponderada de los factores de expansión de todos los viajes que conectan esas zonas en el intervalo temporal correspondiente:
-\begin{equation}
-    T_{ij} = \sum_{v \in \mathcal{V}_{ij}} \text{factor\_expansion}_v
-    \label{eq:flujo_expandido}
-\end{equation}
-donde $\mathcal{V}_{ij}$ es el conjunto de viajes con origen en $i$ y destino en $j$ dentro del intervalo horario analizado.
-
-% ----------------------------------------------------------------
-\subsection{Delimitación espacial del área de estudio}
-\label{sec:delimitacion}
-% ----------------------------------------------------------------
-
-El dataset DTPM cubre técnicamente las 777 zonas operativas de toda la Región Metropolitana. Sin embargo, la cobertura del sistema de transporte público formal (Red Metropolitana de Movilidad y Metro) es heterogénea: en las comunas periféricas y rurales la densidad de validaciones es baja, lo que genera matrices OD con alta esparsidad en esas zonas. Entrenar \textit{Deep Gravity} con unidades espaciales de señal rala introduce ruido que degrada la calidad global del modelo.
-
-El área de estudio se acota por ello al \textbf{Gran Santiago urbano}, definido como el conjunto de comunas que integran el continuo urbano metropolitano con cobertura densa de transporte público. El criterio de inclusión combina tres condiciones: pertenencia al continuo urbano del Gran Santiago según la definición del Instituto Nacional de Estadísticas (INE) y SECTRA; existencia de al menos una línea de bus Red o una estación de Metro en operación en el periodo de análisis; y densidad de validaciones \textit{bip!} estadísticamente significativa en noviembre de 2024.
-
-Las comunas nucleares del área de estudio son: Santiago, Providencia, Las Condes, Ñuñoa, Vitacura, Lo Barnechea, La Reina, Peñalolén, Macul, San Joaquín, La Granja, La Florida, Puente Alto, San Bernardo, El Bosque, Pedro Aguirre Cerda, Lo Espejo, La Cisterna, San Miguel, Estación Central, Quinta Normal, Independencia, Recoleta, Conchalí, Huechuraba, Pudahuel, Lo Prado, Cerrillos, Maipú, Quilicura, Renca, Cerro Navia y La Pintana. Las comunas limítrofes se evalúan en función del umbral de densidad de validaciones definido en el piloto exploratorio de datos.
-
-Este enfoque es consistente con investigaciones previas sobre fusión de datos de movilidad en Santiago, donde la delimitación al área metropolitana densa es condición necesaria para la validez estadística de los modelos \cite{graells2023data}. La delimitación también es coherente con el trabajo de referencia de Vicente Mackenzie (2026), quien acotó a 743 de las 777 zonas operativas excluyendo la periferia rural, aunque sin documentar explícitamente el criterio de exclusión.
-
-Técnicamente, el recorte se implementa mediante un polígono de unión geométrica de los límites comunales seleccionados, disponibles en los \textit{shapefiles} oficiales del INE y del Banco Cartográfico Nacional de Chile (BCN). Todas las coordenadas y centroides de viajes se filtran espacialmente mediante intersección con este polígono antes de la asignación a unidades espaciales.
-
-% ----------------------------------------------------------------
-\subsection{Unidades espaciales y estrategia comparativa}
-\label{sec:unidades_espaciales}
-% ----------------------------------------------------------------
-
-El núcleo de la contribución metodológica de esta memoria reside en contrastar el impacto de la partición espacial sobre el aprendizaje del modelo. Se implementan dos tipos de unidades espaciales con roles distintos en el diseño experimental.
-
-\subsubsection{Modelo 1 (Control): Teselación zonal DTPM}
-
-El Modelo 1 utiliza la teselación operativa del DTPM, compuesta por polígonos irregulares diseñados con criterios de gestión del transporte público y no de modelación geoespacial. Dentro del área del Gran Santiago, esta teselación comprende aproximadamente 743 zonas operativas urbanas. La asignación de viajes a zonas se realiza directamente mediante los campos \texttt{zona\_subida} y \texttt{zona\_bajada} del dataset, sin redistribución adicional.
-
-El propósito del Modelo 1 es replicar de forma controlada el enfoque metodológico de Vicente (2026), constituyendo la línea de control para cuantificar el efecto intrínseco de la geometría irregular sobre el aprendizaje del modelo. Los resultados reportados en ese trabajo indican que las cinco variables de mayor impacto en el análisis SHAP pertenecen todas al vector del origen (vías principales\_origen, vías secundarias\_origen, transporte público\_origen, entre otras), con las \textit{amenities} del destino relegadas a un impacto marginal. El CPC máximo alcanzado fue 0{,}2566 en el Periodo Valle. Estos resultados constituyen la referencia cuantitativa de comparación del presente trabajo.
-
-\subsubsection{Modelo 2 (Propuesto): Grilla hexagonal Uber H3}
-
-El Modelo 2 utiliza el sistema de indexación geoespacial discreta \textit{Uber H3} \cite{brodsky2018h3}, que divide la superficie terrestre en hexágonos regulares jerárquicos con 16 niveles de resolución. Este sistema presenta tres propiedades geométricas relevantes para la modelación de flujos:
-
-\begin{enumerate}
-    \item \textbf{Isotropía de vecindad:} cada celda hexagonal posee exactamente seis vecinos equidistantes, con idéntica distancia inter-centroide. Los polígonos cuadrados tienen cuatro vecinos cardinales y cuatro diagonales con distancias distintas; los polígonos irregulares tienen vecindades asimétricas variables.
-    \item \textbf{Invarianza de área:} todas las celdas de una misma resolución comparten idéntica superficie nominal, eliminando el sesgo de agregación espacial introducido por la heterogeneidad de tamaño de las zonas DTPM (Problema de la Unidad de Área Modificable, MAUP).
-    \item \textbf{Indexación eficiente:} la asignación de cualquier par de coordenadas geográficas a su celda H3 correspondiente es una operación de tiempo constante mediante la función \texttt{h3.latlng\_to\_cell(lat, lon, resolution)} de la librería \texttt{h3-py}, sin necesidad de operaciones de intersección geométrica.
-\end{enumerate}
-
-Las resoluciones H3 evaluadas van del nivel 3 al 8, cubriendo un rango de granularidades desde áreas macrodistritales hasta áreas de aproximadamente 0{,}74\,km² (resolución 7) y 0{,}74\,km² de radio medio equivalente (resolución 8, con radio de ~460\,m). La resolución óptima se selecciona en función del equilibrio entre granularidad urbana y esparsidad de la matriz OD resultante, determinado empíricamente en el piloto exploratorio de datos.
-
-La asignación de validaciones individuales a celdas H3 se realiza mediante la \textbf{Estrategia A (preferida)}: se reprojectan las coordenadas UTM (\texttt{x\_subida}, \texttt{y\_subida}) de cada validación a coordenadas geográficas WGS84 y se invoca directamente \texttt{h3.latlng\_to\_cell()}. Esta estrategia evita completamente el error de redistribución, pues opera a nivel de validación individual. Si los datos solo estuvieran disponibles a nivel de zona agregada, se aplicaría la \textbf{Estrategia B (fallback)}: redistribución por proporción de superficie de intersección entre la celda H3 y la zona DTPM.
-
-La hipótesis experimental central de la tesis es que la regularidad geométrica de la grilla H3 permite que las variables de destino recuperen importancia en el ranking de valores SHAP, validando la conjetura de que el sesgo observado en Vicente (2026) es atribuible a la irregularidad de la unidad espacial y no a una incapacidad estructural del modelo para aprender atractores de destino.
-
-\subsubsection{Modelo 0 (Baseline comunal)}
-
-El Modelo 0 opera a nivel de las comunas del Gran Santiago (~33 unidades). Su construcción es directa mediante los campos \texttt{comuna\_subida} y \texttt{comuna\_bajada} del dataset. Proporciona un punto de referencia macroscópico que permite cuantificar la pérdida de información al agregar a nivel comunal, en contraste con las granularidades menores del Modelo 1 y el Modelo 2.
-
-% ----------------------------------------------------------------
-\subsection{Justificación teórica de la arquitectura}
-\label{sec:justificacion_teorica}
-% ----------------------------------------------------------------
-
-La arquitectura \textit{Deep Gravity} presentada en el Marco Conceptual (Secciones 2.3 y 2.4) puede entenderse como la extensión profunda de un modelo de elección discreta clásico. Esta sección articula el puente teórico entre ambas tradiciones, justificando formalmente cada componente de la arquitectura propuesta.
-
-\subsubsection{El modelo gravitatorio restringido como modelo Logit multinomial}
-
-El modelo gravitatorio restringido en origen (Ecuación~\eqref{eq:gravedad_restringida}) puede reescribirse como un caso particular del \textit{Modelo Logit Multinomial} de McFadden \cite{mcfadden1974conditional} bajo el marco de la Teoría de la Utilidad Aleatoria (RUM). En este marco, la probabilidad de que un viajero en la zona de origen $i$ elija la zona de destino $j$ es:
-\begin{equation}
-    p_{ij} = \frac{\exp(V_{ij})}{\sum_{k} \exp(V_{ik})}
-    \label{eq:logit_dest}
-\end{equation}
-donde $V_{ij} = \beta_1 \ln P_j + \beta_2 \ln d_{ij}$ es la componente determinística de la utilidad del par $(i,j)$. Cuando $\beta_1 = 1$ y $\beta_2 = \gamma$, la Ecuación~\eqref{eq:logit_dest} es algebraicamente equivalente a la Ecuación~\eqref{eq:gravedad_restringida} con función de disuasión exponencial. Esta equivalencia, discutida en profundidad por Ortúzar y Willumsen \cite{ortuzar2011modelling}, establece que el modelo gravitatorio clásico es un modelo Logit multinomial con un vector de utilidad de dos dimensiones.
-
-La relación formal con \textit{Deep Gravity} es directa: la red neuronal profunda $f_\theta(\mathbf{x}_{ij})$ reemplaza el producto interno lineal $\boldsymbol{\beta}^{\top}\mathbf{x}_{ij}$ por una función no lineal aprendida, y la capa \textit{softmax} (Ecuación~\eqref{eq:dg_softmax}) implementa precisamente el operador Logit multinomial sobre los \textit{scores} producidos por la red. El modelo no impone forma funcional alguna a la utilidad: la aprende directamente de los datos.
-
-\subsubsection{Equivalencia entre la función de pérdida y la maximización de entropía}
-
-La función de pérdida de entropía cruzada empleada en el entrenamiento (Ecuación~\eqref{eq:dg_loss}) es formalmente equivalente a la maximización de la log-verosimilitud de una distribución multinomial de flujos. Wilson \cite{wilson1970entropy} demostró que maximizar la log-verosimilitud multinomial de los viajes observados, bajo las restricciones de conservación de flujos salientes, conduce a las mismas distribuciones que el principio de maximización de entropía. Por lo tanto, minimizar la función de pérdida $H$ equivale a encontrar la distribución de probabilidades de destino que, siendo consistente con los flujos observados, maximiza la entropía del sistema. Esto reinterpreta el entrenamiento de \textit{Deep Gravity} como una instancia del principio variacional de Wilson en el espacio de los modelos neuronales.
-
-\subsubsection{Capacidad de aproximación de la red neuronal}
-
-La sustitución de la función de disuasión analítica $f(d_{ij})$ (exponencial o ley de potencia) por una red neuronal profunda con 15 capas ocultas está formalmente respaldada por el Teorema de Aproximación Universal \cite{hornik1991approximation}. Este teorema establece que una red neuronal \textit{feedforward} con al menos una capa oculta y una función de activación no polinómica puede aproximar, con precisión arbitraria, cualquier función continua definida sobre un compacto de $\mathbb{R}^d$. Por extensión, una red de 15 capas con activaciones LeakyReLU tiene capacidad suficiente para aproximar cualquier relación funcional compleja entre los descriptores urbanos del par $(i,j)$ y la probabilidad de viaje, sin imponer restricciones sobre la forma matemática de esa relación.
-
-% ----------------------------------------------------------------
-\subsection{Extracción de características urbanas}
-\label{sec:features_osm}
-% ----------------------------------------------------------------
-
-\textit{Deep Gravity} incorpora la oferta de infraestructura y descriptores del entorno construido como variables explicativas del flujo entre pares de zonas. Estas características se extraen de OpenStreetMap (OSM), cuyo modelo de datos y cobertura en el contexto de Santiago se describen en la Sección~2.6 del Marco Conceptual.
-
-\subsubsection{Ontología de características}
-
-Para mitigar el problema de esparsidad de etiquetas derivado del exceso de categorías OSM vacías en celdas periféricas del Gran Santiago, se adopta una consolidación en \textbf{12 macro-categorías funcionales}, en lugar de las 18 características del paper original \cite{simini2021deep}. La Tabla~\ref{tab:osm_categorias} detalla las entidades OSM representativas de cada categoría.
-
-\begin{table}[ht]
+\begin{figure}[htbp]
 \centering
-\caption{Ontología de características OSM consolidada en 12 macro-categorías funcionales. Fuente: Elaboración propia.}
-\label{tab:osm_categorias}
+\begin{tikzpicture}[
+    font=\scriptsize,
+    process/.style={draw, rounded corners=2pt, align=center, minimum height=0.8cm, minimum width=2.35cm, inner sep=3pt},
+    data/.style={process, fill=blue!8},
+    spatial/.style={process, fill=green!9},
+    model/.style={process, fill=orange!10},
+    arrow/.style={-{Stealth[length=2mm]}, thick}
+]
+    \node[data] (source) {\textbf{DTPM}\\viajes + etapas};
+    \node[data, right=0.55cm of source] (canonical) {\textbf{Núcleo canónico}\\unión, extremos y cohorte};
+    \node[data, right=0.55cm of canonical] (territory) {\textbf{Dominio común}\\34 comunas y exclusión común};
+    \node[spatial, below left=0.85cm and 0.5cm of territory] (zone) {\textbf{Adaptador Zona 777}\\zonas operativas};
+    \node[spatial, below right=0.85cm and 0.5cm of territory] (hthree) {\textbf{Adaptador H3}\\r7 y r8};
+    \node[model, below=1.2cm of canonical] (features) {\textbf{Contrato de atributos}\\Censo 2024 + OSM + distancia};
+    \node[model, below=0.75cm of features] (evaluation) {\textbf{Entrenamiento y evaluación}\\particiones por origen, baselines y CPC};
+
+    \draw[arrow] (source) -- (canonical);
+    \draw[arrow] (canonical) -- (territory);
+    \draw[arrow] (territory) -- (zone);
+    \draw[arrow] (territory) -- (hthree);
+    \draw[arrow] (zone.south) |- (features.west);
+    \draw[arrow] (hthree.south) |- (features.east);
+    \draw[arrow] (features) -- (evaluation);
+\end{tikzpicture}
+\caption{Procedimiento de Santiago: un núcleo común de viajes precede a los adaptadores espaciales y a la evaluación. Fuente: Elaboración propia a partir de los contratos F2-C, F2-G y F2-I.}
+\label{fig:pipeline_santiago}
+\end{figure}
+
+La variable de respuesta es el flujo observado agregado entre una unidad de origen $i$ y una unidad de destino $j$. La población censal, el flujo saliente observado, el factor de expansión y los atributos de OSM son magnitudes distintas: el flujo saliente permite reconstruir la masa predicha condicionada al origen, pero no se incorpora como sustituto de población ni como predictor científico.
+
+\subsection{Datos de movilidad y reconstrucción del viaje}
+\label{sec:ingesta_datos}
+
+La entrega DTPM disponible comprende 29 fechas, desde el 1 al 29 de noviembre de 2024. Los archivos del día 30 llegaron con errores y se excluyen sin imputación. La unidad observacional utilizada en la comparación es un viaje canónico, no una validación aislada. La unión diaria validada vincula \texttt{viajes.(id\_tarjeta, id\_viaje)} con \texttt{etapas.(id\_etapa, correlativo\_viajes)}. El origen se reconstruye desde la primera etapa y el destino desde una bajada válida de la etapa final; las coordenadas UTM de ambos extremos residen en \texttt{etapas}, no en \texttt{viajes}.
+
+La cohorte primaria exige una secuencia de etapas coherente, extremos observados con la calidad indicada por el contrato, zonas de origen y destino disponibles y \texttt{factor\_expansion} no negativo. El factor de expansión de \texttt{viajes} es el peso principal para los flujos expandidos; el conteo sin expansión se conserva como análisis de sensibilidad. La Tabla~\ref{tab:contrato_datos} distingue procedencia y función de los insumos para evitar confundir pesos, coordenadas y variables explicativas.
+
+\begin{table}[htbp]
+\centering
 \small
-\begin{tabular}{clp{7.5cm}}
+\caption{Contrato de datos y procedencia de las variables usadas por el procedimiento. Fuente: Elaboración propia a partir de F2-C y F2-I.}
+\label{tab:contrato_datos}
+\begin{tabularx}{\textwidth}{@{}p{2.3cm}p{4.1cm}X@{}}
 \toprule
-\textbf{ID} & \textbf{Macro-categoría} & \textbf{Entidades OSM representativas} \\
+\textbf{Insumo} & \textbf{Contenido o unidad} & \textbf{Uso y regla de trazabilidad} \\
 \midrule
-1  & \texttt{residential\_bldg} & \texttt{building=residential, apartments, house} \\
-2  & \texttt{commercial\_bldg} & \texttt{building=commercial, office} \\
-3  & \texttt{industrial\_bldg} & \texttt{building=industrial, warehouse} \\
-4  & \texttt{leisure}          & \texttt{leisure=park, sports\_centre, pitch, garden} \\
-5  & \texttt{edu}              & \texttt{amenity=school, university, college, kindergarten} \\
-6  & \texttt{food}             & \texttt{amenity=restaurant, cafe, fast\_food, bar} \\
-7  & \texttt{health}           & \texttt{amenity=hospital, clinic, pharmacy, doctors} \\
-8  & \texttt{retail}           & \texttt{shop=supermarket, mall, convenience; amenity=bank} \\
-9  & \texttt{transport}        & \texttt{public\_transport=platform, stop\_position; highway=bus\_stop} \\
-10 & \texttt{main\_roads}      & \texttt{highway=motorway, trunk, primary} (longitud en km) \\
-11 & \texttt{secondary\_roads} & \texttt{highway=secondary, tertiary} (longitud en km) \\
-12 & \texttt{other}            & Equipamientos institucionales y servicios menores \\
+\texttt{viajes} DTPM & Identificadores del viaje, zonas consolidadas, secuencia y \texttt{factor\_expansion}. & Aporta la identidad del viaje, las zonas de la rama zonal y la masa expandida. No aporta coordenadas UTM de los extremos. \\
+\texttt{etapas} DTPM & Identificadores de etapa y viaje; coordenadas UTM de subida y bajada. & Permite reconstruir origen y destino válidos y asignar H3 tras transformar EPSG:32719 a WGS84. \\
+\texttt{ShapeZona} 777 DTPM & Geometría oficial de zonas y sus identificadores. & Sustenta área, centroides y atributos de las zonas; no se fabrican polígonos para IDs sin geometría verificable. \\
+Censo 2024 (INE) & Población de manzanas y entidades de la Región Metropolitana. & Se interpola por fracción de área en EPSG:32719 y se expresa por unidad espacial. No equivale a generación observada. \\
+OSM Chile 2024-01-01 & Polígonos, vías y puntos del extracto histórico. & Aporta coberturas y densidades del contrato \texttt{paper19}; un cero representa ausencia cartografiada, no prueba de ausencia real. \\
 \bottomrule
-\end{tabular}
+\end{tabularx}
 \end{table}
 
-\subsubsection{Normalización y construcción del vector de entrada}
-
-Para cada celda $z$ (sea zona 777 o celda H3), los conteos brutos de entidades OSM se transforman en densidades por kilómetro cuadrado:
+Para un escenario temporal dado, el flujo expandido se agrega como
 \begin{equation}
-    X_{k,z} = \frac{\displaystyle\sum_{i \in z} \mathbb{I}_k(\text{POI}_i)}{A_z}
-    \label{eq:densidad_osm}
+    T_{ij} = \sum_{v \in \mathcal{V}_{ij}} w_v,
+    \label{eq:flujo_expandido}
 \end{equation}
-donde $A_z$ es el área métrica de la celda calculada tras proyectar sus geometrías a EPSG:32719.
+donde $\mathcal{V}_{ij}$ reúne los viajes canónicos entre $i$ y $j$, y $w_v$ es el peso expandido del viaje $v$. Las tablas OD operativas conservan, por separado, \texttt{trip\_count} y \texttt{expanded\_mass}; no incluyen identificadores personales.
 
-El vector de entrada al Perceptrón Multicapa tiene \textbf{27 dimensiones}:
+\subsection{Delimitación territorial y cohorte común}
+\label{sec:delimitacion}
+
+El dominio aprobado es el núcleo urbano referencial de 34 comunas. Cada extremo UTM debe estar estrictamente contenido en una de las geometrías comunales DPA 2023 proyectadas a EPSG:32719; los puntos ubicados en un límite se excluyen por la regla \texttt{contains}. El filtro territorial retiene 60.513.881 viajes de la cohorte primaria y 85.777.662,9386 de masa expandida. La Figura~\ref{fig:delimitacion_gran_santiago} documenta esa decisión territorial.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/fig2_delimitacion_gran_santiago.pdf}
+\caption{Delimitación territorial aprobada en F2-D: núcleo urbano referencial de 34 comunas dentro de la Región Metropolitana. Las cifras de la figura corresponden al filtro territorial previo a la exclusión común posterior de tres zonas sin polígono oficial verificable. Fuente: elaboración propia a partir de F2-D.}
+\label{fig:delimitacion_gran_santiago}
+\end{figure}
+
+Después del recorte territorial se excluyen, en las tres ramas, los 1.904 viajes que tienen al menos un extremo en las zonas 848, 849 o 852, ya que no disponen de polígono oficial verificable para construir atributos. La cohorte comparativa resultante contiene 60.511.977 viajes y 85.774.522,4070 de masa expandida. Esta exclusión se aplica antes de agregar OD y no se reemplaza mediante geometrías de otra codificación.
+
+\subsection{Adaptadores espaciales, unidades y \textit{tiles}}
+\label{sec:unidades_espaciales}
+
+La rama Zona 777 usa las zonas de origen y destino auditadas en el viaje canónico y la geometría oficial publicada por DTPM. La rama H3 transforma las coordenadas válidas desde EPSG:32719 a WGS84 con \texttt{always\_xy=True} y asigna cada extremo mediante \texttt{latlng\_to\_cell}. La política de borde conserva la celda H3 completa observada: los viajes se recortan por el dominio aprobado, pero las huellas de las celdas no se recortan ni se reparte flujo por superficie.
+
+H3 es un sistema jerárquico de índices geoespaciales. Sus áreas y distancias varían geográficamente, existen pentágonos y la vecindad no puede resumirse como seis vecinos para toda celda. Por ello, H3 no elimina el MAUP: la comparación trata la discretización espacial como una fuente de sensibilidad empírica. El análisis de factibilidad consideró H3-r3 a H3-r8; H3-r7 y H3-r8 pasaron al piloto junto con Zona 777. La Tabla~\ref{tab:representaciones} presenta las representaciones operativas de la cohorte común, sin inferir superioridad entre ellas.
+
+\begin{table}[htbp]
+\centering
+\small
+\caption{Representaciones espaciales operativas después de la exclusión común. Fuente: elaboración propia a partir de ADR-006 y F2-I.}
+\label{tab:representaciones}
+\begin{tabularx}{\textwidth}{@{}p{2.1cm}p{2.2cm}p{2.0cm}X@{}}
+\toprule
+\textbf{Rama} & \textbf{Unidades} & \textbf{Rol} & \textbf{Regla de asignación y alcance} \\
+\midrule
+Zona 777 & 793 zonas & Referencia zonal & Zonas de origen y destino del viaje canónico; atributos calculados desde la geometría oficial verificable. \\
+H3-r7 & 223 celdas & Candidata de escala más agregada & Ambos extremos válidos se asignan directamente a celdas H3; mantiene celdas completas en el borde. \\
+H3-r8 & 1.210 celdas & Candidata de mayor detalle & Misma regla de asignación H3 y misma cohorte fuente; su mayor desagregación modifica el soporte OD. \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+Una zona o celda es una unidad OD. Un \textit{tile} es un bloque mayor, de 15.000 m de lado en EPSG:32719, indexado por $\operatorname{floor}(x/15000)$ y $\operatorname{floor}(y/15000)$. Se fijaron diez \textit{tiles} comunes y una agenda determinista con semilla 20260909: siete para entrenamiento, dos para validación y uno para prueba. La partición se aplica al origen; todos los destinos del dominio aprobado, incluidos los de otros \textit{tiles} o particiones, permanecen candidatos y los flujos cruzados se conservan. La Figura~\ref{fig:objetos_espaciales} distingue estos objetos y evita equiparar un \textit{tile} con una unidad OD.
+
+\begin{figure}[htbp]
+\centering
+\begin{subfigure}[t]{0.47\textwidth}
+\centering
+\begin{tikzpicture}[x=0.78cm,y=0.78cm,font=\scriptsize]
+    \draw[rounded corners=2pt, thick, fill=blue!4] (0,0) rectangle (5.2,4.0);
+    \foreach \x in {0,2.6,5.2} \draw[gray!65] (\x,0) -- (\x,4.0);
+    \foreach \y in {0,2,4} \draw[gray!65] (0,\y) -- (5.2,\y);
+    \draw[very thick, fill=orange!25] (0.8,0.6) -- (2.2,0.35) -- (3.2,1.0) -- (3.0,2.0) -- (1.7,2.35) -- (0.6,1.7) -- cycle;
+    \node[align=center] at (2.6,3.65) {Área territorial\\aprobada};
+    \node[align=center] at (1.3,3.0) {\textit{tile}};
+    \node[align=center] at (1.9,1.3) {Zona 777\\unidad OD};
+\end{tikzpicture}
+\caption{Adaptador Zona 777.}
+\end{subfigure}
+\hfill
+\begin{subfigure}[t]{0.47\textwidth}
+\centering
+\begin{tikzpicture}[x=0.78cm,y=0.78cm,font=\scriptsize]
+    \draw[rounded corners=2pt, thick, fill=green!4] (0,0) rectangle (5.2,4.0);
+    \foreach \x in {0,2.6,5.2} \draw[gray!65] (\x,0) -- (\x,4.0);
+    \foreach \y in {0,2,4} \draw[gray!65] (0,\y) -- (5.2,\y);
+    \draw[very thick, fill=cyan!25] (1.25,1.0) -- (1.85,0.65) -- (2.45,1.0) -- (2.45,1.7) -- (1.85,2.05) -- (1.25,1.7) -- cycle;
+    \node[align=center] at (2.6,3.65) {Área territorial\\aprobada};
+    \node[align=center] at (3.9,3.0) {\textit{tile}};
+    \node[align=center] at (1.85,1.35) {Celda\\H3};
+\end{tikzpicture}
+\caption{Adaptador H3.}
+\end{subfigure}
+\caption{Escalas espaciales del procedimiento. Cada rama representa el mismo dominio mediante sus propias unidades OD; el \textit{tile} es un bloque de partición mayor y no reemplaza a una zona o celda. Esquema no a escala. Fuente: elaboración propia.}
+\label{fig:objetos_espaciales}
+\end{figure}
+
+\subsection{Contrato de atributos y vector de entrada}
+\label{sec:features_osm}
+
+El contrato principal \texttt{paper19} usa 19 variables por ubicación y, para un par OD, forma un vector de 39 entradas: 19 del origen, 19 del destino y una distancia. Incluye población censal, cinco coberturas de uso de suelo, tres densidades de longitud vial y cinco familias de servicios, cada una medida mediante densidad de puntos y cobertura de áreas. \texttt{macro12\_geometry20} se mantiene como alternativa diagnóstica, con 20 variables por ubicación y 41 entradas, pero no reemplaza el contrato principal del piloto.
+
 \begin{equation}
-    \mathbf{x}_{ij} = \bigl[\,\text{Pop}_i,\; \text{Pop}_j,\; d_{ij},\; \mathbf{X}_i^{(1..12)},\; \mathbf{X}_j^{(1..12)}\,\bigr]
+    \mathbf{x}_{ij} = [\mathbf{a}_{i}^{(19)},\, \mathbf{a}_{j}^{(19)},\, d_{ij}],
     \label{eq:vector_entrada}
 \end{equation}
-donde $\text{Pop}_i$ y $\text{Pop}_j$ son las poblaciones del Censo INE 2017 asignadas a origen y destino, $d_{ij}$ es la distancia euclidiana inter-centroides en kilómetros proyectados, y $\mathbf{X}_i^{(1..12)}$ y $\mathbf{X}_j^{(1..12)}$ son las 12 densidades funcionales de origen y destino respectivamente.
+donde $\mathbf{a}_{i}$ y $\mathbf{a}_{j}$ contienen los atributos externos de origen y destino, respectivamente, y $d_{ij}$ es la distancia geodésica calculada desde representantes espaciales en WGS84. La población se interpola desde Censo 2024 a las unidades; no se reemplaza por el flujo saliente observado.
 
-La reducción de 39 a 27 dimensiones respecto al trabajo original de Simini et al. \cite{simini2021deep} obedece a la consolidación de 18 categorías en 12. Las 6 dimensiones eliminadas corresponden a subcategorías de uso de suelo y vialidad que en el contexto de Santiago presentan tasas de llenado inferiores al 30\% de las celdas del área de estudio.
+Los polígonos y las vías se recortan y unen dentro de cada categoría antes de calcular cobertura o longitud. Los puntos requieren pertenencia estricta a la unidad. Para densidades y tasas se aplica \texttt{log1p}; las coberturas mantienen su escala física antes de estandarizar. Media y desviación estándar se estiman solo con orígenes activos de entrenamiento de cada rama y escenario, y luego se aplican a validación y prueba. Esta regla impide que el conjunto de prueba intervenga en la normalización.
 
-% ----------------------------------------------------------------
-\subsection{Configuración del entrenamiento}
+\subsection{Modelo, muestreo y evaluación}
 \label{sec:configuracion_entrenamiento}
-% ----------------------------------------------------------------
 
-\subsubsection{Arquitectura neuronal}
+\subsubsection{Relación con el modelo gravitatorio}
 
-La función $f_\theta$ se implementa como una red neuronal \textit{feedforward} de 15 capas ocultas, idéntica a la descrita en la Sección~2.4.2 del Marco Conceptual. Las primeras 6 capas tienen dimensión 256 y las 9 restantes dimensión 128. Cada capa aplica secuencialmente normalización por lotes (\textit{Batch Normalization}), activación LeakyReLU y regularización por abandono (\textit{Dropout}). La capa de salida produce un escalar por par $(i,j)$.
+El \textit{softmax} de una utilidad sistemática $V_{ij}$ define la probabilidad de destino
+\begin{equation}
+    p_{ij} = \frac{\exp(V_{ij})}{\sum_{k \in \mathcal{D}_i} \exp(V_{ik})},
+    \label{eq:logit_dest}
+\end{equation}
+donde $\mathcal{D}_i$ es el soporte de destinos permitido para el origen $i$. Si $V_{ij}=\beta_1\ln(P_j)+\beta_2\ln(d_{ij})$, el \textit{softmax} induce una forma de potencia $P_j^{\beta_1}d_{ij}^{\beta_2}$; no induce una disuasión exponencial. Una forma gravitatoria exponencial requiere, por ejemplo, una utilidad coherente $V_{ij}=\alpha\ln(P_j)-\beta d_{ij}$ \cite{mcfadden1974conditional,ortuzar2011modelling}.
 
-El operador \textit{Softmax} se aplica sobre todos los pares de destino candidatos desde cada origen, configurado como \textit{Single Tile} continuo sobre el Gran Santiago, es decir, todos los orígenes compiten dentro del mismo sistema metropolitano sin subdivisión en teselas.
+\textit{Deep Gravity} reemplaza la utilidad lineal por una función no lineal aprendida $f_\theta(\mathbf{x}_{ij})$. El teorema de aproximación universal respalda una capacidad de representación bajo sus supuestos, pero no garantiza que una arquitectura concreta se optimice, generalice o supere a un \textit{baseline} con datos finitos \cite{hornik1991approximation}.
 
-\subsubsection{Muestreo negativo y función de pérdida}
+\subsubsection{Arquitectura, soporte y pérdida}
 
-Para hacer computacionalmente tratable la normalización del \textit{softmax} sobre todas las posibles zonas de destino, se aplica \textit{negative sampling}: por cada origen $i$ se seleccionan hasta 512 destinos candidatos, combinando todos los destinos con flujos observados ($T_{ij} > 0$) y destinos aleatorios sin flujos observados ($T_{ij} = 0$). La función de pérdida minimizada es la entropía cruzada multinomial (Ecuación~\eqref{eq:dg_loss}).
+La implementación efectiva conserva 15 capas ocultas: cinco de ancho 256 y diez de ancho 128, con activaciones LeakyReLU. No usa BatchNorm y el \textit{dropout} efectivo es 0,0 en la ruta vigente. La capa final produce un \textit{score} por destino candidato. La arquitectura heredada y la corrida técnica de Nueva York se mantienen como antecedentes de compatibilidad, no como demostración de desempeño científico para Santiago.
 
-\subsubsection{Optimizador y hiperparámetros}
+Durante el entrenamiento se pueden tomar hasta \texttt{destinations\_per\_origin} destinos por origen, sin reposición. \texttt{positive\_destination\_fraction} reserva una cuota de destinos con flujo positivo y el resto se extrae uniformemente de los candidatos aún disponibles; esa fracción no permite concluir que los demás seleccionados sean negativos. La evaluación usa el soporte completo de destinos aprobados, no una muestra. En el piloto, los destinos de todo el dominio metropolitano se mantienen disponibles aunque correspondan a otro \textit{tile} o partición.
 
-El modelo se entrena con el optimizador RMSprop con momento 0{,}9 y tasa de aprendizaje $5 \times 10^{-6}$, en lotes de 64 zonas de origen. Estos hiperparámetros reproducen la configuración original de Simini et al. \cite{simini2021deep} para garantizar la comparabilidad de resultados.
+La pérdida es la log-verosimilitud multinomial negativa ponderada por la masa elegida:
+\begin{equation}
+    \mathcal{L} = -\sum_{i}\sum_{j \in \mathcal{D}_i} y_{ij}\log p_{ij}.
+    \label{eq:perdida_multinomial_santiago}
+\end{equation}
+Minimizar esta expresión equivale a maximizar la log-verosimilitud multinomial bajo el contrato de soporte y pesos definido. Su relación con la formulación de entropía de Wilson es conceptual y requiere restricciones adicionales; no se identifica automáticamente con maximizar la entropía de Wilson \cite{wilson1970entropy}.
 
-\subsubsection{Correcciones sobre el código base}
+\subsubsection{Baselines, particiones y métricas}
 
-Antes de ejecutar el entrenamiento sobre los datos de Santiago, se aplican las siguientes correcciones sobre el repositorio base original:
+El piloto verificó la comparación contra tres referencias construidas en el mismo soporte de cada rama: distribución uniforme, atracción estimada con los datos de entrenamiento y gravedad exponencial calibrada. El \textit{checkpoint} se selecciona por CPC de validación; la prueba se ejecuta después y no ajusta parámetros. La configuración del piloto usa RMSprop, tasa de aprendizaje $5\times10^{-6}$, momento 0,9, lotes de ocho orígenes y 15 épocas. Estos valores son una configuración de piloto registrada, no una selección definitiva de hiperparámetros para F2-K.
 
-\begin{enumerate}
-    \item \textbf{Bug de serialización (\texttt{utils.py:106}):} el código original almacena la estructura \texttt{oa2centroid} dentro del archivo \texttt{od2flow.pkl}. La corrección serializa correctamente \texttt{od2flow} en su archivo correspondiente.
-    \item \textbf{Reactivación del generador de soporte:} se descomenta la llamada a \texttt{\_compute\_support\_files} en \texttt{load\_data()} para permitir la generación automática de los archivos \texttt{.pkl} indexados para las unidades espaciales de Santiago.
-    \item \textbf{Corrección del bucle de evaluación (\texttt{main.py}):} se elimina el \texttt{break} residual en la iteración sobre \texttt{test\_loader}, que impedía el cálculo del CPC acumulado completo sobre todas las particiones de prueba.
-    \item \textbf{Integración de dependencias geoespaciales:} se incorporan las librerías \texttt{h3-py} y \texttt{geopandas} al entorno de ejecución para el soporte de la teselación hexagonal y las operaciones de recorte geométrico.
-\end{enumerate}
+La métrica principal es
+\begin{equation}
+    \mathrm{CPC}=\frac{2\sum_{ij}\min(T_{ij},\widehat{T}_{ij})}{\sum_{ij}T_{ij}+\sum_{ij}\widehat{T}_{ij}}.
+    \label{eq:cpc_santiago}
+\end{equation}
+Se guardan numerador y ambas masas por origen para agregar CPC global y por \textit{tile} sobre el mismo soporte. Las medias por origen, por todos los \textit{tiles} y condicionadas a CPC positivo se reportan separadamente. El piloto F2-J confirma que el procedimiento se puede ejecutar y repetir con tres semillas, pero una comparación directa de CPC entre resoluciones no demuestra por sí sola superioridad de H3: cambian la agregación, los representantes espaciales y la masa de prueba entre ramas.
 
-% ----------------------------------------------------------------
-\subsection{Alcances y limitaciones}
+\subsection{Reproducibilidad, alcances y limitaciones}
 \label{sec:alcances}
-% ----------------------------------------------------------------
 
-\subsubsection{Alcance del estudio}
+Cada ejecución conserva configuración efectiva, semillas, versiones, hashes de entradas y código, particiones, métricas y \textit{checkpoint} en un directorio exclusivo. Los productos de datos, los contratos aprobados y los manifiestos permiten verificar la conservación de masa y reconstruir la procedencia de cada corrida. La prueba espacial se mantiene reservada durante la selección; el conjunto de prueba no participa en la normalización ni en el ajuste de hiperparámetros.
 
-El alcance de esta propuesta se define en las siguientes dimensiones:
+El alcance se limita a la movilidad observable en DTPM durante las 29 fechas disponibles de noviembre de 2024 y al dominio de 34 comunas aprobado. No representa todos los modos urbanos, no predice la generación total de viajes por origen y no acredita generalización temporal al mes completo a partir del piloto de un día. La instantánea OSM antecede a los viajes y su cobertura no equivale a presencia real de servicios; la interpolación areal del Censo 2024 supone distribución uniforme dentro de cada geometría censal. Además, la exclusión de las zonas sin polígono, la decisión de discretización y las diferencias de agregación espacial condicionan toda interpretación comparativa.
 
-\begin{itemize}
-    \item \textbf{Área geográfica:} Gran Santiago urbano, conformado por las comunas del continuo metropolitano con cobertura densa de Red Metropolitana de Movilidad y Metro (Sección~\ref{sec:delimitacion}).
-    \item \textbf{Período temporal:} noviembre de 2024, que corresponde a un mes de días laborales post-pandemia representativo del patrón de movilidad contemporáneo.
-    \item \textbf{Modos de transporte:} todos los presentes en el dataset DTPM: buses Red, Metro y Tren Nos.
-    \item \textbf{Modelos implementados:} \textit{Deep Gravity} como modelo principal; modelo gravitatorio clásico exponencial singly-constrained y modelo de radiación como \textit{baselines} de referencia.
-    \item \textbf{Características geoespaciales:} 12 macro-categorías funcionales extraídas de OSM (Tabla~\ref{tab:osm_categorias}), complementadas con población censal y distancia inter-centroides.
-    \item \textbf{Técnicas de explicabilidad:} valores SHAP (\textit{SHapley Additive exPlanations}) aplicados a ambos modelos para el análisis comparativo de importancia de variables.
-\end{itemize}
-
-\subsubsection{Limitaciones}
-
-Las siguientes limitaciones son inherentes al diseño de la propuesta y deben tenerse en cuenta en la interpretación de los resultados:
-
-\begin{itemize}
-    \item \textbf{Cobertura modal parcial:} el dataset DTPM no registra viajes en taxi, colectivo de pago en efectivo, bicicleta ni caminata. Los flujos modelados corresponden exclusivamente al transporte público formal.
-    \item \textbf{Exclusión de la periferia regional:} la delimitación al Gran Santiago urbano excluye los viajes de las comunas rurales y periféricas de la Región Metropolitana, lo que reduce la representatividad del modelo para esas zonas. Esta limitación debe documentarse en los reportes de uso institucional del modelo.
-    \item \textbf{Cobertura heterogénea de OSM:} la densidad y completitud de los datos OSM varía según el nivel socioeconómico de las comunas, con menor cobertura en las comunas periféricas de menores ingresos, como se describe en la Sección~2.6 del Marco Conceptual. Este sesgo puede afectar la estimación de características geoespaciales en dichas zonas.
-    \item \textbf{Instantánea temporal:} el dataset de noviembre de 2024 constituye una fotografía de la movilidad en ese período. El modelo no realiza predicción temporal (\textit{forecasting}) y sus resultados no son necesariamente extrapolables a períodos con condiciones de movilidad distintas (vacaciones, eventos masivos, crisis de transporte).
-    \item \textbf{Fuera de alcance:} quedan excluidos del presente trabajo la calibración de políticas públicas, el uso de datos de telecomunicaciones, y la implementación de otras arquitecturas neuronales como redes de grafos (GNN) o transformadores espaciales.
-\end{itemize}
+La explicabilidad se pospone para el modelo final estabilizado. Si se aplican SHAP u otras atribuciones, deberán fijar salida, conjunto de referencia, modo de evaluación, semilla y estabilidad; sus valores describirán sensibilidad predictiva y no efectos causales.
