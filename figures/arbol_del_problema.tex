@@ -1,0 +1,37 @@
+\begin{tikzpicture}[
+    font=\footnotesize,
+    box/.style={draw, rounded corners=2pt, align=center, text width=2.8cm,
+                minimum height=1.65cm, inner sep=4pt},
+    cause/.style={box, fill=blue!8},
+    risk/.style={box, fill=gray!10},
+    arrow/.style={-{Stealth[length=2mm]}, thick}
+]
+    \node[anchor=west, font=\small\bfseries] at (-1.55,6.05) {Riesgos para la interpretación};
+    \node[risk] (e1) at (0,4.9) {Confundir agregación espacial con mejora predictiva};
+    \node[risk] (e2) at (3.4,4.9) {Extender resultados a movilidad no observada};
+    \node[risk] (e3) at (6.8,4.9) {Confundir atribuciones predictivas con efectos causales};
+    \node[risk] (e4) at (10.2,4.9) {Trasladar resultados entre territorios sin evaluarlos};
+
+    \node[draw, rounded corners=2pt, fill=orange!15, align=center,
+          text width=10.3cm, minimum height=1.35cm, inner sep=6pt] (central) at (5.1,2.6)
+          {\textbf{Problema de investigación}\\
+           Evaluar cómo la discretización espacial condiciona el desempeño
+           y la interpretación de modelos de flujos de transporte público en Santiago};
+
+    \node[anchor=west, font=\small\bfseries] at (-1.55,-1.2) {Factores que requieren control metodológico};
+    \node[cause] (c1) at (0,0.2) {Cobertura parcial de las fuentes de movilidad};
+    \node[cause] (c2) at (3.4,0.2) {Cambios en la agregación de viajes entre unidades espaciales};
+    \node[cause] (c3) at (6.8,0.2) {Diferencias en la construcción de atributos territoriales};
+    \node[cause] (c4) at (10.2,0.2) {Transferencia de modelos entre contextos geográficos};
+
+    \draw[thick] (c1.north) -- (0,1.4) -- (10.2,1.4) -- (c4.north);
+    \draw[thick] (c2.north) -- (3.4,1.4);
+    \draw[thick] (c3.north) -- (6.8,1.4);
+    \draw[arrow] (5.1,1.4) -- (central.south);
+    \draw[thick] (central.north) -- (5.1,3.65);
+    \draw[thick] (0,3.65) -- (10.2,3.65);
+    \draw[arrow] (0,3.65) -- (e1.south);
+    \draw[arrow] (3.4,3.65) -- (e2.south);
+    \draw[arrow] (6.8,3.65) -- (e3.south);
+    \draw[arrow] (10.2,3.65) -- (e4.south);
+\end{tikzpicture}

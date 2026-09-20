@@ -1,4 +1,5 @@
 \secnumbersection{PROPUESTA DE SOLUCIÓN}
+\label{sec:cap4}
 
 Este capítulo especifica el procedimiento reproducible para estudiar la sensibilidad de \textit{Deep Gravity} frente a la discretización espacial en Santiago. La comparación no presupone que una representación supere a otra: construye las ramas Zona 777, H3-r7 y H3-r8 a partir de una cohorte común, con atributos, particiones y protocolo de evaluación explícitos. Los resultados del piloto se usan para documentar la factibilidad del procedimiento; la elección de las configuraciones y el presupuesto de los experimentos finales permanece separada de esta especificación.
 
@@ -22,8 +23,8 @@ La solución parte de registros DTPM de viajes y etapas, reconstruye extremos v�
     \node[data, right=0.55cm of canonical] (territory) {\textbf{Dominio común}\\34 comunas y exclusión común};
     \node[spatial, below left=0.85cm and 0.5cm of territory] (zone) {\textbf{Adaptador Zona 777}\\zonas operativas};
     \node[spatial, below right=0.85cm and 0.5cm of territory] (hthree) {\textbf{Adaptador H3}\\r7 y r8};
-    \node[model, below=1.2cm of canonical] (features) {\textbf{Contrato de atributos}\\Censo 2024 + OSM + distancia};
-    \node[model, below=0.75cm of features] (evaluation) {\textbf{Entrenamiento y evaluación}\\particiones por origen, baselines y CPC};
+    \node[model, below=1.2cm of canonical] (features) {\textbf{Construcción de atributos}\\Censo 2024 + OSM + distancia};
+    \node[model, below=0.75cm of features] (evaluation) {\textbf{Entrenamiento y evaluación}\\particiones por origen, referencias y CPC};
 
     \draw[arrow] (source) -- (canonical);
     \draw[arrow] (canonical) -- (territory);
@@ -33,7 +34,7 @@ La solución parte de registros DTPM de viajes y etapas, reconstruye extremos v�
     \draw[arrow] (hthree.south) |- (features.east);
     \draw[arrow] (features) -- (evaluation);
 \end{tikzpicture}
-\caption{Procedimiento de Santiago: un núcleo común de viajes precede a los adaptadores espaciales y a la evaluación. Fuente: Elaboración propia a partir de los contratos F2-C, F2-G y F2-I.}
+\caption{Procedimiento de Santiago: un núcleo común de viajes precede a los adaptadores espaciales y a la evaluación. Fuente: elaboración propia.}
 \label{fig:pipeline_santiago}
 \end{figure}
 
@@ -44,13 +45,15 @@ La variable de respuesta es el flujo observado agregado entre una unidad de orig
 
 La entrega DTPM disponible comprende 29 fechas, desde el 1 al 29 de noviembre de 2024. Los archivos del día 30 llegaron con errores y se excluyen sin imputación. La unidad observacional utilizada en la comparación es un viaje canónico, no una validación aislada. La unión diaria validada vincula \texttt{viajes.(id\_tarjeta, id\_viaje)} con \texttt{etapas.(id\_etapa, correlativo\_viajes)}. El origen se reconstruye desde la primera etapa y el destino desde una bajada válida de la etapa final; las coordenadas UTM de ambos extremos residen en \texttt{etapas}, no en \texttt{viajes}.
 
-La cohorte primaria exige una secuencia de etapas coherente, extremos observados con la calidad indicada por el contrato, zonas de origen y destino disponibles y \texttt{factor\_expansion} no negativo. El factor de expansión de \texttt{viajes} es el peso principal para los flujos expandidos; el conteo sin expansión se conserva como análisis de sensibilidad. La Tabla~\ref{tab:contrato_datos} distingue procedencia y función de los insumos para evitar confundir pesos, coordenadas y variables explicativas.
+La cohorte primaria exige una secuencia completa y sin duplicados de etapas, numeradas desde uno hasta el número declarado para el viaje. El origen corresponde a la primera etapa y el destino a la bajada de la última; esta debe tener \texttt{tiene\_bajada}=1 y el viaje debe indicar \texttt{ultimaetapaconbajada}=1. Se requieren zonas de origen y destino disponibles y \texttt{factor\_expansion} no negativo. Como control técnico previo al recorte territorial, las coordenadas de ambos extremos deben satisfacer $100.000 \leq X \leq 900.000$ y $5.000.000 \leq Y \leq 10.000.000$, en metros. Estos rangos no definen el área de estudio.
+
+El factor de expansión de \texttt{viajes} es el peso principal para los flujos expandidos; el conteo sin expansión se conserva para el análisis de sensibilidad. La Tabla~\ref{tab:fuentes_variables} distingue procedencia y función de los insumos para evitar confundir pesos, coordenadas y variables explicativas.
 
 \begin{table}[htbp]
 \centering
 \small
-\caption{Contrato de datos y procedencia de las variables usadas por el procedimiento. Fuente: Elaboración propia a partir de F2-C y F2-I.}
-\label{tab:contrato_datos}
+\caption{Fuentes de datos y función de las variables usadas por el procedimiento. Fuente: elaboración propia.}
+\label{tab:fuentes_variables}
 \begin{tabularx}{\textwidth}{@{}p{2.3cm}p{4.1cm}X@{}}
 \toprule
 \textbf{Insumo} & \textbf{Contenido o unidad} & \textbf{Uso y regla de trazabilidad} \\
@@ -59,7 +62,7 @@ La cohorte primaria exige una secuencia de etapas coherente, extremos observados
 \texttt{etapas} DTPM & Identificadores de etapa y viaje; coordenadas UTM de subida y bajada. & Permite reconstruir origen y destino válidos y asignar H3 tras transformar EPSG:32719 a WGS84. \\
 \texttt{ShapeZona} 777 DTPM & Geometría oficial de zonas y sus identificadores. & Sustenta área, centroides y atributos de las zonas; no se fabrican polígonos para IDs sin geometría verificable. \\
 Censo 2024 (INE) & Población de manzanas y entidades de la Región Metropolitana. & Se interpola por fracción de área en EPSG:32719 y se expresa por unidad espacial. No equivale a generación observada. \\
-OSM Chile 2024-01-01 & Polígonos, vías y puntos del extracto histórico. & Aporta coberturas y densidades del contrato \texttt{paper19}; un cero representa ausencia cartografiada, no prueba de ausencia real. \\
+OSM Chile 2024-01-01 & Polígonos, vías y puntos del extracto histórico. & Aporta coberturas y densidades utilizadas como atributos territoriales; un cero representa ausencia cartografiada, no prueba de ausencia real. \\
 \bottomrule
 \end{tabularx}
 \end{table}
@@ -74,12 +77,12 @@ donde $\mathcal{V}_{ij}$ reúne los viajes canónicos entre $i$ y $j$, y $w_v$ e
 \subsection{Delimitación territorial y cohorte común}
 \label{sec:delimitacion}
 
-El dominio aprobado es el núcleo urbano referencial de 34 comunas. Cada extremo UTM debe estar estrictamente contenido en una de las geometrías comunales DPA 2023 proyectadas a EPSG:32719; los puntos ubicados en un límite se excluyen por la regla \texttt{contains}. El filtro territorial retiene 60.513.881 viajes de la cohorte primaria y 85.777.662,9386 de masa expandida. La Figura~\ref{fig:delimitacion_gran_santiago} documenta esa decisión territorial.
+El dominio de estudio es el núcleo urbano referencial de 34 comunas. Cada extremo UTM debe estar estrictamente contenido en una de las geometrías comunales DPA 2023 proyectadas a EPSG:32719; los puntos ubicados en un límite se excluyen por la regla \texttt{contains}. El filtro territorial retiene 60.513.881 viajes de la cohorte primaria y 85.777.662,9386 de masa expandida. La Figura~\ref{fig:delimitacion_gran_santiago} documenta esa decisión territorial.
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=\textwidth]{figures/fig2_delimitacion_gran_santiago.pdf}
-\caption{Delimitación territorial aprobada en F2-D: núcleo urbano referencial de 34 comunas dentro de la Región Metropolitana. Las cifras de la figura corresponden al filtro territorial previo a la exclusión común posterior de tres zonas sin polígono oficial verificable. Fuente: elaboración propia a partir de F2-D.}
+\includegraphics[width=\textwidth]{figures/fig2_delimitacion_gran_santiago_tesis.pdf}
+\caption{Delimitación del área de estudio: núcleo urbano referencial de 34 comunas dentro de la Región Metropolitana. Las cifras de la figura corresponden al filtro territorial previo a la exclusión común posterior de tres zonas sin polígono oficial verificable. Fuente: elaboración propia. Los datos territoriales y el procedimiento se describen en esta sección.}
 \label{fig:delimitacion_gran_santiago}
 \end{figure}
 
@@ -88,14 +91,14 @@ Después del recorte territorial se excluyen, en las tres ramas, los 1.904 viaje
 \subsection{Adaptadores espaciales, unidades y \textit{tiles}}
 \label{sec:unidades_espaciales}
 
-La rama Zona 777 usa las zonas de origen y destino auditadas en el viaje canónico y la geometría oficial publicada por DTPM. La rama H3 transforma las coordenadas válidas desde EPSG:32719 a WGS84 con \texttt{always\_xy=True} y asigna cada extremo mediante \texttt{latlng\_to\_cell}. La política de borde conserva la celda H3 completa observada: los viajes se recortan por el dominio aprobado, pero las huellas de las celdas no se recortan ni se reparte flujo por superficie.
+La rama Zona 777 usa las zonas de origen y destino auditadas en el viaje canónico y la geometría oficial publicada por DTPM. La rama H3 transforma las coordenadas válidas desde EPSG:32719 a WGS84 con \texttt{always\_xy=True} y asigna cada extremo mediante \texttt{latlng\_to\_cell}. La política de borde conserva la celda H3 completa observada: los viajes se recortan por el dominio de estudio, pero las huellas de las celdas no se recortan ni se reparte flujo por superficie.
 
-H3 es un sistema jerárquico de índices geoespaciales. Sus áreas y distancias varían geográficamente, existen pentágonos y la vecindad no puede resumirse como seis vecinos para toda celda. Por ello, H3 no elimina el MAUP: la comparación trata la discretización espacial como una fuente de sensibilidad empírica. El análisis de factibilidad consideró H3-r3 a H3-r8; H3-r7 y H3-r8 pasaron al piloto junto con Zona 777. La Tabla~\ref{tab:representaciones} presenta las representaciones operativas de la cohorte común, sin inferir superioridad entre ellas.
+H3 es un sistema jerárquico de índices geoespaciales. Sus áreas y distancias varían geográficamente, existen pentágonos y la vecindad no puede resumirse como seis vecinos para toda celda. Por ello, H3 no elimina el problema de la unidad espacial modificable (MAUP, por sus siglas en inglés): la comparación trata la discretización espacial como una fuente de sensibilidad empírica. El análisis de factibilidad consideró H3-r3 a H3-r8; H3-r7 y H3-r8 pasaron al piloto junto con Zona 777. La Tabla~\ref{tab:representaciones} presenta las representaciones operativas de la cohorte común, sin inferir superioridad entre ellas.
 
 \begin{table}[htbp]
 \centering
 \small
-\caption{Representaciones espaciales operativas después de la exclusión común. Fuente: elaboración propia a partir de ADR-006 y F2-I.}
+\caption{Representaciones espaciales operativas después de la exclusión común. Fuente: elaboración propia.}
 \label{tab:representaciones}
 \begin{tabularx}{\textwidth}{@{}p{2.1cm}p{2.2cm}p{2.0cm}X@{}}
 \toprule
@@ -108,7 +111,7 @@ H3-r8 & 1.210 celdas & Candidata de mayor detalle & Misma regla de asignación H
 \end{tabularx}
 \end{table}
 
-Una zona o celda es una unidad OD. Un \textit{tile} es un bloque mayor, de 15.000 m de lado en EPSG:32719, indexado por $\operatorname{floor}(x/15000)$ y $\operatorname{floor}(y/15000)$. Se fijaron diez \textit{tiles} comunes y una agenda determinista con semilla 20260909: siete para entrenamiento, dos para validación y uno para prueba. La partición se aplica al origen; todos los destinos del dominio aprobado, incluidos los de otros \textit{tiles} o particiones, permanecen candidatos y los flujos cruzados se conservan. La Figura~\ref{fig:objetos_espaciales} distingue estos objetos y evita equiparar un \textit{tile} con una unidad OD.
+Una zona o celda es una unidad OD. Un \textit{tile} es un bloque mayor, de 15.000 m de lado en EPSG:32719, indexado por $\operatorname{floor}(x/15000)$ y $\operatorname{floor}(y/15000)$. Se fijaron diez \textit{tiles} comunes y una agenda determinista con semilla 20260909: siete para entrenamiento, dos para validación y uno para prueba. La partición se aplica al origen; todos los destinos del dominio de estudio, incluidos los de otros \textit{tiles} o particiones, permanecen candidatos y los flujos cruzados se conservan. La Figura~\ref{fig:objetos_espaciales} distingue estos objetos y evita equiparar un \textit{tile} con una unidad OD.
 
 \begin{figure}[htbp]
 \centering
@@ -119,7 +122,7 @@ Una zona o celda es una unidad OD. Un \textit{tile} es un bloque mayor, de 15.00
     \foreach \x in {0,2.6,5.2} \draw[gray!65] (\x,0) -- (\x,4.0);
     \foreach \y in {0,2,4} \draw[gray!65] (0,\y) -- (5.2,\y);
     \draw[very thick, fill=orange!25] (0.8,0.6) -- (2.2,0.35) -- (3.2,1.0) -- (3.0,2.0) -- (1.7,2.35) -- (0.6,1.7) -- cycle;
-    \node[align=center] at (2.6,3.65) {Área territorial\\aprobada};
+    \node[align=center] at (2.6,3.65) {Área de\\estudio};
     \node[align=center] at (1.3,3.0) {\textit{tile}};
     \node[align=center] at (1.9,1.3) {Zona 777\\unidad OD};
 \end{tikzpicture}
@@ -133,7 +136,7 @@ Una zona o celda es una unidad OD. Un \textit{tile} es un bloque mayor, de 15.00
     \foreach \x in {0,2.6,5.2} \draw[gray!65] (\x,0) -- (\x,4.0);
     \foreach \y in {0,2,4} \draw[gray!65] (0,\y) -- (5.2,\y);
     \draw[very thick, fill=cyan!25] (1.25,1.0) -- (1.85,0.65) -- (2.45,1.0) -- (2.45,1.7) -- (1.85,2.05) -- (1.25,1.7) -- cycle;
-    \node[align=center] at (2.6,3.65) {Área territorial\\aprobada};
+    \node[align=center] at (2.6,3.65) {Área de\\estudio};
     \node[align=center] at (3.9,3.0) {\textit{tile}};
     \node[align=center] at (1.85,1.35) {Celda\\H3};
 \end{tikzpicture}
@@ -143,16 +146,16 @@ Una zona o celda es una unidad OD. Un \textit{tile} es un bloque mayor, de 15.00
 \label{fig:objetos_espaciales}
 \end{figure}
 
-\subsection{Contrato de atributos y vector de entrada}
+\subsection{Construcción de atributos y vector de entrada}
 \label{sec:features_osm}
 
-El contrato principal \texttt{paper19} usa 19 variables por ubicación y, para un par OD, forma un vector de 39 entradas: 19 del origen, 19 del destino y una distancia. Incluye población censal, cinco coberturas de uso de suelo, tres densidades de longitud vial y cinco familias de servicios, cada una medida mediante densidad de puntos y cobertura de áreas. \texttt{macro12\_geometry20} se mantiene como alternativa diagnóstica, con 20 variables por ubicación y 41 entradas, pero no reemplaza el contrato principal del piloto.
+La configuración principal utiliza 19 variables por ubicación y, para un par OD, forma un vector de 39 entradas: 19 del origen, 19 del destino y una distancia. Incluye densidad de población censal, cinco coberturas de uso de suelo, tres densidades de longitud vial y cinco familias de servicios, cada una medida mediante densidad de puntos y cobertura de áreas. Se conserva una configuración alternativa para diagnóstico, con 20 variables por ubicación y 41 entradas por par, que no reemplaza la configuración principal del piloto.
 
 \begin{equation}
     \mathbf{x}_{ij} = [\mathbf{a}_{i}^{(19)},\, \mathbf{a}_{j}^{(19)},\, d_{ij}],
     \label{eq:vector_entrada}
 \end{equation}
-donde $\mathbf{a}_{i}$ y $\mathbf{a}_{j}$ contienen los atributos externos de origen y destino, respectivamente, y $d_{ij}$ es la distancia geodésica calculada desde representantes espaciales en WGS84. La población se interpola desde Censo 2024 a las unidades; no se reemplaza por el flujo saliente observado.
+donde $\mathbf{a}_{i}$ y $\mathbf{a}_{j}$ contienen los atributos externos de origen y destino, respectivamente, y $d_{ij}$ es la distancia geodésica calculada desde representantes espaciales en WGS84. La población se interpola desde Censo 2024 a las unidades y se divide por su área para construir la densidad de entrada a la red; no se reemplaza por el flujo saliente observado.
 
 Los polígonos y las vías se recortan y unen dentro de cada categoría antes de calcular cobertura o longitud. Los puntos requieren pertenencia estricta a la unidad. Para densidades y tasas se aplica \texttt{log1p}; las coberturas mantienen su escala física antes de estandarizar. Media y desviación estándar se estiman solo con orígenes activos de entrenamiento de cada rama y escenario, y luego se aplican a validación y prueba. Esta regla impide que el conjunto de prueba intervenga en la normalización.
 
@@ -174,31 +177,38 @@ donde $\mathcal{D}_i$ es el soporte de destinos permitido para el origen $i$. Si
 
 La implementación efectiva conserva 15 capas ocultas: cinco de ancho 256 y diez de ancho 128, con activaciones LeakyReLU. No usa BatchNorm y el \textit{dropout} efectivo es 0,0 en la ruta vigente. La capa final produce un \textit{score} por destino candidato. La arquitectura heredada y la corrida técnica de Nueva York se mantienen como antecedentes de compatibilidad, no como demostración de desempeño científico para Santiago.
 
-Durante el entrenamiento se pueden tomar hasta \texttt{destinations\_per\_origin} destinos por origen, sin reposición. \texttt{positive\_destination\_fraction} reserva una cuota de destinos con flujo positivo y el resto se extrae uniformemente de los candidatos aún disponibles; esa fracción no permite concluir que los demás seleccionados sean negativos. La evaluación usa el soporte completo de destinos aprobados, no una muestra. En el piloto, los destinos de todo el dominio metropolitano se mantienen disponibles aunque correspondan a otro \textit{tile} o partición.
+El muestreador general permite limitar el número de destinos por origen, sin reposición, y reservar una fracción de candidatos con flujo positivo. Los candidatos restantes se eligen uniformemente entre los disponibles, por lo que pueden incluir otros destinos con flujo positivo. En las corridas del piloto descritas aquí no se utilizó ese muestreo: tanto el entrenamiento como la evaluación usaron el soporte completo de destinos de cada representación. Los destinos de todo el dominio metropolitano permanecieron disponibles aunque correspondieran a otro \textit{tile} o partición.
 
 La pérdida es la log-verosimilitud multinomial negativa ponderada por la masa elegida:
 \begin{equation}
     \mathcal{L} = -\sum_{i}\sum_{j \in \mathcal{D}_i} y_{ij}\log p_{ij}.
     \label{eq:perdida_multinomial_santiago}
 \end{equation}
-Minimizar esta expresión equivale a maximizar la log-verosimilitud multinomial bajo el contrato de soporte y pesos definido. Su relación con la formulación de entropía de Wilson es conceptual y requiere restricciones adicionales; no se identifica automáticamente con maximizar la entropía de Wilson \cite{wilson1970entropy}.
+Para conteos enteros, minimizar esta expresión equivale a maximizar la log-verosimilitud multinomial, salvo constantes independientes del modelo. Con masa expandida fraccionaria, se interpreta como una pérdida multinomial ponderada, con el soporte de destinos y los pesos definidos para el análisis. Su relación con la formulación de entropía de Wilson es conceptual y requiere restricciones adicionales; no se identifica automáticamente con maximizar la entropía de Wilson \cite{wilson1970entropy}.
 
-\subsubsection{Baselines, particiones y métricas}
+\subsubsection{Modelos de referencia, particiones y métricas}
 
-El piloto verificó la comparación contra tres referencias construidas en el mismo soporte de cada rama: distribución uniforme, atracción estimada con los datos de entrenamiento y gravedad exponencial calibrada. El \textit{checkpoint} se selecciona por CPC de validación; la prueba se ejecuta después y no ajusta parámetros. La configuración del piloto usa RMSprop, tasa de aprendizaje $5\times10^{-6}$, momento 0,9, lotes de ocho orígenes y 15 épocas. Estos valores son una configuración de piloto registrada, no una selección definitiva de hiperparámetros para F2-K.
+En el modelo gravitatorio exponencial del piloto, la utilidad se calcula como
+\begin{equation}
+    V_{ij}=\alpha\ln(1+P_j)+\beta d_{ij},\qquad \alpha\geq0,\quad\beta\leq0,
+    \label{eq:baseline_exponencial}
+\end{equation}
+donde $P_j$ es la población total interpolada, recuperada multiplicando la densidad censal por el área de la unidad, y $d_{ij}$ es la distancia esférica en kilómetros. Los parámetros se ajustan exclusivamente con los flujos de entrenamiento mediante una pérdida multinomial ponderada. Esta variable del modelo de referencia se distingue de la densidad de población transformada y estandarizada que recibe la red. La distancia intrazonal o intracelda es cero, valor admisible en la disuasión exponencial.
+
+El piloto verificó la comparación contra tres referencias construidas en el mismo soporte de cada rama: distribución uniforme, atracción estimada con los datos de entrenamiento y gravedad exponencial calibrada. El \textit{checkpoint} se selecciona por CPC de validación; la prueba se ejecuta después y no ajusta parámetros. La configuración del piloto usa RMSprop, tasa de aprendizaje $5\times10^{-6}$, momento 0,9, lotes de ocho orígenes y 15 épocas. Estos valores son una configuración de piloto registrada, no una selección definitiva de hiperparámetros para los experimentos finales.
 
 La métrica principal es
 \begin{equation}
     \mathrm{CPC}=\frac{2\sum_{ij}\min(T_{ij},\widehat{T}_{ij})}{\sum_{ij}T_{ij}+\sum_{ij}\widehat{T}_{ij}}.
     \label{eq:cpc_santiago}
 \end{equation}
-Se guardan numerador y ambas masas por origen para agregar CPC global y por \textit{tile} sobre el mismo soporte. Las medias por origen, por todos los \textit{tiles} y condicionadas a CPC positivo se reportan separadamente. El piloto F2-J confirma que el procedimiento se puede ejecutar y repetir con tres semillas, pero una comparación directa de CPC entre resoluciones no demuestra por sí sola superioridad de H3: cambian la agregación, los representantes espaciales y la masa de prueba entre ramas.
+Se guardan numerador y ambas masas por origen para agregar CPC global y por \textit{tile} sobre el mismo soporte. Las medias por origen, por todos los \textit{tiles} y condicionadas a CPC positivo se reportan separadamente. El piloto de Santiago confirma que el procedimiento se puede ejecutar y repetir con tres semillas, pero una comparación directa de CPC entre resoluciones no demuestra por sí sola superioridad de H3: cambian la agregación, los representantes espaciales y la masa de prueba entre ramas.
 
 \subsection{Reproducibilidad, alcances y limitaciones}
 \label{sec:alcances}
 
-Cada ejecución conserva configuración efectiva, semillas, versiones, hashes de entradas y código, particiones, métricas y \textit{checkpoint} en un directorio exclusivo. Los productos de datos, los contratos aprobados y los manifiestos permiten verificar la conservación de masa y reconstruir la procedencia de cada corrida. La prueba espacial se mantiene reservada durante la selección; el conjunto de prueba no participa en la normalización ni en el ajuste de hiperparámetros.
+Cada ejecución conserva configuración efectiva, semillas, versiones, hashes de entradas y código, particiones, métricas y \textit{checkpoint} en un directorio exclusivo. Los productos de datos, las especificaciones de procesamiento y los registros de ejecución permiten verificar la conservación de masa y reconstruir la procedencia de cada corrida. La prueba espacial se mantiene reservada durante la selección; el conjunto de prueba no participa en la normalización ni en el ajuste de hiperparámetros.
 
-El alcance se limita a la movilidad observable en DTPM durante las 29 fechas disponibles de noviembre de 2024 y al dominio de 34 comunas aprobado. No representa todos los modos urbanos, no predice la generación total de viajes por origen y no acredita generalización temporal al mes completo a partir del piloto de un día. La instantánea OSM antecede a los viajes y su cobertura no equivale a presencia real de servicios; la interpolación areal del Censo 2024 supone distribución uniforme dentro de cada geometría censal. Además, la exclusión de las zonas sin polígono, la decisión de discretización y las diferencias de agregación espacial condicionan toda interpretación comparativa.
+El alcance se limita a la movilidad observable en DTPM durante las 29 fechas disponibles de noviembre de 2024 y al dominio de estudio de 34 comunas. No representa todos los modos urbanos, no predice la generación total de viajes por origen y no acredita generalización temporal al mes completo a partir del piloto de un día. La instantánea OSM antecede a los viajes y su cobertura no equivale a presencia real de servicios; la interpolación areal del Censo 2024 supone distribución uniforme dentro de cada geometría censal. Además, la exclusión de las zonas sin polígono, la decisión de discretización y las diferencias de agregación espacial condicionan toda interpretación comparativa.
 
 La explicabilidad se pospone para el modelo final estabilizado. Si se aplican SHAP u otras atribuciones, deberán fijar salida, conjunto de referencia, modo de evaluación, semilla y estabilidad; sus valores describirán sensibilidad predictiva y no efectos causales.
