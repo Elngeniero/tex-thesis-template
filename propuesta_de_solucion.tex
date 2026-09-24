@@ -1,7 +1,7 @@
 \secnumbersection{PROPUESTA DE SOLUCIÓN}
 \label{sec:cap4}
 
-Este capítulo especifica el procedimiento reproducible para estudiar la sensibilidad de \textit{Deep Gravity} frente a la discretización espacial en Santiago. La comparación no presupone que una representación supere a otra: construye las ramas Zona 777, H3-r7 y H3-r8 a partir de una cohorte común, con atributos, particiones y protocolo de evaluación explícitos. Los resultados del piloto se usan para documentar la factibilidad del procedimiento; la elección de las configuraciones y el presupuesto de los experimentos finales permanece separada de esta especificación.
+Este capítulo especifica el procedimiento reproducible para estudiar la sensibilidad de \textit{Deep Gravity} frente a la discretización espacial en Santiago. La comparación no presupone que una representación supere a otra: construye las ramas Zona 777, H3-r7 y H3-r8 a partir de una cohorte común, con atributos, particiones y protocolo de evaluación explícitos. Se distinguen un piloto de un día, destinado a comprobar la factibilidad del recorrido, y un experimento mensual agregado, destinado a la evaluación principal. Ambos comparten decisiones estructurales, pero difieren en su escenario, normalización, presupuesto y regla de liberación de prueba.
 
 \subsection{Diseño general y trazabilidad}
 \label{sec:diseno_general}
@@ -159,6 +159,8 @@ donde $\mathbf{a}_{i}$ y $\mathbf{a}_{j}$ contienen los atributos externos de or
 
 Los polígonos y las vías se recortan y unen dentro de cada categoría antes de calcular cobertura o longitud. Los puntos requieren pertenencia estricta a la unidad. Para densidades y tasas se aplica \texttt{log1p}; las coberturas mantienen su escala física antes de estandarizar. Media y desviación estándar se estiman solo con orígenes activos de entrenamiento de cada rama y escenario, y luego se aplican a validación y prueba. Esta regla impide que el conjunto de prueba intervenga en la normalización.
 
+El piloto ajustó esta transformación con los orígenes activos del 5 de noviembre de 2024. En contraste, el experimento principal recalculó y verificó independientemente la normalización mensual a partir de los atributos sin normalizar y de sus propios orígenes de entrenamiento; no reutilizó los parámetros del piloto. Las variables constantes reciben escala uno. Por tanto, una coincidencia de diccionario de atributos no supone que las transformaciones numéricas de ambos escenarios sean intercambiables.
+
 \subsection{Modelo, muestreo y evaluación}
 \label{sec:configuracion_entrenamiento}
 
@@ -177,7 +179,7 @@ donde $\mathcal{D}_i$ es el soporte de destinos permitido para el origen $i$. Si
 
 La implementación efectiva conserva 15 capas ocultas: cinco de ancho 256 y diez de ancho 128, con activaciones LeakyReLU. No usa BatchNorm y el \textit{dropout} efectivo es 0,0 en la ruta vigente. La capa final produce un \textit{score} por destino candidato. La arquitectura heredada y la corrida técnica de Nueva York se mantienen como antecedentes de compatibilidad, no como demostración de desempeño científico para Santiago.
 
-El muestreador general permite limitar el número de destinos por origen, sin reposición, y reservar una fracción de candidatos con flujo positivo. Los candidatos restantes se eligen uniformemente entre los disponibles, por lo que pueden incluir otros destinos con flujo positivo. En las corridas del piloto descritas aquí no se utilizó ese muestreo: tanto el entrenamiento como la evaluación usaron el soporte completo de destinos de cada representación. Los destinos de todo el dominio metropolitano permanecieron disponibles aunque correspondieran a otro \textit{tile} o partición.
+El muestreador general permite limitar el número de destinos por origen, sin reposición, y reservar una fracción de candidatos con flujo positivo. Los candidatos restantes se eligen uniformemente entre los disponibles, por lo que pueden incluir otros destinos con flujo positivo. Esa opción no se utilizó en el piloto ni en el experimento mensual: tanto el entrenamiento como la evaluación usaron el soporte completo de destinos de cada representación. Los destinos de todo el dominio metropolitano permanecieron disponibles aunque correspondieran a otro \textit{tile} o partición.
 
 La pérdida es la log-verosimilitud multinomial negativa ponderada por la masa elegida:
 \begin{equation}
@@ -188,14 +190,24 @@ Para conteos enteros, minimizar esta expresión equivale a maximizar la log-vero
 
 \subsubsection{Modelos de referencia, particiones y métricas}
 
-En el modelo gravitatorio exponencial del piloto, la utilidad se calcula como
+Las tres referencias se ajustan solamente con los flujos cuyos orígenes pertenecen a entrenamiento y se evalúan sobre los mismos orígenes, destinos y masa que la red dentro de cada rama. La referencia uniforme asigna $1/|\mathcal{D}|$ a cada destino del soporte. La referencia de atracción usa la masa expandida recibida durante entrenamiento:
+\begin{equation}
+    \widehat y_{ij}=O_i\,
+    \frac{A_j^{\mathrm{train}}+\lambda}
+    {\sum_{k\in\mathcal{D}}A_k^{\mathrm{train}}+\lambda|\mathcal{D}|},
+    \qquad \lambda=1.
+    \label{eq:baseline_atraccion}
+\end{equation}
+donde $A_j^{\mathrm{train}}$ es la masa que llega a $j$ desde los orígenes de entrenamiento, $\mathcal{D}$ es el soporte completo de destinos de la rama y $O_i$ es el flujo saliente observado del origen que se evalúa. El pseudoconteo $\lambda$ corresponde a una unidad de masa por destino. Esta referencia distribuye una salida observada; no es población, ni un atributo de la red, ni una estimación de la generación de viajes.
+
+En el modelo gravitatorio exponencial, la utilidad se calcula como
 \begin{equation}
     V_{ij}=\alpha\ln(1+P_j)+\beta d_{ij},\qquad \alpha\geq0,\quad\beta\leq0,
     \label{eq:baseline_exponencial}
 \end{equation}
-donde $P_j$ es la población total interpolada, recuperada multiplicando la densidad censal por el área de la unidad, y $d_{ij}$ es la distancia esférica en kilómetros. Los parámetros se ajustan exclusivamente con los flujos de entrenamiento mediante una pérdida multinomial ponderada. Esta variable del modelo de referencia se distingue de la densidad de población transformada y estandarizada que recibe la red. La distancia intrazonal o intracelda es cero, valor admisible en la disuasión exponencial.
+donde $P_j$ es la población total interpolada, recuperada multiplicando la densidad censal por el área de la unidad, y $d_{ij}$ es la distancia esférica en kilómetros. Los parámetros se ajustan exclusivamente con los flujos de entrenamiento mediante una pérdida multinomial ponderada y L-BFGS-B, inicializado en $(1,-0{,}1)$, con un máximo de 500 iteraciones, $\textit{ftol}=10^{-12}$ y $\textit{gtol}=10^{-8}$; se imponen $\alpha\geq0$ y $\beta\leq0$. Esta variable del modelo de referencia se distingue de la densidad de población transformada y estandarizada que recibe la red. La distancia intrazonal o intracelda es cero, valor admisible en la disuasión exponencial.
 
-El piloto verificó la comparación contra tres referencias construidas en el mismo soporte de cada rama: distribución uniforme, atracción estimada con los datos de entrenamiento y gravedad exponencial calibrada. El \textit{checkpoint} se selecciona por CPC de validación; la prueba se ejecuta después y no ajusta parámetros. La configuración del piloto usa RMSprop, tasa de aprendizaje $5\times10^{-6}$, momento 0,9, lotes de ocho orígenes y 15 épocas. Estos valores son una configuración de piloto registrada, no una selección definitiva de hiperparámetros para los experimentos finales.
+El piloto verificó la comparación contra estas tres referencias en el mismo soporte de cada rama. El \textit{checkpoint} se selecciona por CPC de validación; la prueba se ejecuta después y no ajusta parámetros. La configuración del piloto usa RMSprop, tasa de aprendizaje $5\times10^{-6}$, momento 0,9, lotes de ocho orígenes y 15 épocas. Estos valores son una configuración de piloto registrada, no una selección definitiva de hiperparámetros para el experimento mensual.
 
 La métrica principal es
 \begin{equation}
@@ -204,11 +216,23 @@ La métrica principal es
 \end{equation}
 Se guardan numerador y ambas masas por origen para agregar CPC global y por \textit{tile} sobre el mismo soporte. Las medias por origen, por todos los \textit{tiles} y condicionadas a CPC positivo se reportan separadamente. El piloto de Santiago confirma que el procedimiento se puede ejecutar y repetir con tres semillas, pero una comparación directa de CPC entre resoluciones no demuestra por sí sola superioridad de H3: cambian la agregación, los representantes espaciales y la masa de prueba entre ramas.
 
+\subsubsection{Piloto y experimento mensual}
+
+El piloto utilizó el martes 5 de noviembre de 2024. Incluyó diagnósticos en una muestra, en el día completo y en tres ventanas horarias, y nueve corridas estables del día completo: tres ramas y las semillas 20260909, 20260910 y 20260911. Cada corrida estable se entrenó durante 15 épocas; el mejor \textit{checkpoint} de validación se conservó y se evaluó posteriormente en prueba. Las ventanas y el número de épocas sirvieron para comprobar la factibilidad y estabilidad iniciales, no para establecer convergencia, ajustar hiperparámetros ni generalizar el comportamiento de un día al período mensual.
+
+El experimento principal agrega las 29 fechas disponibles entre el 1 y el 29 de noviembre de 2024; el día 30 se excluye por problemas en los archivos y no se imputa. Se entrenaron nueve modelos desde inicializaciones nuevas: las tres ramas y las mismas tres semillas. La red, el soporte completo y la pérdida fueron los descritos antes. El optimizador fue RMSprop con tasa $5\times10^{-6}$, momento 0,9, $\alpha=0{,}99$, $\epsilon=10^{-8}$, sin decaimiento de pesos ni centrado; se usaron lotes de ocho orígenes en orden estable y sin barajado. Las corridas se ejecutaron secuencialmente en CPU con cuatro hilos. Cada época evaluó todos los orígenes de validación.
+
+La selección del \textit{checkpoint} y la parada anticipada obedecieron a reglas diferentes. Se conservó el \textit{checkpoint} con el mayor CPC global de validación entre todas las épocas ejecutadas y, ante un empate exacto, el primero. Para la parada, la primera época de validación inicializó una referencia significativa; esta se actualizó solo si el CPC posterior era estrictamente mayor que la referencia más $0{,}0001$. Tras un mínimo de 50 épocas, la corrida se detenía cuando acumulaba 30 épocas sin esa mejora significativa. El límite inicial fue 200 épocas: alcanzarlo sin meseta no se interpretaba como convergencia ni autorizaba una extensión automática.
+
+Dos corridas alcanzaron dicho límite y recibieron una autorización previa a la prueba para continuar, sin reinicializar ni alterar datos, particiones, arquitectura, optimizador, métrica o regla de selección. La continuación elevó el máximo a 300 épocas para Zona 777 con semilla 20260909 y H3-r8 con semilla 20260910. Ambas cerraron posteriormente por la misma regla de meseta, en las épocas 226 y 218, respectivamente; sus \textit{checkpoints} seleccionados permanecieron en las épocas 196 y 188. Las demás corridas cerraron con la configuración inicial. La prueba se liberó una sola vez después de congelar las fuentes, las decisiones de validación y los \textit{checkpoints} seleccionados; no intervino en la elección de época, semilla, parámetros o representación.
+
+Como análisis de sensibilidad de la evaluación, las probabilidades ya congeladas se aplicaron también a los conteos OD sin expansión y se reescalaron por el flujo saliente no expandido de cada origen. El CPC resultante es secundario: no implica reentrenamiento sin pesos, nueva selección ni un nuevo ajuste de los modelos de referencia, cuyos parámetros se obtuvieron con la masa expandida.
+
 \subsection{Reproducibilidad, alcances y limitaciones}
 \label{sec:alcances}
 
 Cada ejecución conserva configuración efectiva, semillas, versiones, hashes de entradas y código, particiones, métricas y \textit{checkpoint} en un directorio exclusivo. Los productos de datos, las especificaciones de procesamiento y los registros de ejecución permiten verificar la conservación de masa y reconstruir la procedencia de cada corrida. La prueba espacial se mantiene reservada durante la selección; el conjunto de prueba no participa en la normalización ni en el ajuste de hiperparámetros.
 
-El alcance se limita a la movilidad observable en DTPM durante las 29 fechas disponibles de noviembre de 2024 y al dominio de estudio de 34 comunas. No representa todos los modos urbanos, no predice la generación total de viajes por origen y no acredita generalización temporal al mes completo a partir del piloto de un día. La instantánea OSM antecede a los viajes y su cobertura no equivale a presencia real de servicios; la interpolación areal del Censo 2024 supone distribución uniforme dentro de cada geometría censal. Además, la exclusión de las zonas sin polígono, la decisión de discretización y las diferencias de agregación espacial condicionan toda interpretación comparativa.
+El alcance se limita a la movilidad observable en DTPM durante las 29 fechas disponibles de noviembre de 2024 y al dominio de estudio de 34 comunas. No representa todos los modos urbanos, no predice la generación total de viajes por origen ni fechas futuras. El piloto no acredita por sí mismo generalización temporal al período mensual. A su vez, el agregado mensual incluye el 5 de noviembre y reutiliza la misma geografía de prueba, por lo que no constituye una prueba enteramente nueva e independiente del piloto. Las tres semillas caracterizan variación de inicialización bajo una sola partición espacial, no incertidumbre espacial o poblacional. La instantánea OSM antecede a los viajes y su cobertura no equivale a presencia real de servicios; la interpolación areal del Censo 2024 supone distribución uniforme dentro de cada geometría censal. Además, la exclusión de las zonas sin polígono, la decisión de discretización y las diferencias de agregación espacial condicionan toda interpretación comparativa.
 
-La explicabilidad se pospone para el modelo final estabilizado. Si se aplican SHAP u otras atribuciones, deberán fijar salida, conjunto de referencia, modo de evaluación, semilla y estabilidad; sus valores describirán sensibilidad predictiva y no efectos causales.
+El análisis de explicabilidad requiere fijar antes de su ejecución la salida, el conjunto de referencia, el modo de evaluación, la muestra, la semilla y los controles de estabilidad. Sus atribuciones describen sensibilidad predictiva de la salida declarada y no efectos causales; este capítulo no anticipa sus resultados.
