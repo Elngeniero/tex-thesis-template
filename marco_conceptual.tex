@@ -233,7 +233,7 @@ Variantes de oportunidades intervinientes \cite{yan2014population,liu2019opportu
 \smallskip
 \begin{minipage}{\textwidth}
 \footnotesize
-La última columna significa que no se documenta una validación de esa formulación en las fuentes utilizadas para esta comparación; no demuestra la inexistencia de otros estudios. Una formulación explícita facilita inspeccionar sus supuestos, pero no garantiza una explicación causal. SHAP incluye aproximaciones agnósticas al modelo y no es exclusivo de las redes profundas \cite{lundberg2017shap}. El artículo original de \textit{Deep Gravity} ya incorpora un análisis SHAP; su aplicación a Santiago permanece pendiente.
+La última columna significa que no se documenta una validación de esa formulación en las fuentes utilizadas para esta comparación; no demuestra la inexistencia de otros estudios. Una formulación explícita facilita inspeccionar sus supuestos, pero no garantiza una explicación causal. SHAP incluye aproximaciones agnósticas al modelo y no es exclusivo de las redes profundas \cite{lundberg2017shap}. El artículo original de \textit{Deep Gravity} ya incorpora un análisis SHAP; en esta memoria se evaluó de forma complementaria la viabilidad de trasladar análisis de atribuciones a Santiago.
 \end{minipage}
 \end{table}
 
@@ -256,7 +256,7 @@ donde $\mathcal{F}$ es el conjunto de todas las características, $S$ es una coa
 
 Los valores SHAP satisfacen tres propiedades deseables: \textit{eficiencia} (la suma de todos los valores SHAP es igual a la diferencia entre la predicción y el valor base), \textit{simetría} (características con igual contribución marginal reciben igual valor SHAP) y \textit{dummy} (características sin influencia reciben valor cero). En conjunto, estas propiedades garantizan una atribución justa y consistente de importancias.
 
-Los valores SHAP permiten estudiar la contribución de los atributos a una predicción con respecto a una referencia. Su aplicación al modelo final de Santiago se contempla como análisis posterior a la selección experimental. La configuración y la estabilidad de ese análisis se documentarán en el capítulo de resultados; las atribuciones se interpretarán como propiedades de las predicciones, sin inferir efectos causales de intervenciones urbanas.
+Los valores SHAP permiten estudiar la contribución de los atributos a una predicción con respecto a una referencia. En esta memoria, el análisis complementario incluyó aproximaciones de Shapley con referencias de entrenamiento y controles de estabilidad predefinidos. Ninguna de ellas produjo atribuciones que superaran todos los controles de publicación; por ello, el resultado se limita a la evaluación metodológica del procedimiento y no a una interpretación de la importancia de los atributos. En cualquier caso, las atribuciones se interpretan como propiedades de predicciones y no como efectos causales de intervenciones urbanas.
 
 \subsubsection{Gradientes integrados}
 
@@ -267,9 +267,9 @@ Los \textit{Integrated Gradients} \cite{sundararajan2017axiomatic} son un métod
 \end{equation}
 El método satisface dos propiedades axiomáticas que lo distinguen de otras técnicas de atribución: \textit{sensibilidad} (si la entrada y la referencia difieren en una sola característica y producen predicciones distintas, esa característica recibe atribución no nula) e \textit{invariancia a la implementación} (la atribución depende únicamente de la función matemática que computa la red, no de su arquitectura interna). Estas propiedades lo hacen complementario a SHAP, que satisface eficiencia, simetría y dummy.
 
-La elección de la entrada de referencia $\mathbf{x}'$ es un aspecto crítico del método. El vector nulo ($\mathbf{x}' = \mathbf{0}$) es una convención habitual en clasificación de imágenes, pero su significado depende de las variables y de su preprocesamiento. Una densidad cartografiada puede ser cero; después de estandarizar, el valor cero representa la media de entrenamiento. La referencia debe definirse en el espacio de entrada del modelo y su elección requiere un análisis de sensibilidad. El protocolo explicativo determinará la referencia que se utilizará en Santiago.
+La elección de la entrada de referencia $\mathbf{x}'$ es un aspecto crítico del método. El vector nulo ($\mathbf{x}' = \mathbf{0}$) es una convención habitual en clasificación de imágenes, pero su significado depende de las variables y de su preprocesamiento. Una densidad cartografiada puede ser cero; después de estandarizar, el valor cero representa la media de entrenamiento. La referencia debe definirse en el espacio de entrada del modelo y su elección requiere un análisis de sensibilidad. En Santiago, las referencias ensayadas se construyeron con orígenes de entrenamiento de cada rama para conservar la coherencia con las transformaciones del modelo.
 
-Los gradientes integrados pueden considerarse una técnica complementaria para atribuir una salida diferenciable del modelo a sus entradas. Su eventual aplicación en Santiago dependerá del protocolo de explicabilidad del modelo final.
+Los gradientes integrados pueden considerarse una técnica complementaria para atribuir una salida diferenciable del modelo a sus entradas. En Santiago, el control de completitud no se acreditó para toda la cobertura requerida, incluso al aumentar la cuadratura en la consulta crítica; por ello, las atribuciones de este método no se interpretan como resultados de la memoria.
 
 % ----------------------------------------------------------------
 \subsection{OpenStreetMap como fuente de datos geoespaciales}
