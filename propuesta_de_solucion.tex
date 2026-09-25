@@ -88,6 +88,15 @@ El dominio de estudio es el núcleo urbano referencial de 34 comunas. Cada extre
 
 Después del recorte territorial se excluyen, en las tres ramas, los 1.904 viajes que tienen al menos un extremo en las zonas 848, 849 o 852, ya que no disponen de polígono oficial verificable para construir atributos. La cohorte comparativa resultante contiene 60.511.977 viajes y 85.774.522,4070 de masa expandida. Esta exclusión se aplica antes de agregar OD y no se reemplaza mediante geometrías de otra codificación.
 
+La Figura~\ref{fig:serie_diaria_cohorte_final} muestra la cobertura diaria de esta cohorte final. Las 29 fechas disponibles se mantienen con su tipo de día observado; el 30 de noviembre no aparece como cero porque se excluyó por problemas en los archivos de origen.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=0.93\textwidth]{figures/v05_serie_diaria_cohorte_final.pdf}
+\caption{Viajes y masa expandida diarios de la cohorte final. Los puntos distinguen el tipo de día; el OD diario ya está restringido al dominio de 34 comunas y se aplican las exclusiones comunes 848, 849 y 852 en ambos extremos. Se muestran las 29 fechas disponibles, del 1 al 29 de noviembre de 2024; el día 30 no se imputa. Fuente: elaboración propia a partir de los viajes canónicos DTPM.}
+\label{fig:serie_diaria_cohorte_final}
+\end{figure}
+
 \subsection{Adaptadores espaciales, unidades y \textit{tiles}}
 \label{sec:unidades_espaciales}
 
@@ -110,6 +119,15 @@ H3-r8 & 1.210 celdas & Candidata de mayor detalle & Misma regla de asignación H
 \bottomrule
 \end{tabularx}
 \end{table}
+
+La Figura~\ref{fig:areas_y_soporte_representaciones} complementa esta descripción con las áreas físicas de las unidades y el número de unidades que tienen salida observada en la cohorte completa. Estas diferencias cambian los pares OD evaluables y la masa asignada a prueba; por ello, el CPC se interpreta dentro de cada rama y no como una escala común entre representaciones.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/v07_areas_y_soporte_representaciones.pdf}
+\caption{Escalas físicas y soporte de las tres representaciones sobre la misma cohorte final. El panel izquierdo muestra $\log_{10}$ del área de cada unidad en km$^2$; el derecho distingue unidades totales y orígenes con salida observada. La figura no supone igualdad de área ni comparabilidad directa del CPC entre ramas. Fuente: elaboración propia con el contrato territorial y de atributos aprobado y el soporte del experimento mensual.}
+\label{fig:areas_y_soporte_representaciones}
+\end{figure}
 
 Una zona o celda es una unidad OD. Un \textit{tile} es un bloque mayor, de 15.000 m de lado en EPSG:32719, indexado por $\operatorname{floor}(x/15000)$ y $\operatorname{floor}(y/15000)$. Se fijaron diez \textit{tiles} comunes y una agenda determinista con semilla 20260909: siete para entrenamiento, dos para validación y uno para prueba. La partición se aplica al origen; todos los destinos del dominio de estudio, incluidos los de otros \textit{tiles} o particiones, permanecen candidatos y los flujos cruzados se conservan. La Figura~\ref{fig:objetos_espaciales} distingue estos objetos y evita equiparar un \textit{tile} con una unidad OD.
 
@@ -160,6 +178,15 @@ donde $\mathbf{a}_{i}$ y $\mathbf{a}_{j}$ contienen los atributos externos de or
 Los polígonos y las vías se recortan y unen dentro de cada categoría antes de calcular cobertura o longitud. Los puntos requieren pertenencia estricta a la unidad. Para densidades y tasas se aplica \texttt{log1p}; las coberturas mantienen su escala física antes de estandarizar. Media y desviación estándar se estiman solo con orígenes activos de entrenamiento de cada rama y escenario, y luego se aplican a validación y prueba. Esta regla impide que el conjunto de prueba intervenga en la normalización.
 
 El piloto ajustó esta transformación con los orígenes activos del 5 de noviembre de 2024. En contraste, el experimento principal recalculó y verificó independientemente la normalización mensual a partir de los atributos sin normalizar y de sus propios orígenes de entrenamiento; no reutilizó los parámetros del piloto. Las variables constantes reciben escala uno. Por tanto, una coincidencia de diccionario de atributos no supone que las transformaciones numéricas de ambos escenarios sean intercambiables.
+
+La Figura~\ref{fig:distribuciones_h3_r7} sitúa las escalas de tres magnitudes en H3-r7 antes de la normalización del modelo. El primer histograma condiciona explícitamente en pares OD positivos; el segundo pondera por masa expandida las distancias geodésicas entre centroides, que no representan recorridos de la red; el tercero usa densidad poblacional física, sin las transformaciones aplicadas a la entrada de la red.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\textwidth]{figures/v06_distribuciones_h3_r7.pdf}
+\caption{Escalas de flujo, distancia y densidad poblacional en H3-r7. Los flujos corresponden a pares OD positivos y se expresan en $\log_{10}$ de viajes por par; las distancias entre centroides se agregan con masa expandida; y la densidad poblacional corresponde a personas por km$^2$ antes de la normalización del modelo. Fuente: elaboración propia con la cohorte y los atributos territoriales aprobados.}
+\label{fig:distribuciones_h3_r7}
+\end{figure}
 
 \subsection{Modelo, muestreo y evaluación}
 \label{sec:configuracion_entrenamiento}
