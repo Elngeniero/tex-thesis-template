@@ -19,9 +19,11 @@ El experimento principal agrega la cohorte final de 60.511.977 viajes, con masa 
 
 \begin{table}[htbp]
 \centering
-\scriptsize
+\small
+\renewcommand{\arraystretch}{1.12}
 \caption{Soporte de prueba por representación. Los pares positivos y su densidad se calculan sobre los pares candidatos indicados. La masa observada usa el factor de expansión; los orígenes activos e inactivos se refieren a la partición de prueba. Fuente: elaboración propia a partir de la tabla de soporte del experimento mensual.}
 \label{tab:soporte_prueba}
+\resizebox{\textwidth}{!}{%
 \begin{tabular}{@{}lrrrrrr@{}}
 \toprule
 \textbf{Rama} & \textbf{Unid.} & \textbf{Orígenes} & \textbf{Sin asignar} & \textbf{Destinos} & \textbf{Pares candidatos} & \textbf{Masa exp.} \\
@@ -31,6 +33,7 @@ H3-r7 & 223 & 32 (32/0) & 5 & 223 & 7.136 (5.552; 77,8\%) & 17,39 M \\
 H3-r8 & 1.210 & 189 (189/0) & 21 & 1.210 & 228.690 (99.374; 43,5\%) & 15,80 M \\
 \bottomrule
 \end{tabular}
+}
 \end{table}
 
 En la columna de orígenes, el par entre paréntesis corresponde a activos/inactivos; en la columna de pares, el paréntesis contiene pares OD positivos y su densidad. La masa expandida se expresa en millones de unidades de masa observada. Los desgloses por origen y \textit{tile} se conservan como respaldo reproducible. La densidad de pares OD positivos fue 76,33\% en Zona 777, 77,80\% en H3-r7 y 43,45\% en H3-r8.
@@ -51,11 +54,13 @@ La Figura~\ref{fig:concentracion_zona777} caracteriza la distribución espacial 
 
 La Tabla~\ref{tab:resultados_prueba} reúne el CPC global de prueba con peso expandido. Deep Gravity se resume mediante media, desviación estándar muestral y rango de las tres inicializaciones; los modelos de referencia son deterministas y se ajustan solamente con los flujos de entrenamiento de la rama correspondiente. Las cifras no ordenan las representaciones entre sí, porque cambian las unidades, el soporte y la masa de prueba.
 
-\begin{table}[htbp]
+\begin{table}[p]
 \centering
-\scriptsize
+\small
+\renewcommand{\arraystretch}{1.15}
 \caption{CPC global de prueba con peso expandido y salida condicionada al flujo saliente observado. Deep Gravity se resume con tres inicializaciones independientes; DE es la desviación estándar muestral. Uniforme, atracción entrenada y gravedad exponencial se calculan una vez por rama sobre el mismo soporte de prueba. Fuente: elaboración propia a partir de los resultados mensuales congelados.}
 \label{tab:resultados_prueba}
+\resizebox{\textwidth}{!}{%
 \begin{tabular}{@{}lccccc@{}}
 \toprule
 \textbf{Rama} & \textbf{Deep Gravity} & \textbf{Rango} & \textbf{Uniforme} & \textbf{Atracción} & \textbf{Gravedad exp.} \\
@@ -65,6 +70,7 @@ H3-r7 & 0,7722 $\pm$ 0,0060 & 0,7671--0,7787 & 0,3702 & 0,7757 & 0,6153 \\
 H3-r8 & 0,6079 $\pm$ 0,0047 & 0,6046--0,6133 & 0,2611 & 0,6867 & 0,3777 \\
 \bottomrule
 \end{tabular}
+}
 \end{table}
 
 La Figura~\ref{fig:cpc_semillas_referencias} muestra los mismos resultados sin ocultar las tres semillas. Los cuadrados corresponden a los modelos de referencia y los círculos a inicializaciones de Deep Gravity; la lectura válida sigue siendo dentro de cada panel o rama.
@@ -75,6 +81,8 @@ La Figura~\ref{fig:cpc_semillas_referencias} muestra los mismos resultados sin o
 \caption{CPC de prueba expandida por semilla y modelos de referencia. Cada panel corresponde a una representación y mantiene su propio soporte de destinos; los cuadrados son referencias deterministas y los círculos son las semillas 20260909, 20260910 y 20260911 de Deep Gravity. Fuente: elaboración propia a partir de las métricas globales del experimento mensual.}
 \label{fig:cpc_semillas_referencias}
 \end{figure}
+
+\FloatBarrier
 
 Deep Gravity superó las referencias uniforme y de gravedad exponencial en las tres representaciones. En Zona 777, el CPC medio fue 0,5609, frente a 0,2992 para la referencia uniforme y 0,3819 para la referencia gravitacional. En H3-r7, los valores fueron 0,7722, 0,3702 y 0,6153. En H3-r8, fueron 0,6079, 0,2611 y 0,3777. La magnitud de esas diferencias sólo se interpreta dentro de cada representación porque el soporte y la agregación cambian entre ellas.
 
@@ -89,7 +97,7 @@ La Figura~\ref{fig:trayectorias_mensuales} conserva las trayectorias de las nuev
 
 \begin{figure}[htbp]
 \centering
-\includegraphics[width=0.88\textwidth]{figures/trayectorias_entrenamiento_validacion.pdf}
+\includegraphics[width=0.96\textwidth]{figures/trayectorias_entrenamiento_validacion.pdf}
 \caption{Trayectorias mensuales de pérdida de entrenamiento y CPC global de validación para las tres semillas de cada rama. La pérdida se expresa como NLL por viaje expandido; los puntos destacados marcan los \textit{checkpoints} seleccionados por CPC de validación y la línea discontinua señala la época 200. Fuente: elaboración propia a partir de las trayectorias del experimento mensual.}
 \label{fig:trayectorias_mensuales}
 \end{figure}
