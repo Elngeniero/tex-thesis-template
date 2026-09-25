@@ -22,9 +22,9 @@ La solución parte de registros DTPM de viajes y etapas, reconstruye extremos v�
     \node[data] (source) {\textbf{DTPM}\\viajes + etapas};
     \node[data, right=0.55cm of source] (canonical) {\textbf{Núcleo canónico}\\unión, extremos y cohorte};
     \node[data, right=0.55cm of canonical] (territory) {\textbf{Dominio común}\\34 comunas y exclusión común};
-    \node[spatial, below left=0.85cm and 0.5cm of territory] (zone) {\textbf{Adaptador Zona 777}\\zonas operativas};
-    \node[spatial, below right=0.85cm and 0.5cm of territory] (hthree) {\textbf{Adaptador H3}\\r7 y r8};
-    \node[model, below=1.2cm of canonical] (features) {\textbf{Construcción de atributos}\\Censo 2024 + OSM + distancia};
+    \node[spatial, below left=0.95cm and 0.75cm of territory] (zone) {\textbf{Adaptador Zona 777}\\zonas operativas};
+    \node[spatial, below right=0.95cm and 0.75cm of territory] (hthree) {\textbf{Adaptador H3}\\r7 y r8};
+    \node[model, below=2.35cm of territory] (features) {\textbf{Construcción de atributos}\\Censo 2024 + OSM + distancia};
     \node[model, below=0.75cm of features] (evaluation) {\textbf{Entrenamiento y evaluación}\\particiones por origen, referencias y CPC};
 
     \draw[arrow] (source) -- (canonical);
