@@ -10,13 +10,14 @@ La solución parte de registros DTPM de viajes y etapas, reconstruye extremos v�
 
 \begin{figure}[htbp]
 \centering
+\resizebox{\textwidth}{!}{%
 \begin{tikzpicture}[
     font=\scriptsize,
     process/.style={draw, rounded corners=2pt, align=center, minimum height=0.8cm, minimum width=2.35cm, inner sep=3pt},
     data/.style={process, fill=blue!8},
     spatial/.style={process, fill=green!9},
     model/.style={process, fill=orange!10},
-    arrow/.style={-{Stealth[length=2mm]}, thick}
+    arrow/.style={-{Stealth[length=2mm,width=1.4mm]}, thick, shorten <=1pt, shorten >=1pt}
 ]
     \node[data] (source) {\textbf{DTPM}\\viajes + etapas};
     \node[data, right=0.55cm of source] (canonical) {\textbf{Núcleo canónico}\\unión, extremos y cohorte};
@@ -28,12 +29,13 @@ La solución parte de registros DTPM de viajes y etapas, reconstruye extremos v�
 
     \draw[arrow] (source) -- (canonical);
     \draw[arrow] (canonical) -- (territory);
-    \draw[arrow] (territory) -- (zone);
-    \draw[arrow] (territory) -- (hthree);
-    \draw[arrow] (zone.south) |- (features.west);
-    \draw[arrow] (hthree.south) |- (features.east);
-    \draw[arrow] (features) -- (evaluation);
+    \draw[arrow] (territory.south west) -- (zone.north);
+    \draw[arrow] (territory.south east) -- (hthree.north);
+    \draw[arrow] (zone.south) |- (features.north west);
+    \draw[arrow] (hthree.south) |- (features.north east);
+    \draw[arrow] (features.south) -- (evaluation.north);
 \end{tikzpicture}
+}
 \caption{Procedimiento de Santiago: un núcleo común de viajes precede a los adaptadores espaciales y a la evaluación. Fuente: elaboración propia.}
 \label{fig:pipeline_santiago}
 \end{figure}
