@@ -1,3 +1,212 @@
 \secnumberlesssection{ANEXOS}
 
-En los Anexos se incluye todo aquel material complementario que no es parte del contenido de los capítulos de la memoria, pero que permiten a un lector contar con un contenido adjunto relacionado con el tema.
+Los anexos reúnen información de trazabilidad y reproducibilidad que complementa los capítulos de la memoria. No incorporan resultados predictivos adicionales ni alteran las reglas de selección, validación o evaluación descritas en el texto principal.
+
+\newcounter{anexo}
+\renewcommand{\theanexo}{\Alph{anexo}}
+\newcommand{\anexotitulo}[2]{%
+  \clearpage
+  \refstepcounter{anexo}%
+  \setcounter{table}{0}%
+  \renewcommand{\thetable}{\theanexo.\arabic{table}}%
+  \subsection*{Anexo~\theanexo. #1}%
+  \phantomsection
+  \addcontentsline{toc}{subsection}{Anexo~\theanexo. #1}%
+  \label{#2}%
+}
+
+\anexotitulo{Diccionario de atributos territoriales}{anexo:diccionario_atributos}
+
+Este anexo documenta los 19 atributos de localización que integran el vector de entrada aprobado para el modelo. Se excluyen variables diagnósticas que no forman parte de ese vector y el flujo observado: este último se utiliza como variable objetivo, no como predictor. Las transformaciones se ajustan únicamente con los orígenes activos del conjunto de entrenamiento de cada rama y escenario.
+
+\begin{table}[H]
+  \centering
+  \scriptsize
+  \caption{Atributos de población, uso de suelo y red vial del vector de entrada.}
+  \label{tab:anexo_atributos_base}
+  \begin{tabularx}{\textwidth}{@{}p{0.34\textwidth}p{0.42\textwidth}X@{}}
+    \toprule
+    \textbf{Atributo} & \textbf{Fuente y construcción} & \textbf{Unidad y transformación} \\
+    \midrule
+    \texttt{population\_census\_2024\_per\_km2} &
+    Censo 2024 del INE; asignación areal de población y división por el área métrica de la unidad. &
+    personas/km$^2$; $\log(1+x)$ y estandarización $z$. \\
+    \texttt{landuse\_residential\_share} &
+    OpenStreetMap (corte 2024-01-01); unión de polígonos residenciales recortados y división por el área de la unidad. &
+    km$^2$/km$^2$; estandarización $z$. \\
+    \texttt{landuse\_commercial\_share} &
+    OpenStreetMap (corte 2024-01-01); unión de polígonos comerciales recortados y división por el área de la unidad. &
+    km$^2$/km$^2$; estandarización $z$. \\
+    \texttt{landuse\_industrial\_share} &
+    OpenStreetMap (corte 2024-01-01); unión de polígonos industriales recortados y división por el área de la unidad. &
+    km$^2$/km$^2$; estandarización $z$. \\
+    \texttt{landuse\_retail\_share} &
+    OpenStreetMap (corte 2024-01-01); unión de polígonos de comercio minorista recortados y división por el área de la unidad. &
+    km$^2$/km$^2$; estandarización $z$. \\
+    \texttt{landuse\_natural\_share} &
+    OpenStreetMap (corte 2024-01-01); unión de polígonos naturales recortados y división por el área de la unidad. &
+    km$^2$/km$^2$; estandarización $z$. \\
+    \texttt{road\_residential\_km\_per\_km2} &
+    OpenStreetMap; unión de líneas residenciales recortadas y división por el área de la unidad. &
+    km/km$^2$; $\log(1+x)$ y estandarización $z$. \\
+    \texttt{road\_main\_km\_per\_km2} &
+    OpenStreetMap; unión de líneas principales recortadas y división por el área de la unidad. &
+    km/km$^2$; $\log(1+x)$ y estandarización $z$. \\
+    \texttt{road\_other\_km\_per\_km2} &
+    OpenStreetMap; unión de las demás líneas viales recortadas y división por el área de la unidad. &
+    km/km$^2$; $\log(1+x)$ y estandarización $z$. \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+\begin{table}[H]
+  \centering
+  \scriptsize
+  \caption{Atributos de puntos de interés y superficie por familia temática.}
+  \label{tab:anexo_atributos_poi}
+  \begin{tabularx}{\textwidth}{@{}p{0.31\textwidth}p{0.43\textwidth}X@{}}
+    \toprule
+    \textbf{Atributo} & \textbf{Fuente y construcción} & \textbf{Unidad y transformación} \\
+    \midrule
+    \texttt{transport\_poi\_per\_km2} &
+    OpenStreetMap; nodos estrictamente interiores, deduplicados por homónimos nodo--área, categoría y coincidencia espacial, divididos por el área de la unidad. &
+    objetos/km$^2$; $\log(1+x)$ y estandarización $z$. \\
+    \texttt{transport\_area\_share} &
+    OpenStreetMap; unión de las superficies de transporte recortadas y división por el área de la unidad. &
+    km$^2$/km$^2$; estandarización $z$. \\
+    \texttt{food\_poi\_per\_km2} &
+    OpenStreetMap; nodos estrictamente interiores, deduplicados por homónimos nodo--área, categoría y coincidencia espacial, divididos por el área de la unidad. &
+    objetos/km$^2$; $\log(1+x)$ y estandarización $z$. \\
+    \texttt{food\_area\_share} &
+    OpenStreetMap; unión de las superficies de alimentación recortadas y división por el área de la unidad. &
+    km$^2$/km$^2$; estandarización $z$. \\
+    \texttt{health\_poi\_per\_km2} &
+    OpenStreetMap; nodos estrictamente interiores, deduplicados por homónimos nodo--área, categoría y coincidencia espacial, divididos por el área de la unidad. &
+    objetos/km$^2$; $\log(1+x)$ y estandarización $z$. \\
+    \texttt{health\_area\_share} &
+    OpenStreetMap; unión de las superficies de salud recortadas y división por el área de la unidad. &
+    km$^2$/km$^2$; estandarización $z$. \\
+    \texttt{education\_poi\_per\_km2} &
+    OpenStreetMap; nodos estrictamente interiores, deduplicados por homónimos nodo--área, categoría y coincidencia espacial, divididos por el área de la unidad. &
+    objetos/km$^2$; $\log(1+x)$ y estandarización $z$. \\
+    \texttt{education\_area\_share} &
+    OpenStreetMap; unión de las superficies educacionales recortadas y división por el área de la unidad. &
+    km$^2$/km$^2$; estandarización $z$. \\
+    \texttt{retail\_poi\_per\_km2} &
+    OpenStreetMap; nodos estrictamente interiores, deduplicados por homónimos nodo--área, categoría y coincidencia espacial, divididos por el área de la unidad. &
+    objetos/km$^2$; $\log(1+x)$ y estandarización $z$. \\
+    \texttt{retail\_area\_share} &
+    OpenStreetMap; unión de las superficies de comercio minorista recortadas y división por el área de la unidad. &
+    km$^2$/km$^2$; estandarización $z$. \\
+    \bottomrule
+  \end{tabularx}
+\end{table}
+
+La distancia $d_{ij}$ se calcula como distancia geodésica esférica WGS84 entre los centroides representativos de los pares origen--destino y se incorpora al vector sin una transformación adicional. No representa una ruta por la red. Las capas territoriales pueden superponerse; por ello, sus proporciones no deben sumarse como si constituyeran una partición del territorio. Asimismo, un valor cero de OpenStreetMap representa ausencia de objetos mapeados bajo la regla aplicada y no prueba ausencia física del servicio o uso de suelo.
+
+\anexotitulo{Trazabilidad de las corridas mensuales}{anexo:corridas_mensuales}
+
+Este anexo individualiza las nueve corridas del experimento mensual: tres inicializaciones independientes en cada representación. La época seleccionada corresponde al mayor CPC global de validación de la trayectoria, conservando la primera época ante empate; la época final indica cuándo se detuvo la corrida. Las dos continuaciones autorizadas se realizaron desde el límite inicial de 200 épocas sin modificar datos, particiones, atributos, arquitectura, optimizador ni regla de selección. Todas las corridas cerraron por meseta de validación.
+
+\begin{table}[H]
+  \centering
+  \scriptsize
+  \caption{Corridas del experimento mensual y selección por validación.}
+  \label{tab:anexo_corridas}
+  \resizebox{\textwidth}{!}{%
+    \begin{tabular}{@{}lrrrrll@{}}
+      \toprule
+      \textbf{Representación} & \textbf{Semilla} & \textbf{Época seleccionada} & \textbf{Época final} & \textbf{CPC validación} & \textbf{Extensión} & \textbf{Cierre} \\
+      \midrule
+      Zona 777 & 20260909 & 196 & 226 & 0,532453 & 200--226 & Meseta \\
+      Zona 777 & 20260910 & 94  & 124 & 0,525924 & ---      & Meseta \\
+      Zona 777 & 20260911 & 74  & 104 & 0,517290 & ---      & Meseta \\
+      H3-r7    & 20260909 & 72  & 97  & 0,737286 & ---      & Meseta \\
+      H3-r7    & 20260910 & 162 & 192 & 0,734555 & ---      & Meseta \\
+      H3-r7    & 20260911 & 69  & 99  & 0,732907 & ---      & Meseta \\
+      H3-r8    & 20260909 & 158 & 188 & 0,600163 & ---      & Meseta \\
+      H3-r8    & 20260910 & 188 & 218 & 0,594110 & 200--218 & Meseta \\
+      H3-r8    & 20260911 & 137 & 167 & 0,589980 & ---      & Meseta \\
+      \bottomrule
+    \end{tabular}%
+  }
+\end{table}
+
+La prueba se evaluó después de fijar y congelar los \textit{checkpoints} seleccionados por validación. Por ello, este anexo no reporta CPC de prueba por corrida ni usa resultados de prueba para preferir semilla, época o representación. Las tres semillas se conservan completas en los resultados del Capítulo 5; la tabla solo documenta trazabilidad.
+
+\anexotitulo{Controles de soporte, conservación de masa y ejecución}{anexo:controles_ejecucion}
+
+Este anexo complementa los resultados globales del Capítulo 5 con controles de reproducibilidad y el detalle de los recursos medidos. No incorpora resultados predictivos adicionales ni reemplaza las tablas del capítulo: conserva los denominadores mínimos de la repetición independiente, la conservación del flujo por origen, el detalle por corrida y las incidencias técnicas resueltas.
+
+\subsubsection*{Soporte de prueba, repetición independiente y conservación de masa}
+
+\begin{table}[H]
+  \centering
+  \scriptsize
+  \caption{Controles de soporte, repetición independiente y conservación de masa.}
+  \label{tab:anexo_controles_soporte}
+  \resizebox{\textwidth}{!}{%
+    \begin{tabular}{@{}lrrrrrr@{}}
+      \toprule
+      \textbf{Representación} & \textbf{Orígenes/destinos prueba} & \textbf{Unidades sin origen} & \textbf{CPC congelado} & \textbf{CPC repetido} & \textbf{Diferencia CPC} & \textbf{Máx. error por origen} \\
+      \midrule
+      Zona 777 & 101/793  & 0  & 0,5647245226 & 0,5647245225 & $9{,}576\times10^{-11}$ & $9{,}313\times10^{-10}$ \\
+      H3-r7    & 32/223   & 5  & 0,7670518160 & 0,7670518160 & $3{,}483\times10^{-11}$ & $1{,}863\times10^{-9}$ \\
+      H3-r8    & 189/1210 & 21 & 0,6132965073 & 0,6132965073 & $9{,}350\times10^{-12}$ & $1{,}630\times10^{-9}$ \\
+      \bottomrule
+    \end{tabular}%
+  }
+\end{table}
+
+\noindent\footnotesize\textit{Nota.} El error máximo corresponde al máximo entre las tres semillas y los dos esquemas de ponderación. La repetición independiente usa la semilla 20260909 y el conjunto completo de destinos. Las unidades sin origen asignado no se incorporan como pares de prueba ni constituyen fuga de información.\normalsize
+
+La repetición independiente recuperó el CPC congelado de cada representación, con diferencias inferiores a $10^{-6}$. Las nueve corridas preservaron el flujo por origen; el mayor error observado fue $1{,}863\times10^{-9}$. Estos controles verifican consistencia técnica de la ejecución, no validación espacial o temporal externa.
+
+\subsubsection*{Recursos medidos por corrida}
+
+\begin{table}[H]
+  \centering
+  \small
+  \caption{Tiempo de entrenamiento, memoria RAM y tamaño de artefactos por corrida.}
+  \label{tab:anexo_recursos}
+  \begin{tabular}{@{}lrrrr@{}}
+    \toprule
+    \textbf{Representación} & \textbf{Semilla} & \textbf{Entrenamiento (h)} & \textbf{RAM máx. (GiB)} & \textbf{Artefactos (GiB)} \\
+    \midrule
+    Zona 777 & 20260909 & 1,30 & 0,53 & 1,16 \\
+    Zona 777 & 20260910 & 0,72 & 0,53 & 0,64 \\
+    Zona 777 & 20260911 & 0,60 & 0,53 & 0,53 \\
+    H3-r7    & 20260909 & 0,05 & 0,53 & 0,50 \\
+    H3-r7    & 20260910 & 0,10 & 0,53 & 0,99 \\
+    H3-r7    & 20260911 & 0,05 & 0,53 & 0,51 \\
+    H3-r8    & 20260909 & 2,19 & 0,78 & 0,97 \\
+    H3-r8    & 20260910 & 2,50 & 0,83 & 1,12 \\
+    H3-r8    & 20260911 & 1,95 & 0,78 & 0,86 \\
+    \midrule
+    Suma/máximo (9 corridas) & --- & 9,46 & 0,83 & 7,27 \\
+    \bottomrule
+  \end{tabular}
+\end{table}
+
+Las horas corresponden solo a las épocas de entrenamiento y validación; excluyen la carga inicial y la escritura de \textit{checkpoints}, por lo que son una cota inferior del tiempo total de ejecución. La RAM se informa como máximo observado y el tamaño corresponde a los artefactos conservados de cada corrida. No se comparan mediante tiempo calendario, debido a que las condiciones de ejecución no son homogéneas.
+
+\subsubsection*{Incidencias técnicas resueltas}
+
+\begin{table}[H]
+  \centering
+  \small
+  \caption{Incidencias técnicas y efecto sobre los resultados reportados.}
+  \label{tab:anexo_incidencias}
+  \begin{tabularx}{\textwidth}{@{}p{0.24\textwidth}p{0.48\textwidth}X@{}}
+    \toprule
+    \textbf{Alcance} & \textbf{Incidencia y resolución} & \textbf{Efecto} \\
+    \midrule
+    Zona 777, semilla 20260909 &
+    Se detectó la ausencia del parámetro de hilos de CPU antes de iniciar el entrenamiento. Se corrigió antes de entrenar y evaluar la corrida. &
+    No se agregó una corrida ni se modificaron sus resultados. \\
+    Cierre y repetición independiente &
+    Una ruta relativa de serialización se detectó luego de generar productos parciales. La repetición se ejecutó en un directorio nuevo y se excluyeron los productos parciales. &
+    Sin efecto sobre los \textit{checkpoints} congelados ni sobre la evaluación de prueba. \\
+    \bottomrule
+  \end{tabularx}
+\end{table}

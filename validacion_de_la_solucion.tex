@@ -90,6 +90,8 @@ La referencia de atracción entrenada superó la media de Deep Gravity en las tr
 
 La conservación de masa se verificó para todos los orígenes de prueba. El mayor error absoluto por origen fue $1{,}863\times10^{-9}$. Este control confirma que la conversión de probabilidades en flujos preserva el flujo saliente observado, sin convertir la tarea en un modelo de generación total de viajes.
 
+El Anexo~\ref{anexo:controles_ejecucion} conserva el detalle del soporte de prueba, la repetición independiente y la conservación de masa.
+
 \subsection{Trayectorias y selección por validación}
 \label{sec:trayectorias_validacion}
 
@@ -103,6 +105,8 @@ La Figura~\ref{fig:trayectorias_mensuales} conserva las trayectorias de las nuev
 \end{figure}
 
 Todas las corridas cerraron por meseta de validación. Las dos extensiones no alteraron datos, particiones, arquitectura, optimizador ni regla de selección. La corrida de Zona 777 con semilla 20260909 cerró en la época 226 y mantuvo como \textit{checkpoint} seleccionado la época 196. La corrida de H3-r8 con semilla 20260910 cerró en la época 218 y mantuvo la época 188. Las restantes siete corridas cerraron sin extensión.
+
+El Anexo~\ref{anexo:corridas_mensuales} documenta las nueve corridas, sus épocas seleccionadas y sus condiciones de cierre.
 
 Los rangos de CPC de prueba entre las tres inicializaciones fueron 0,0110 en Zona 777, 0,0117 en H3-r7 y 0,0087 en H3-r8. Ninguno excedió la alerta protocolaria de 0,05. Esta dispersión describe la variación asociada a la inicialización y al entrenamiento bajo una partición espacial fija. No estima incertidumbre poblacional, variación entre particiones ni significación estadística.
 
@@ -149,7 +153,7 @@ Las nueve corridas acumularon 9,46 horas de entrenamiento y validación. El desg
 
 Se registraron dos incidencias sin efecto sobre los resultados de prueba. Antes de la primera época, una corrida de Zona 777 no resolvía un parámetro de hilos de CPU; la corrección se aplicó antes de producir entrenamiento o prueba y no se contabilizó como una inicialización adicional. Más tarde, un primer intento de verificación no pudo serializar una ruta relativa después de crear archivos parciales de reproducción. La verificación final se ejecutó en un directorio nuevo y los archivos parciales quedaron fuera de la evidencia. Ninguna incidencia modificó \textit{checkpoints}, resultados congelados ni la liberación de prueba.
 
-Los desgloses por corrida, origen y \textit{tile}, junto con las verificaciones de conservación de masa y los replays técnicos, permanecen en el respaldo reproducible.
+El Anexo~\ref{anexo:controles_ejecucion} reúne el desglose de recursos por corrida, las verificaciones de soporte y conservación de masa, y la bitácora de incidencias técnicas resueltas.
 
 \subsection{Resultado del análisis complementario de atribuciones predictivas}
 \label{sec:resultado_xai}
