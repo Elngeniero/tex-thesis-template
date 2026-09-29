@@ -113,9 +113,9 @@ Una verificación independiente volvió a evaluar un \textit{checkpoint} selecci
 
 La Figura~\ref{fig:sensibilidad_pesos} contrasta el CPC calculado con masa expandida y con conteos sin expansión. En ambos ejes se aplican las mismas probabilidades ya congeladas y cada origen se reescala con su respectivo flujo saliente; el eje sin expansión no corresponde a un reentrenamiento ni a una nueva selección de modelos. La diagonal indica igualdad entre ambas evaluaciones.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 \centering
-\includegraphics[width=\textwidth]{figures/sensibilidad_pesos.pdf}
+\includegraphics[width=0.42\textwidth]{figures/sensibilidad_pesos.pdf}
 \caption{Sensibilidad del CPC de prueba al peso de evaluación. El eje horizontal usa masa expandida y el vertical conteos OD sin expansión; los círculos corresponden a las tres semillas de Deep Gravity y los cuadrados a los modelos de referencia. Cada punto reutiliza probabilidades congeladas y conserva los parámetros de las referencias ajustadas con peso expandido. La diagonal discontinua representa igualdad entre ambas métricas. Fuente: elaboración propia a partir de la evaluación de sensibilidad mensual.}
 \label{fig:sensibilidad_pesos}
 \end{figure}
@@ -174,4 +174,3 @@ La validez temporal queda acotada a las 29 fechas disponibles de noviembre de 20
 La fuente DTPM representa viajes reconstruibles de transporte público y no toda la movilidad urbana. La distribución predicha está condicionada al flujo saliente observado, por lo que no estima la generación de viajes por origen. Además, la cobertura de OpenStreetMap corresponde a una instantánea anterior a los viajes y la interpolación del Censo 2024 supone distribución uniforme dentro de cada geometría censal. Las decisiones de reconstrucción de viajes, exclusión de zonas sin polígono y asignación a unidades espaciales también condicionan el resultado.
 
 Las tres inicializaciones permiten describir variación de entrenamiento, pero no reemplazan particiones espaciales adicionales ni una muestra poblacional de experimentos. El resultado no validado del análisis de atribuciones añade una limitación específica: los resultados predictivos no pueden acompañarse de una explicación estable de la contribución de cada atributo bajo las configuraciones ensayadas. Una extensión futura debería separar explícitamente la validación temporal y espacial, incorporar particiones adicionales y definir un protocolo explicativo con controles que pueda acreditar estabilidad antes de interpretar atribuciones.
-
