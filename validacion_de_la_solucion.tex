@@ -97,9 +97,9 @@ El Anexo~\ref{anexo:controles_ejecucion} conserva el detalle del soporte de prue
 
 La Figura~\ref{fig:trayectorias_mensuales} conserva las trayectorias de las nueve corridas y permite distinguir la pérdida de entrenamiento del CPC de validación utilizado para elegir los \textit{checkpoints}. La línea vertical discontinua marca el límite inicial de 200 épocas; solo Zona 777--20260909 y H3-r8--20260910 continuaron mediante las extensiones autorizadas, sin alterar datos, arquitectura, optimizador, particiones o regla de selección.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 \centering
-\includegraphics[width=0.96\textwidth]{figures/trayectorias_entrenamiento_validacion.pdf}
+\includegraphics[width=\textwidth]{figures/trayectorias_entrenamiento_validacion.pdf}
 \caption{Trayectorias mensuales de pérdida de entrenamiento y CPC global de validación para las tres semillas de cada rama. La pérdida se expresa como NLL por viaje expandido; los puntos destacados marcan los \textit{checkpoints} seleccionados por CPC de validación y la línea discontinua señala la época 200. Fuente: elaboración propia a partir de las trayectorias del experimento mensual.}
 \label{fig:trayectorias_mensuales}
 \end{figure}
