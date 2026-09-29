@@ -42,7 +42,7 @@ Las representaciones se construyen a partir de la misma cohorte, pero no compart
 
 La Figura~\ref{fig:concentracion_zona777} caracteriza la distribución espacial de la masa expandida en la rama zonal. Sus dos paneles usan la misma cohorte final y expresan concentración por superficie; no son mapas de error ni una medida de desempeño predictivo.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth]{figures/v04_concentracion_origen_destino_zona777.pdf}
 \caption{Concentración mensual de la masa expandida que sale y llega por km$^2$ en Zona 777. Cada panel usa la cohorte final de 60.511.977 viajes, del 1 al 29 de noviembre de 2024; los colores muestran $\log_{10}$ de masa expandida por km$^2$. Fuente: elaboración propia con datos DTPM y geometría oficial Zona 777.}
@@ -54,7 +54,7 @@ La Figura~\ref{fig:concentracion_zona777} caracteriza la distribución espacial 
 
 La Tabla~\ref{tab:resultados_prueba} reúne el CPC global de prueba con peso expandido. Deep Gravity se resume mediante media, desviación estándar muestral y rango de las tres inicializaciones; los modelos de referencia son deterministas y se ajustan solamente con los flujos de entrenamiento de la rama correspondiente. Las cifras no ordenan las representaciones entre sí, porque cambian las unidades, el soporte y la masa de prueba.
 
-\begin{table}[p]
+\begin{table}[H]
 \centering
 \small
 \renewcommand{\arraystretch}{1.15}
@@ -75,7 +75,7 @@ H3-r8 & 0,6079 $\pm$ 0,0047 & 0,6046--0,6133 & 0,2611 & 0,6867 & 0,3777 \\
 
 La Figura~\ref{fig:cpc_semillas_referencias} muestra los mismos resultados sin ocultar las tres semillas. Los cuadrados corresponden a los modelos de referencia y los círculos a inicializaciones de Deep Gravity; la lectura válida sigue siendo dentro de cada panel o rama.
 
-\begin{figure}[htbp]
+\begin{figure}[H]
 \centering
 \includegraphics[width=0.42\textwidth]{figures/cpc_semillas_y_referencias.pdf}
 \caption{CPC de prueba expandida por semilla y modelos de referencia. Cada panel corresponde a una representación y mantiene su propio soporte de destinos; los cuadrados son referencias deterministas y los círculos son las semillas 20260909, 20260910 y 20260911 de Deep Gravity. Fuente: elaboración propia a partir de las métricas globales del experimento mensual.}
