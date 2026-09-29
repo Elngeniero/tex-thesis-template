@@ -37,7 +37,7 @@ La estimación de flujos requiere definir las unidades espaciales de origen y de
 En síntesis, el problema que aborda esta memoria se formula de la siguiente manera:
 
 \begin{quote}
-\textit{La aplicación de Deep Gravity al transporte público de Santiago requiere establecer cómo la discretización espacial condiciona su desempeño predictivo y la interpretación de sus resultados. La zonificación Zona 777 y las celdas H3 producen representaciones distintas de los viajes y de los atributos urbanos. Una comparación sustentada en una cohorte DTPM común permite estudiar esa sensibilidad frente a modelos de referencia. El problema de investigación consiste en evaluar estas diferencias dentro de la movilidad observable en la fuente y determinar si un análisis complementario de explicabilidad produce atribuciones predictivas suficientemente estables para su interpretación.}
+\textit{En la aplicación de Deep Gravity al transporte público de Santiago, falta evidencia sobre la sensibilidad del desempeño predictivo de los modelos de flujos a la discretización espacial. La zonificación Zona 777 y las celdas H3 producen representaciones distintas de los viajes y de los atributos urbanos, por lo que sus resultados no son directamente comparables sin una evaluación controlada. Una comparación sustentada en una cohorte DTPM común permite examinar esta sensibilidad frente a modelos de referencia dentro de la movilidad observable en la fuente. De manera complementaria, el análisis de explicabilidad permite evaluar la estabilidad de las atribuciones predictivas para su interpretación, sin asignarles un alcance causal.}
 \end{quote}
 
 \clearpage
@@ -47,22 +47,23 @@ A continuación se presenta el diagrama del árbol del problema (Figura \ref{fig
 
 \begin{figure}[H]
 	\centering
-	\input{figures/arbol_del_problema}
-	\caption{Diagrama del árbol del problema. Fuente: Elaboración propia.}
+	\includegraphics[width=\textwidth,keepaspectratio]{figures/arbol_del_problema.png}
+	\caption{Árbol del problema: causas, problema central y efectos. Fuente: Elaboración propia.}
 	\label{fig:arbol_problema}
 \end{figure}
 
-La Figura~\ref{fig:arbol_problema} organiza el problema alrededor de la necesidad de evaluar cómo la discretización espacial condiciona el desempeño y la interpretación de los modelos de flujos observables en el transporte público de Santiago.
+La Figura~\ref{fig:arbol_problema} sitúa como problema central la falta de evidencia sobre la sensibilidad del desempeño predictivo de los modelos de flujos a la discretización espacial. En esta memoria, dicha sensibilidad se examina para el transporte público de Santiago mediante la comparación entre Zona 777 y H3.
 
-El árbol reúne cuatro factores que requieren control metodológico: la cobertura parcial de las fuentes de movilidad, los cambios en la agregación de viajes al definir unidades espaciales, las diferencias en la construcción de atributos territoriales y la transferencia de modelos entre contextos geográficos.
+Las causas representadas son la cobertura limitada de las fuentes de movilidad observada, la sensibilidad de los viajes a la agregación definida por las unidades espaciales, la variación en la construcción de atributos territoriales según la zonificación y la transferibilidad incierta de los modelos entre contextos geográficos.
 
-Si estos factores no se examinan, la comparación puede confundir cambios de agregación con mejoras predictivas, extender sus conclusiones a movilidad no observada o atribuir un alcance causal a explicaciones del modelo. El diagrama presenta riesgos para la interpretación de resultados, no efectos medidos sobre la inversión pública. Su posible utilidad para la planificación depende de la evidencia obtenida.
+Como efectos, la falta de evidencia puede llevar a atribuir a una mejora predictiva diferencias originadas por la agregación espacial, generalizar resultados a patrones de movilidad no observados en la fuente, interpretar atribuciones predictivas como evidencia de efectos causales o transferir resultados o modelos a otros territorios sin validación previa. Estos efectos corresponden a riesgos metodológicos para la interpretación de resultados, no a efectos medidos sobre la inversión pública. Su posible utilidad para la planificación depende de la evidencia obtenida.
 
 \subsection{Objetivo General}
 
 Evaluar la sensibilidad de \textit{Deep Gravity} y de sus modelos de referencia frente a la discretización espacial Zona 777--H3, a partir de una cohorte DTPM común, trazable y reproducible para Santiago de Chile.
 
 \subsection{Objetivos Específicos}
+\label{sec:objetivos_especificos}
 
 \begin{enumerate}
     \item Auditar y adaptar el código de referencia para verificar su funcionamiento y asegurar la trazabilidad de las ejecuciones.

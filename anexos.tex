@@ -1,11 +1,9 @@
-\secnumberlesssection{ANEXOS}
-
-Los anexos reúnen información de trazabilidad y reproducibilidad que complementa los capítulos de la memoria. No incorporan resultados predictivos adicionales ni alteran las reglas de selección, validación o evaluación descritas en el texto principal.
+\phantomsection
+\addcontentsline{toc}{section}{ANEXOS}
 
 \newcounter{anexo}
 \renewcommand{\theanexo}{\Alph{anexo}}
 \newcommand{\anexotitulo}[2]{%
-  \clearpage
   \refstepcounter{anexo}%
   \setcounter{table}{0}%
   \renewcommand{\thetable}{\theanexo.\arabic{table}}%
@@ -104,6 +102,7 @@ Este anexo documenta los 19 atributos de localización que integran el vector de
 
 La distancia $d_{ij}$ se calcula como distancia geodésica esférica WGS84 entre los centroides representativos de los pares origen--destino y se incorpora al vector sin una transformación adicional. No representa una ruta por la red. Las capas territoriales pueden superponerse; por ello, sus proporciones no deben sumarse como si constituyeran una partición del territorio. Asimismo, un valor cero de OpenStreetMap representa ausencia de objetos mapeados bajo la regla aplicada y no prueba ausencia física del servicio o uso de suelo.
 
+\clearpage
 \anexotitulo{Trazabilidad de las corridas mensuales}{anexo:corridas_mensuales}
 
 Este anexo individualiza las nueve corridas del experimento mensual: tres inicializaciones independientes en cada representación. La época seleccionada corresponde al mayor CPC global de validación de la trayectoria, conservando la primera época ante empate; la época final indica cuándo se detuvo la corrida. Las dos continuaciones autorizadas se realizaron desde el límite inicial de 200 épocas sin modificar datos, particiones, atributos, arquitectura, optimizador ni regla de selección. Todas las corridas cerraron por meseta de validación.
@@ -134,6 +133,7 @@ Este anexo individualiza las nueve corridas del experimento mensual: tres inicia
 
 La prueba se evaluó después de fijar y congelar los \textit{checkpoints} seleccionados por validación. Por ello, este anexo no reporta CPC de prueba por corrida ni usa resultados de prueba para preferir semilla, época o representación. Las tres semillas se conservan completas en los resultados del Capítulo 5; la tabla solo documenta trazabilidad.
 
+\clearpage
 \anexotitulo{Controles de soporte, conservación de masa y ejecución}{anexo:controles_ejecucion}
 
 Este anexo complementa los resultados globales del Capítulo 5 con controles de reproducibilidad y el detalle de los recursos medidos. No incorpora resultados predictivos adicionales ni reemplaza las tablas del capítulo: conserva los denominadores mínimos de la repetición independiente, la conservación del flujo por origen, el detalle por corrida y las incidencias técnicas resueltas.
