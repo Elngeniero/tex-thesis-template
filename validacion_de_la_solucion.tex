@@ -132,7 +132,7 @@ La Tabla~\ref{tab:costos_ejecucion} registra los recursos observados durante las
 \small
 \caption{Recursos observados para las nueve corridas mensuales. Las horas corresponden a entrenamiento y validación; la memoria es el máximo registrado en las corridas de cada fila; el tamaño de artefactos se convierte de bytes a GiB ($2^{30}$ bytes) y se redondea a dos decimales. Fuente: elaboración propia a partir del registro de costos e incidencias del experimento mensual.}
 \label{tab:costos_ejecucion}
-\begin{tabular}{@{}lrrrr@{}}
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lrrrr@{}}
 \toprule
 \textbf{Rama} & \textbf{Corridas} & \textbf{Horas} & \textbf{Memoria máx. (GiB)} & \textbf{Artefactos (GiB)} \\
 \midrule
@@ -142,7 +142,7 @@ H3-r8 & 3 & 6,65 & 0,83 & 2,95 \\
 \midrule
 Total de nueve corridas & 9 & 9,46 & 0,83 & 7,27 \\
 \bottomrule
-\end{tabular}
+\end{tabular*}
 \end{table}
 
 Las nueve corridas acumularon 9,46 horas de entrenamiento y validación. El desglose fue 0,19 horas en H3-r7, 2,62 horas en Zona 777 y 6,65 horas en H3-r8. El máximo de memoria de proceso observado fue 0,834 GiB. Estas cifras describen los recursos medidos, no el costo operativo completo.
