@@ -277,7 +277,7 @@ Para conteos enteros, minimizar esta expresión equivale a maximizar la log-vero
 
 \subsubsection{Modelos de referencia, particiones y métricas}
 
-Las tres referencias se ajustan solamente con los flujos cuyos orígenes pertenecen a entrenamiento y se evalúan sobre los mismos orígenes, destinos y masa que la red dentro de cada rama. La referencia uniforme asigna $1/|\mathcal{D}|$ a cada destino del soporte. La referencia de atracción usa la masa expandida recibida durante entrenamiento:
+Las tres referencias se ajustan solamente con los flujos cuyos orígenes pertenecen a entrenamiento y se evalúan sobre los mismos orígenes, destinos y masa que la red dentro de cada rama. La referencia uniforme asigna $1/|\mathcal{D}|$ a cada destino del soporte. La referencia de atracción, definida operacionalmente para esta memoria, usa la masa expandida recibida durante entrenamiento:
 \begin{equation}
     \widehat y_{ij}=O_i\,
     \frac{A_j^{\mathrm{train}}+\lambda}
@@ -285,7 +285,7 @@ Las tres referencias se ajustan solamente con los flujos cuyos orígenes pertene
     \qquad \lambda=1.
     \label{eq:baseline_atraccion}
 \end{equation}
-donde $A_j^{\mathrm{train}}$ es la masa que llega a $j$ desde los orígenes de entrenamiento, $\mathcal{D}$ es el soporte completo de destinos de la rama y $O_i$ es el flujo saliente observado del origen que se evalúa. El pseudoconteo $\lambda$ corresponde a una unidad de masa por destino. Esta referencia distribuye una salida observada; no es población, ni un atributo de la red, ni una estimación de la generación de viajes.
+donde $A_j^{\mathrm{train}}$ es la masa que llega a $j$ desde los orígenes de entrenamiento, $\mathcal{D}$ es el soporte completo de destinos de la rama y $O_i$ es el flujo saliente observado del origen que se evalúa. El pseudoconteo $\lambda$ corresponde a una unidad de masa por destino. Por construcción, $A_j^{\mathrm{train}}$ resume una marginal de la variable objetivo observada. La red también se ajusta con los flujos OD de entrenamiento, pero no recibe esa marginal como atributo: estima los puntajes a partir de las características territoriales del origen y el destino y de su distancia. La referencia permite evaluar cuánto se conserva el perfil empírico de destinos al cambiar los orígenes; su ventaja informativa debe considerarse al compararla con la red.
 
 En el modelo gravitatorio exponencial, la utilidad se calcula como
 \begin{equation}
