@@ -41,11 +41,11 @@ La formulación de la ecuación \eqref{eq:gravedad} recibe el nombre de \textit{
 \end{equation}
 donde $O_i = \sum_j T_{ij}$ es el flujo total saliente de la zona $i$ y $f(d_{ij})$ es una función de disuasión por distancia, que puede adoptar una forma exponencial, $f(d_{ij})=e^{-\lambda d_{ij}}$, con $\lambda>0$, o una ley de potencia, $f(d_{ij})=d_{ij}^{-\gamma}$, con $\gamma>0$ y $d_{ij}>0$\footnote{Existe también la versión \textit{doblemente restringida} (\textit{doubly-constrained}), que impone conservación tanto de los flujos salientes $O_i$ como de los flujos entrantes $D_j = \sum_i T_{ij}$. \textit{Deep Gravity} utiliza exclusivamente la versión restringida en origen.}.
 
-Las limitaciones de un modelo gravitatorio dependen de su especificación \cite{liu2024interdisciplinary}. La versión presentada relaciona población, distancia y flujo mediante parámetros calibrados con observaciones. Al no incluir otros atributos, no distingue de forma directa usos del suelo, equipamientos ni infraestructura de transporte. Estas restricciones corresponden a esa formulación, no a toda extensión posible de la familia gravitatoria. Su adecuación y la transferencia de sus parámetros requieren evaluación empírica.
+Las limitaciones de un modelo gravitatorio dependen de su especificación \cite{liu2024interdisciplinary}. La versión presentada relaciona población, distancia y flujo mediante parámetros calibrados con observaciones. Los usos del suelo, los equipamientos y la infraestructura de transporte quedan fuera de su vector explicativo. Esta caracterización corresponde a esa formulación; otras extensiones de la familia gravitatoria incorporan atributos diferentes. Su adecuación y la transferencia de sus parámetros requieren evaluación empírica.
 
 \subsubsection{Modelo de oportunidades intervinientes}
 
-Stouffer \cite{stouffer1940intervening} propuso en 1940 una perspectiva alternativa al modelo gravitatorio, argumentando que la distancia no es en sí misma el factor determinante de la movilidad, sino que actúa como un contenedor espacial de oportunidades. Su hipótesis central es que el número de personas que se desplazan a una zona de destino es directamente proporcional al número de oportunidades en ese destino e inversamente proporcional al número de oportunidades intervinientes entre el origen y el destino.
+Stouffer \cite{stouffer1940intervening} propuso en 1940 una perspectiva alternativa al modelo gravitatorio, en la que la distancia funciona como un contenedor espacial de oportunidades. Su hipótesis central es que el número de personas que se desplazan a una zona de destino es directamente proporcional al número de oportunidades en ese destino e inversamente proporcional al número de oportunidades intervinientes entre el origen y el destino.
 
 Formalmente, sea $y$ el número de personas que se desplazan desde un origen hasta una banda circular de anchura $\Delta s$, y sea $x$ el número acumulado de oportunidades entre el origen y la distancia $s$. Stouffer postula:
 \begin{equation}
@@ -136,7 +136,7 @@ La formulación publicada utiliza la siguiente entropía cruzada entre distribuc
     H = -\sum_i \sum_j \frac{T_{ij}}{O_i} \ln p_{ij}
     \label{eq:dg_loss}
 \end{equation}
-Esta expresión asigna el mismo peso a cada origen. La pérdida efectiva de Santiago pondera las contribuciones por la masa observada, $-\sum_i\sum_j T_{ij}\ln p_{ij}$, como se especifica en la ecuación~\eqref{eq:perdida_multinomial_santiago}. Las dos expresiones difieren en la ponderación entre orígenes y no se presentan como objetivos de entrenamiento idénticos.
+Esta expresión asigna el mismo peso a cada origen. La pérdida efectiva de Santiago pondera las contribuciones por la masa observada, $-\sum_i\sum_j T_{ij}\ln p_{ij}$, como se especifica en la ecuación~\eqref{eq:perdida_multinomial_santiago}. Por tanto, las dos expresiones definen objetivos de entrenamiento distintos.
 \textit{Deep Gravity} reemplaza el producto interno lineal $\boldsymbol{\beta}^{\top}\,\mathbf{x}(l_i, l_j)$ por una red neuronal profunda $f_\theta(\mathbf{x}(l_i, l_j))$ que produce un \textit{score} escalar. Las probabilidades de destino se obtienen mediante \textit{softmax} sobre los \textit{scores} de todos los destinos candidatos desde el origen $i$:
 \begin{equation}
     p_{ij} = \frac{\exp\!\left(f_\theta\!\left(\mathbf{x}(l_i, l_j)\right)\right)}{\displaystyle\sum_{k} \exp\!\left(f_\theta\!\left(\mathbf{x}(l_i, l_k)\right)\right)}
@@ -154,7 +154,7 @@ En la arquitectura descrita por Simini et al. \cite{simini2021deep}, la función
     \label{eq:dg_red}
 \end{align}
 Esta distribución de anchos corresponde a la arquitectura descrita en la publicación. La implementación utilizada en Santiago tiene cinco capas ocultas de 256 unidades y diez de 128; su configuración efectiva se documenta en la Sección~\ref{sec:configuracion_entrenamiento}.
-El protocolo publicado emplea RMSprop, con momento 0,9, tasa de aprendizaje $5\times10^{-6}$, lotes de 64 orígenes y hasta 512 destinos muestreados por origen. El muestreo permite calcular la normalización sobre un subconjunto de candidatos durante el entrenamiento; no equivale a evaluar todos los destinos. La configuración efectivamente usada en el piloto de Santiago se documenta en la Sección~\ref{sec:configuracion_entrenamiento}: emplea lotes de ocho orígenes y el soporte completo de destinos. Los parámetros de los experimentos finales se fijarán en su diseño específico.
+El protocolo publicado emplea RMSprop, con momento 0,9, tasa de aprendizaje $5\times10^{-6}$, lotes de 64 orígenes y hasta 512 destinos muestreados por origen. El muestreo calcula la normalización sobre un subconjunto de candidatos durante el entrenamiento. La configuración de Santiago, documentada en la Sección~\ref{sec:configuracion_entrenamiento}, usa lotes de ocho orígenes y el soporte completo de destinos para entrenar y evaluar. Los parámetros de los experimentos finales se fijan en su diseño específico.
 
 \subsubsection{Vector de características geoespaciales}
 
@@ -165,7 +165,7 @@ En la formulación de referencia \cite{simini2021deep}, el vector de entrada re�
 \end{equation}
 donde $\mathbf{f}(l)\in\mathbb{R}^{18}$ reúne atributos geoespaciales de la ubicación $l$, $P_i$ y $P_j$ representan la población asociada a ambos extremos y $d_{ij}$ es la distancia entre sus representantes espaciales. La procedencia de las variables y sus transformaciones deben identificarse en cada aplicación.
 
-En Santiago se utiliza un conjunto de 19 atributos por ubicación y 39 componentes por par. Incluye densidad de población censal, coberturas de suelo, densidades viales y atributos de equipamientos y servicios. Su construcción, orden y transformación se definen en la Sección~\ref{sec:features_osm}. La igualdad de dimensión con el vector de referencia no implica equivalencia de los atributos. La población de Santiago procede del Censo 2024 y se expresa como densidad después de la interpolación areal; no se introduce directamente el logaritmo de la población total ni el flujo saliente observado como variable de población.
+En Santiago se utiliza un conjunto de 19 atributos por ubicación y 39 componentes por par. Incluye densidad de población censal, coberturas de suelo, densidades viales y atributos de equipamientos y servicios. Su construcción, orden y transformación se definen en la Sección~\ref{sec:features_osm}. El vector conserva 39 componentes por par, pero su contenido corresponde a fuentes y transformaciones distintas. La población de Santiago procede del Censo 2024 y se expresa como densidad después de la interpolación areal; su especificación difiere de las que usan logaritmos de población total o flujo saliente observado.
 
 La agregación espacial depende de la magnitud del atributo. En Santiago, la densidad de población se expresa en personas por km$^2$, la densidad de puntos de interés en puntos por km$^2$ y la densidad vial en km de vías por km$^2$. La cobertura corresponde al área de la unión de polígonos de una categoría dividida por el área de la unidad, por lo que es una proporción adimensional entre cero y uno. Estas operaciones se distinguen de las transformaciones y la estandarización previas al entrenamiento, descritas en la Sección~\ref{sec:features_osm}.
 
@@ -176,11 +176,11 @@ Simini et al. \cite{simini2021deep} evaluaron \textit{Deep Gravity} sobre flujos
     \text{CPC}(\hat{\mathbf{T}}, \mathbf{T}) = \frac{2\,\displaystyle\sum_{i,j} \min\!\left(\hat{T}_{ij},\, T_{ij}\right)}{\displaystyle\sum_{i,j} \hat{T}_{ij} + \displaystyle\sum_{i,j} T_{ij}}
     \label{eq:cpc}
 \end{equation}
-Cuando la masa del denominador es positiva, la métrica CPC toma valores en $[0,1]$, donde 1 indica coincidencia exacta entre flujos generados y reales. Es equivalente al índice de Sørensen-Dice aplicado a flujos. En los experimentos publicados, \textit{Deep Gravity} supera al modelo gravitatorio clásico en todos los contextos evaluados. Las mejoras en CPC global alcanzan hasta un 190\% en Inglaterra y un 1.066\% en el estado de Nueva York. El estudio también evaluó la transferencia geográfica. Entrenado en algunas ciudades del Reino Unido, mantuvo un desempeño similar al evaluarse en ciudades no vistas durante el entrenamiento. En el caso de Nueva York, la publicación aproxima la población mediante flujo saliente observado; esa decisión no se traslada a Santiago. La auditoría técnica del código no acredita por sí sola una reproducción integral de esos resultados.
+Cuando la masa del denominador es positiva, la métrica CPC toma valores en $[0,1]$, donde 1 indica coincidencia exacta entre flujos generados y reales. Es equivalente al índice de Sørensen-Dice aplicado a flujos. En los experimentos publicados, \textit{Deep Gravity} supera al modelo gravitatorio clásico en todos los contextos evaluados. Las mejoras en CPC global alcanzan hasta un 190\% en Inglaterra y un 1.066\% en el estado de Nueva York. El estudio también evaluó la transferencia geográfica. Entrenado en algunas ciudades del Reino Unido, mantuvo un desempeño similar al evaluarse en ciudades no vistas durante el entrenamiento. En el caso de Nueva York, la publicación aproxima la población mediante flujo saliente observado; Santiago utiliza otra definición de atributos. La auditoría técnica verifica la compatibilidad de la implementación y la evaluación de Santiago examina su desempeño empírico bajo el protocolo de esta memoria.
 
 \subsubsection{Síntesis comparativa de modelos}
 
-La Tabla~\ref{tab:comparacion_modelos} resume las formulaciones examinadas en la literatura. Es una comparación bibliográfica, no una tabla de resultados experimentales de esta memoria. La calibración, los atributos y el comportamiento intraurbano dependen de la variante; la evidencia latinoamericana se limita a las fuentes revisadas.
+La Tabla~\ref{tab:comparacion_modelos} sintetiza antecedentes bibliográficos. La calibración, los atributos y el comportamiento intraurbano dependen de la variante; la evidencia latinoamericana se limita a las fuentes revisadas.
 
 \begin{table}[H]
 \centering
@@ -202,42 +202,42 @@ Gravitatorio clásico \cite{zipf1946p,liu2024interdisciplinary}
     & Exponentes y disuasión
     & Evaluación según contexto
     & Formulación explícita
-    & No documentada aquí \\
+    & --- \\
 Oportunidades intervinientes \cite{stouffer1940intervening,liu2020intervening}
     & Oportunidades y su distribución
     & Parámetro de absorción
     & Depende de la formulación
     & Formulación explícita
-    & No documentada aquí \\
+    & --- \\
 Radiación original \cite{simini2012universal,yan2014population}
     & Población como aproximación de oportunidades
     & Sin parámetros de forma
     & Limitaciones documentadas
     & Formulación explícita
-    & No documentada aquí \\
+    & --- \\
 Variantes de oportunidades intervinientes \cite{yan2014population,liu2019opportunity}
     & Oportunidades, habitualmente aproximadas por población
     & Depende de la variante
     & Evaluadas en los contextos citados
     & Formulación explícita
-    & No documentada aquí \\
+    & --- \\
 \textit{Deep Gravity} \cite{simini2021deep}
     & Población, atributos territoriales y distancia
     & Pesos de la red
     & Evaluación según contexto
     & Atribución posterior, como SHAP
-    & No documentada aquí \\
+    & --- \\
 \bottomrule
 \end{tabularx}
 
 \smallskip
 \begin{minipage}{\textwidth}
 \footnotesize
-La última columna significa que no se documenta una validación de esa formulación en las fuentes utilizadas para esta comparación; no demuestra la inexistencia de otros estudios. Una formulación explícita facilita inspeccionar sus supuestos, pero no garantiza una explicación causal. SHAP incluye aproximaciones agnósticas al modelo y no es exclusivo de las redes profundas \cite{lundberg2017shap}. El artículo original de \textit{Deep Gravity} ya incorpora un análisis SHAP; en esta memoria se evaluó de forma complementaria la viabilidad de trasladar análisis de atribuciones a Santiago.
+Las celdas con --- registran la ausencia de aplicaciones latinoamericanas en el corpus bibliográfico revisado. Las formulaciones explícitas permiten inspeccionar supuestos; las explicaciones causales exigen un diseño de evaluación específico. SHAP reúne aproximaciones agnósticas aplicables a modelos diversos, incluidas redes profundas \cite{lundberg2017shap}. El artículo original de \textit{Deep Gravity} ya incorpora un análisis SHAP; esta memoria evaluó complementariamente la viabilidad de trasladar atribuciones a Santiago.
 \end{minipage}
 \end{table}
 
-La combinación de atributos territoriales explícitos, una función predictiva no lineal y la posibilidad de aplicar métodos de atribución motiva la evaluación de \textit{Deep Gravity} en esta memoria. La comparación bibliográfica no establece por sí sola su superioridad en Santiago ni demuestra que estas capacidades sean exclusivas de esa arquitectura.
+Estas características justifican la evaluación de \textit{Deep Gravity} en Santiago. Los capítulos siguientes establecen su desempeño bajo el diseño experimental de esta memoria y evalúan la viabilidad de las atribuciones.
 
 % ----------------------------------------------------------------
 \subsection{Explicabilidad en modelos de inteligencia artificial (XAI)}
@@ -256,7 +256,7 @@ donde $\mathcal{F}$ es el conjunto de todas las características, $S$ es una coa
 
 Los valores SHAP satisfacen tres propiedades deseables: \textit{eficiencia} (la suma de todos los valores SHAP es igual a la diferencia entre la predicción y el valor base), \textit{simetría} (características con igual contribución marginal reciben igual valor SHAP) y \textit{dummy} (características sin influencia reciben valor cero). En conjunto, estas propiedades garantizan una atribución justa y consistente de importancias.
 
-Los valores SHAP permiten estudiar la contribución de los atributos a una predicción con respecto a una referencia. En esta memoria, el análisis complementario incluyó aproximaciones de Shapley con referencias de entrenamiento y controles de estabilidad predefinidos. Ninguna de ellas produjo atribuciones que superaran todos los controles de publicación; por ello, el resultado se limita a la evaluación metodológica del procedimiento y no a una interpretación de la importancia de los atributos. En cualquier caso, las atribuciones se interpretan como propiedades de predicciones y no como efectos causales de intervenciones urbanas.
+Los valores SHAP permiten estudiar la contribución de los atributos a una predicción con respecto a una referencia. En esta memoria, el análisis complementario incluyó aproximaciones de Shapley con referencias de entrenamiento y controles de estabilidad predefinidos. Los controles situaron este componente en una evaluación metodológica del procedimiento. Las atribuciones describen propiedades de las predicciones.
 
 \subsubsection{Gradientes integrados}
 
@@ -269,7 +269,7 @@ El método satisface dos propiedades axiomáticas que lo distinguen de otras té
 
 La elección de la entrada de referencia $\mathbf{x}'$ es un aspecto crítico del método. El vector nulo ($\mathbf{x}' = \mathbf{0}$) es una convención habitual en clasificación de imágenes, pero su significado depende de las variables y de su preprocesamiento. Una densidad cartografiada puede ser cero; después de estandarizar, el valor cero representa la media de entrenamiento. La referencia debe definirse en el espacio de entrada del modelo y su elección requiere un análisis de sensibilidad. En Santiago, las referencias ensayadas se construyeron con orígenes de entrenamiento de cada rama para conservar la coherencia con las transformaciones del modelo.
 
-Los gradientes integrados pueden considerarse una técnica complementaria para atribuir una salida diferenciable del modelo a sus entradas. En Santiago, el control de completitud no se acreditó para toda la cobertura requerida, incluso al aumentar la cuadratura en la consulta crítica; por ello, las atribuciones de este método no se interpretan como resultados de la memoria.
+Los gradientes integrados pueden considerarse una técnica complementaria para atribuir una salida diferenciable del modelo a sus entradas. En Santiago, la consulta crítica cubrió solo parte de la cobertura requerida aun al aumentar la cuadratura. Por ello, el método quedó en etapa de evaluación metodológica.
 
 % ----------------------------------------------------------------
 \subsection{OpenStreetMap como fuente de datos geoespaciales}
@@ -279,14 +279,14 @@ OpenStreetMap (OSM) es una base de datos geoespacial colaborativa y de libre acc
 
 Para modelar flujos de movilidad, OpenStreetMap aporta atributos de uso del suelo, vialidad, equipamientos y servicios. En esta memoria, el término \textit{amenities} se refiere a equipamientos y servicios urbanos; los atributos de OSM abarcan también información que no pertenece a ese conjunto. Los puntos de interés son una representación de algunas de estas entidades, mientras que otras se describen mediante áreas o líneas. La selección y construcción de los atributos empleados en Santiago se describe en la Sección~\ref{sec:features_osm}.
 
-Una limitación reconocida de OSM es la heterogeneidad espacial de su cobertura. Estudios previos \cite{BarringtonLeigh2017} documentan variaciones de densidad y completitud asociadas, entre otros factores, al nivel socioeconómico y la accesibilidad, pero ese antecedente no permite suponer de antemano el patrón de Santiago. Esta memoria examina la presencia espacial de los atributos OSM que efectivamente entraron a la red, tanto mediante su densidad como mediante la proporción de variables con valor positivo por unidad (Sección~\ref{sec:cobertura_atributos_osm}). Este diagnóstico describe el contenido de la instantánea utilizada; un valor cero indica ausencia cartografiada bajo las reglas de construcción y no demuestra ausencia física ni mide por sí mismo la completitud de OSM.
+Una limitación reconocida de OSM es la heterogeneidad espacial de su cobertura. Estudios previos \cite{BarringtonLeigh2017} documentan variaciones de densidad y completitud asociadas, entre otros factores, al nivel socioeconómico y la accesibilidad; el patrón de Santiago se mide en esta memoria. El diagnóstico mide la presencia espacial de los atributos OSM que entraron a la red, tanto mediante su densidad como mediante la proporción de variables con valor positivo por unidad (Sección~\ref{sec:cobertura_atributos_osm}). Un valor cero registra ausencia cartografiada bajo las reglas de construcción. Estimar completitud externa o disponibilidad física de servicios requiere una fuente independiente de contraste.
 
 % ----------------------------------------------------------------
 \subsection{Contexto de la movilidad en Santiago de Chile}
 % ----------------------------------------------------------------
 
-El sistema integrado de transporte público de Santiago reúne buses, Metro y el servicio ferroviario Nos-Estación Central \cite{dtpm_informe_2024}. Su cobertura operativa y las distintas delimitaciones estadísticas de la ciudad no deben confundirse con el área de estudio, definida aquí como un núcleo urbano referencial de 34 comunas. La delimitación utilizada se describe en la Sección~\ref{sec:delimitacion}.
+El sistema integrado de transporte público de Santiago reúne buses, Metro y el servicio ferroviario Nos-Estación Central \cite{dtpm_informe_2024}. El área de estudio es un núcleo urbano referencial de 34 comunas y se diferencia de la cobertura operativa y de las delimitaciones estadísticas de la ciudad. La delimitación utilizada se describe en la Sección~\ref{sec:delimitacion}.
 
 Las limitaciones de las fuentes de datos de movilidad disponibles para Santiago (la EOD de SECTRA y los registros de validación de la tarjeta bip!) se detallan en la Sección~\ref{sec:fuentes_movilidad}.
 
-Esta memoria utiliza la entrega DTPM disponible entre el 1 y el 29 de noviembre de 2024. La unidad de análisis se reconstruye al unir viajes y etapas: las zonas y el factor de expansión principal provienen de viajes, mientras que las coordenadas UTM de subida y bajada se obtienen de etapas. La fuente permite construir matrices OD diarias y por período horario; los archivos del día 30 se excluyen por errores, sin imputación. Esta entrega constituye la principal fuente de flujos observados para el entrenamiento y la evaluación de \textit{Deep Gravity} en Santiago.
+Esta memoria utiliza la entrega DTPM disponible entre el 1 y el 29 de noviembre de 2024. La unidad de análisis se reconstruye al unir viajes y etapas: las zonas y el factor de expansión principal provienen de viajes, mientras que las coordenadas UTM de subida y bajada se obtienen de etapas. La fuente permite construir matrices OD diarias y por período horario; el archivo del día 30 presentó errores de origen. Esta entrega constituye la principal fuente de flujos observados para el entrenamiento y la evaluación de \textit{Deep Gravity} en Santiago.

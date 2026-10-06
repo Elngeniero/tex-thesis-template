@@ -6,11 +6,11 @@ La validación distingue el piloto del 5 de noviembre de 2024 del experimento me
 \subsection{Piloto como validación preliminar}
 \label{sec:piloto_preliminar}
 
-El piloto se realizó sobre el martes 5 de noviembre de 2024 para comprobar el recorrido de datos, el entrenamiento, la selección por validación y la evaluación sobre el soporte completo de destinos. Incluyó 15 corridas diagnósticas y nueve entrenamientos estables del día completo, con tres representaciones espaciales y tres inicializaciones por representación. Cada entrenamiento se limitó a 15 épocas. Las ventanas horarias tuvieron un propósito diagnóstico y no se usaron para establecer una comparación final entre períodos.
+El piloto se realizó sobre el martes 5 de noviembre de 2024 para comprobar el recorrido de datos, el entrenamiento, la selección por validación y la evaluación sobre el soporte completo de destinos. Incluyó 15 corridas diagnósticas y nueve entrenamientos estables del día completo, con tres representaciones espaciales y tres inicializaciones por representación. Cada entrenamiento se limitó a 15 épocas. Las ventanas horarias tuvieron un propósito diagnóstico; la comparación entre períodos se concentra en el experimento mensual.
 
-En la prueba del piloto, el CPC medio de Deep Gravity fue 0,4920 en Zona 777, 0,7172 en H3-r7 y 0,5623 en H3-r8. Las desviaciones estándar muestrales entre las tres inicializaciones fueron 0,0045, 0,0021 y 0,0017, respectivamente. Dentro de cada representación, el modelo de atracción entrenado obtuvo los CPC más altos, con 0,6457, 0,7764 y 0,6669. Estos resultados acreditan la factibilidad del procedimiento y muestran que la comparación con referencias debe conservarse en el experimento mensual; no acreditan convergencia, ajuste óptimo ni generalización temporal.
+En la prueba del piloto, el CPC medio de Deep Gravity fue 0,4920 en Zona 777, 0,7172 en H3-r7 y 0,5623 en H3-r8. Las desviaciones estándar muestrales entre las tres inicializaciones fueron 0,0045, 0,0021 y 0,0017, respectivamente. Dentro de cada representación, el modelo de atracción entrenado obtuvo los CPC más altos, con 0,6457, 0,7764 y 0,6669. Estos resultados establecen la factibilidad del procedimiento y justifican conservar las referencias en el experimento mensual. La convergencia, el ajuste óptimo y la generalización temporal requieren evidencia adicional.
 
-El experimento mensual no se interpreta como una réplica completamente independiente del piloto. Comparte la geografía de prueba y contiene el 5 de noviembre. La diferencia entre ambos escenarios reúne cambios de período, normalización, volumen de datos y presupuesto de entrenamiento, de modo que no puede atribuirse a un único factor.
+El experimento mensual amplía el piloto: comparte la geografía de prueba e incluye el 5 de noviembre. La comparación reúne cambios de período, normalización, volumen de datos y presupuesto de entrenamiento, por lo que describe el efecto conjunto de esas diferencias.
 
 \subsection{Soporte de prueba y caracterización espacial}
 \label{sec:soporte_prueba}
@@ -21,7 +21,7 @@ El experimento principal agrega la cohorte final de 60.511.977 viajes, con masa 
 \centering
 \small
 \renewcommand{\arraystretch}{1.08}
-\caption{Soporte de las particiones del experimento mensual. Los orígenes son unidades con flujo saliente positivo; los viajes y la masa corresponden al origen de cada flujo. El número de \textit{tiles} describe la agenda común, incluso cuando un bloque no contiene orígenes activos en una rama. Fuente: elaboración propia a partir de las particiones aprobadas de la cohorte final.}
+\caption{Soporte de las particiones del experimento mensual. Los orígenes son unidades con flujo saliente positivo; los viajes y la masa corresponden al origen de cada flujo. El número de \textit{tiles} describe la agenda común de las tres ramas. Fuente: elaboración propia a partir de las particiones aprobadas de la cohorte final.}
 \label{tab:particiones_mensuales}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{@{}llrrrr@{}}
@@ -67,9 +67,9 @@ H3-r8 & 1.210 & 189 (189/0) & 21 & 1.210 & 228.690 (99.374; 43,5\%) & 15,80 M \\
 
 En la columna de orígenes, el par entre paréntesis corresponde a activos/inactivos; en la columna de pares, el paréntesis contiene pares OD positivos y su densidad. La masa expandida se expresa en millones de unidades de masa observada. Los desgloses por origen y \textit{tile} se conservan como respaldo reproducible. La densidad de pares OD positivos fue 76,33\% en Zona 777, 77,80\% en H3-r7 y 43,45\% en H3-r8.
 
-Las representaciones se construyen a partir de la misma cohorte, pero no comparten una partición de prueba idéntica una vez que cada viaje se asigna a una unidad espacial. Cambian el número de destinos por origen, los pares candidatos, la densidad OD y la masa de prueba. Por esta razón, el CPC no permite ordenar las tres representaciones como si fueran mediciones de una misma tarea. La comparación principal se realiza dentro de cada representación, contra referencias evaluadas en el mismo soporte.
+Las representaciones se construyen a partir de la misma cohorte y generan tareas de prueba distintas después de asignar cada viaje a una unidad espacial. Cambian el número de destinos por origen, los pares candidatos, la densidad OD y la masa de prueba. Los CPC absolutos describen esas tareas; por ello, la comparación principal contrasta modelos dentro de cada representación y sobre el mismo soporte.
 
-La Figura~\ref{fig:concentracion_zona777} caracteriza la distribución espacial de la masa expandida en la rama zonal. Sus dos paneles usan la misma cohorte final y expresan concentración por superficie; no son mapas de error ni una medida de desempeño predictivo.
+La Figura~\ref{fig:concentracion_zona777} caracteriza la distribución espacial de la masa expandida en la rama zonal. Sus dos paneles usan la misma cohorte final y expresan concentración por superficie.
 
 \begin{figure}[H]
 \centering
@@ -81,16 +81,16 @@ La Figura~\ref{fig:concentracion_zona777} caracteriza la distribución espacial 
 \subsection{Presencia espacial de los atributos OSM}
 \label{sec:cobertura_atributos_osm}
 
-La Figura~\ref{fig:cobertura_atributos_osm} examina los atributos físicos de la configuración \textit{paper19} que efectivamente alimentó las corridas mensuales. El panel izquierdo suma las densidades de puntos de interés de transporte, alimentación, salud, educación y comercio minorista. El derecho muestra, para cada unidad, la proporción de los 18 atributos OSM con valor mayor que cero. Esta proporción es un indicador interno de presencia cartografiada y no una estimación externa de completitud.
+La Figura~\ref{fig:cobertura_atributos_osm} examina los atributos físicos de la configuración \textit{paper19} que efectivamente alimentó las corridas mensuales. El panel izquierdo suma las densidades de puntos de interés de transporte, alimentación, salud, educación y comercio minorista. El derecho muestra, para cada unidad, la proporción de los 18 atributos OSM con valor mayor que cero. Esta proporción resume la presencia cartografiada de atributos por unidad.
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth]{figures/mapa_cobertura_atributos_osm.pdf}
-\caption{Presencia espacial de los atributos OSM usados por \textit{Deep Gravity} en las tres representaciones. La densidad total de POI suma las cinco familias incluidas en el vector de entrada y se muestra como $\log_{10}(1+\mathrm{POI/km^2})$; las unidades grises no contienen POI cartografiados. La presencia OSM corresponde a la fracción de los 18 atributos OSM con valor físico positivo. Los polígonos H3 se conservan completos según la política de borde del experimento. Fuente: elaboración propia a partir de los atributos \textit{paper19} aprobados.}
+\caption{Presencia espacial de los atributos OSM usados por \textit{Deep Gravity} en las tres representaciones. La densidad total de POI suma las cinco familias incluidas en el vector de entrada y se muestra como $\log_{10}(1+\mathrm{POI/km^2})$; las unidades grises corresponden a valores cero de POI cartografiados. La presencia OSM corresponde a la fracción de los 18 atributos OSM con valor físico positivo. Los polígonos H3 se conservan completos según la política de borde del experimento. Fuente: elaboración propia a partir de los atributos \textit{paper19} aprobados.}
 \label{fig:cobertura_atributos_osm}
 \end{figure}
 
-Para cuantificar el patrón centro--borde, se definió operacionalmente como periferia el cuartil de unidades más distante del centroide del área de 34 comunas, por separado para cada representación. La Tabla~\ref{tab:cobertura_atributos_osm} muestra que ese cuartil no está vacío, pero presenta medianas menores tanto de densidad de POI como de presencia de atributos. Las correlaciones de Spearman con la distancia son negativas en las tres ramas. En H3-r8, donde los ceros se distinguen con mayor detalle, el 14,85\% de las celdas periféricas no contiene POI cartografiados, frente al 6,28\% en el resto de las celdas.
+Para cuantificar el patrón centro--borde, se definió operacionalmente como periferia el cuartil de unidades más distante del centroide del área de 34 comunas, por separado para cada representación. La Tabla~\ref{tab:cobertura_atributos_osm} muestra medianas menores de densidad de POI y presencia de atributos en ese cuartil. Las correlaciones de Spearman con la distancia son negativas en las tres ramas. En H3-r8, donde los ceros se distinguen con mayor detalle, el 14,85\% de las celdas periféricas presenta cero POI cartografiados, frente al 6,28\% en el resto de las celdas.
 
 \begin{table}[htbp]
 \centering
@@ -111,7 +111,7 @@ H3-r8 & 102 (8,43\%) & 6,28\% / 14,85\% & 32,96 / 7,87 & 66,67\% / 44,44\% & $-0
 }
 \end{table}
 
-El patrón es compatible con una menor cantidad de información territorial cartografiada hacia el borde del dominio, aunque no permite separar ausencia real de servicios y omisión en OSM. Para la interpretación predictiva, estas zonas ofrecen a la red menos señales positivas para diferenciar la atractividad de los destinos; esta limitación se considera junto con la información observada que utiliza la referencia de atracción.
+El patrón muestra menor presencia cartografiada hacia el borde del dominio. Distinguir entre ausencia de servicios y omisión en OSM requeriría una fuente externa. Para la interpretación predictiva, estas zonas ofrecen a la red menos señales positivas para diferenciar la atractividad de los destinos; esta condición se considera junto con la información observada que utiliza la referencia de atracción.
 
 \subsection{Resultados globales en prueba}
 \label{sec:resultados_globales_prueba}
@@ -171,14 +171,14 @@ Deep Gravity superó las referencias uniforme y de gravedad exponencial en las t
 
 Por tanto, la respuesta experimental a la pregunta central no consiste en ordenar los CPC absolutos de las representaciones, sino en observar cómo cambia el desempeño relativo de la red frente a referencias comunes a cada tarea. La cercanía con atracción en H3-r7 y las brechas mayores en Zona 777 y H3-r8 muestran que el desempeño relativo de Deep Gravity es sensible a la discretización espacial.
 
-La conservación de masa se verificó para todos los orígenes de prueba. El mayor error absoluto por origen fue $1{,}863\times10^{-9}$. Este control confirma que la conversión de probabilidades en flujos preserva el flujo saliente observado, sin convertir la tarea en un modelo de generación total de viajes.
+La conservación de masa se verificó para todos los orígenes de prueba. El mayor error absoluto por origen fue $1{,}863\times10^{-9}$. Este control confirma que la conversión de probabilidades en flujos preserva el flujo saliente observado.
 
 El Anexo~\ref{anexo:controles_ejecucion} conserva el detalle del soporte de prueba, la repetición independiente y la conservación de masa.
 
 \subsection{Trayectorias y selección por validación}
 \label{sec:trayectorias_validacion}
 
-La Figura~\ref{fig:trayectorias_mensuales} conserva las trayectorias de las nueve corridas y permite distinguir la pérdida de entrenamiento del CPC de validación utilizado para elegir los \textit{checkpoints}. La línea vertical discontinua marca el límite inicial de 200 épocas; solo Zona 777--20260909 y H3-r8--20260910 continuaron mediante las extensiones autorizadas, sin alterar datos, arquitectura, optimizador, particiones o regla de selección.
+La Figura~\ref{fig:trayectorias_mensuales} conserva las trayectorias de las nueve corridas y permite distinguir la pérdida de entrenamiento del CPC de validación utilizado para elegir los \textit{checkpoints}. La línea vertical discontinua marca el límite inicial de 200 épocas; solo Zona 777--20260909 y H3-r8--20260910 continuaron mediante extensiones autorizadas.
 
 \begin{figure}[H]
 \centering
@@ -187,27 +187,27 @@ La Figura~\ref{fig:trayectorias_mensuales} conserva las trayectorias de las nuev
 \label{fig:trayectorias_mensuales}
 \end{figure}
 
-Todas las corridas cerraron por meseta de validación. Las dos extensiones no alteraron datos, particiones, arquitectura, optimizador ni regla de selección. La corrida de Zona 777 con semilla 20260909 cerró en la época 226 y mantuvo como \textit{checkpoint} seleccionado la época 196. La corrida de H3-r8 con semilla 20260910 cerró en la época 218 y mantuvo la época 188. Las restantes siete corridas cerraron sin extensión.
+Todas las corridas cerraron por meseta de validación. Las dos extensiones mantuvieron los datos, las particiones, la arquitectura, el optimizador y la regla de selección. La corrida de Zona 777 con semilla 20260909 cerró en la época 226 y mantuvo como \textit{checkpoint} seleccionado la época 196. La corrida de H3-r8 con semilla 20260910 cerró en la época 218 y mantuvo la época 188. Las restantes siete corridas cerraron con el límite inicial.
 
 El Anexo~\ref{anexo:corridas_mensuales} documenta las nueve corridas, sus épocas seleccionadas y sus condiciones de cierre.
 
-Los rangos de CPC de prueba entre las tres inicializaciones fueron 0,0110 en Zona 777, 0,0117 en H3-r7 y 0,0087 en H3-r8. Ninguno excedió la alerta protocolaria de 0,05. Esta dispersión describe la variación asociada a la inicialización y al entrenamiento bajo una partición espacial fija. No estima incertidumbre poblacional, variación entre particiones ni significación estadística.
+Los rangos de CPC de prueba entre las tres inicializaciones fueron 0,0110 en Zona 777, 0,0117 en H3-r7 y 0,0087 en H3-r8. Los tres rangos permanecieron bajo la alerta protocolaria de 0,05. Esta dispersión describe la variación asociada a la inicialización y al entrenamiento bajo una partición espacial fija. Estimar incertidumbre poblacional, variación entre particiones y significación estadística requeriría réplicas espaciales adicionales.
 
-Una verificación independiente volvió a evaluar un \textit{checkpoint} seleccionado por validación en cada representación. Las diferencias absolutas de CPC fueron inferiores a $10^{-6}$, con soporte completo de destinos. Esta comprobación respalda la consistencia técnica de la evaluación congelada, pero no equivale a una validación científica en otra ciudad, período o partición espacial.
+Una verificación independiente volvió a evaluar un \textit{checkpoint} seleccionado por validación en cada representación. Las diferencias absolutas de CPC fueron inferiores a $10^{-6}$, con soporte completo de destinos. Esta comprobación confirma que la evaluación congelada se reproduce técnicamente dentro de cada representación. Una validación científica requiere otro período, ciudad o partición espacial.
 
 \subsection{Discusión del desempeño frente a la atracción}
 \label{sec:discusion_atraccion}
 
-La primera diferencia está en la información utilizada. La referencia de atracción, definida para esta memoria en la Ecuación~\ref{eq:baseline_atraccion}, calcula la participación de cada destino directamente desde las llegadas observadas cuyos orígenes pertenecen a entrenamiento. Ambos modelos distribuyen el mismo flujo saliente observado $O_i$ y se ajustan con los mismos flujos OD, pero \textit{Deep Gravity} no recibe la marginal $A_j^{\mathrm{train}}$: debe aproximar la atractividad mediante atributos territoriales y distancia. La comparación es, por tanto, informativamente asimétrica. Los CPC de atracción, entre 0,6574 y 0,7757, muestran que el perfil empírico de destinos se conserva en grado importante al pasar de los orígenes de entrenamiento al \textit{tile} de prueba. Esto la convierte en una referencia supervisada exigente dentro de Santiago, aunque dependiente de disponer previamente de flujos OD.
+La primera diferencia está en la información utilizada. La referencia de atracción, definida para esta memoria en la Ecuación~\ref{eq:baseline_atraccion}, calcula la participación de cada destino directamente desde las llegadas observadas cuyos orígenes pertenecen a entrenamiento. Ambos modelos distribuyen el mismo flujo saliente observado $O_i$ y se ajustan con los mismos flujos OD. En cambio, \textit{Deep Gravity} aproxima la atractividad mediante atributos territoriales y distancia, mientras la referencia incorpora la marginal $A_j^{\mathrm{train}}$. La comparación es, por tanto, informativamente asimétrica. Los CPC de atracción, entre 0,6574 y 0,7757, muestran que el perfil empírico de destinos se conserva en grado importante al pasar de los orígenes de entrenamiento al \textit{tile} de prueba. Esto la convierte en una referencia supervisada exigente dentro de Santiago, condicionada por la disponibilidad previa de flujos OD.
 
-Las trayectorias aportan una segunda explicación posible. Después de la época seleccionada, la NLL de entrenamiento disminuyó otro 0,33--1,24\% en las nueve corridas, mientras el CPC de validación terminó 0,0017--0,0189 por debajo de su máximo. Esta divergencia es compatible con sobreajuste o con un desajuste entre la pérdida optimizada y la métrica de selección; no los separa, pues compara particiones y métricas distintas. La arquitectura tiene 15 capas ocultas, \textit{dropout} igual a cero y carece de decaimiento de pesos, sin una búsqueda de profundidad, ancho o regularización. Elegir el mejor \textit{checkpoint} por validación contuvo el deterioro posterior, pero no sustituyó esa búsqueda.
+Las trayectorias aportan una segunda explicación posible. Después de la época seleccionada, la NLL de entrenamiento disminuyó otro 0,33--1,24\% en las nueve corridas, mientras el CPC de validación terminó 0,0017--0,0189 por debajo de su máximo. Esta divergencia es compatible con sobreajuste o con un desajuste entre la pérdida optimizada y la métrica de selección; ambas explicaciones permanecen abiertas porque se comparan particiones y métricas distintas. La arquitectura tiene 15 capas ocultas, \textit{dropout} igual a cero y decaimiento de pesos igual a cero, sin una búsqueda de profundidad, ancho o regularización. Elegir el mejor \textit{checkpoint} por validación contuvo el deterioro posterior; la búsqueda de arquitectura y regularización queda como siguiente evaluación.
 
-La tercera explicación concierne a los 19 atributos. La familia OSM de transporte incluye estaciones, paradas, andenes y accesos de Metro, pero los resume en densidad de POI y cobertura de áreas; no distingue jerarquía modal, conectividad, frecuencia, capacidad o transbordos. Tampoco incorpora directamente empleo, matrícula, horarios o intensidad de actividad. La Sección~\ref{sec:cobertura_atributos_osm} encontró además menores medianas de densidad de POI y presencia OSM hacia la periferia; en H3-r8, el 14,85\% de las celdas periféricas no registró POI, frente al 6,28\% del resto. En esas celdas la red dispone de menos señales positivas, mientras la referencia se apoya en la marginal de llegadas con independencia de la presencia OSM. En conjunto, la asimetría informativa está establecida por el diseño, y las trayectorias y la cobertura sostienen como hipótesis las otras dos explicaciones. Comparar regularización, realizar ablaciones e incorporar oferta y conectividad permitiría estimar la contribución de cada una.
+La tercera explicación concierne a los 19 atributos. La familia OSM de transporte incluye estaciones, paradas, andenes y accesos de Metro, y los resume en densidad de POI y cobertura de áreas. Representar la oferta de transporte requeriría incorporar jerarquía modal, conectividad, frecuencia, capacidad y transbordos, además de empleo, matrícula, horarios o intensidad de actividad. La Sección~\ref{sec:cobertura_atributos_osm} encontró además menores medianas de densidad de POI y presencia OSM hacia la periferia; en H3-r8, el 14,85\% de las celdas periféricas registró cero POI, frente al 6,28\% del resto. En esas celdas la red dispone de menos señales positivas, mientras la referencia se apoya en la marginal de llegadas con independencia de la presencia OSM. En conjunto, la asimetría informativa está establecida por el diseño, y las trayectorias y la cobertura sostienen como hipótesis las otras dos explicaciones. Comparar regularización, realizar ablaciones e incorporar oferta y conectividad permitiría estimar la contribución de cada una.
 
 \subsection{Sensibilidad al peso de evaluación}
 \label{sec:sensibilidad_peso}
 
-La Figura~\ref{fig:sensibilidad_pesos} contrasta el CPC calculado con masa expandida y con conteos sin expansión. En ambos ejes se aplican las mismas probabilidades ya congeladas y cada origen se reescala con su respectivo flujo saliente; el eje sin expansión no corresponde a un reentrenamiento ni a una nueva selección de modelos. La diagonal indica igualdad entre ambas evaluaciones.
+La Figura~\ref{fig:sensibilidad_pesos} contrasta el CPC calculado con masa expandida y con conteos sin expansión. En ambos ejes se aplican las mismas probabilidades ya congeladas y cada origen se reescala con su respectivo flujo saliente. La figura mide el efecto del peso de evaluación sobre esas predicciones y conserva los modelos ya seleccionados. La diagonal indica igualdad entre ambas evaluaciones.
 
 \begin{figure}[H]
 \centering
@@ -216,12 +216,12 @@ La Figura~\ref{fig:sensibilidad_pesos} contrasta el CPC calculado con masa expan
 \label{fig:sensibilidad_pesos}
 \end{figure}
 
-El cambio de ponderación no modificó la lectura comparativa principal. Los CPC medios de Deep Gravity fueron 0,5623 en Zona 777, 0,7711 en H3-r7 y 0,6077 en H3-r8 al usar conteos sin expansión, frente a 0,5609, 0,7722 y 0,6079 con masa expandida. La atracción entrenada siguió sobre la media de la red en las tres representaciones. La figura debe leerse como una sensibilidad de evaluación al uso del peso, no como evidencia de que los modelos tendrían el mismo comportamiento después de reentrenarse con otra función de pérdida.
+El cambio de ponderación mantuvo la lectura comparativa principal. Los CPC medios de Deep Gravity fueron 0,5623 en Zona 777, 0,7711 en H3-r7 y 0,6077 en H3-r8 al usar conteos sin expansión, frente a 0,5609, 0,7722 y 0,6079 con masa expandida. La atracción entrenada siguió sobre la media de la red en las tres representaciones. Esta figura corresponde a una sensibilidad de evaluación al uso del peso; evaluar otra función de pérdida requeriría reentrenar los modelos.
 
 \subsection{Recursos de ejecución}
 \label{sec:recursos_ejecucion}
 
-La Tabla~\ref{tab:costos_ejecucion} registra los recursos observados durante las épocas de entrenamiento y validación. Estos tiempos excluyen carga inicial y escritura de \textit{checkpoints}, por lo que el total es una cota inferior del costo operativo y no un presupuesto integral de ejecución.
+La Tabla~\ref{tab:costos_ejecucion} registra los recursos observados durante las épocas de entrenamiento y validación. El cómputo de horas considera esas fases; la carga inicial y la escritura de \textit{checkpoints} quedan fuera de la medida. Por ello, el total corresponde a una cota inferior del costo operativo.
 
 \begin{table}[htbp]
 \centering
@@ -241,32 +241,32 @@ Total de nueve corridas & 9 & 9,46 & 0,83 & 7,27 \\
 \end{tabular*}
 \end{table}
 
-Las nueve corridas acumularon 9,46 horas de entrenamiento y validación. El desglose fue 0,19 horas en H3-r7, 2,62 horas en Zona 777 y 6,65 horas en H3-r8. El máximo de memoria de proceso observado fue 0,834 GiB. Estas cifras describen los recursos medidos, no el costo operativo completo.
+Las nueve corridas acumularon 9,46 horas de entrenamiento y validación. El desglose fue 0,19 horas en H3-r7, 2,62 horas en Zona 777 y 6,65 horas en H3-r8. El máximo de memoria de proceso observado fue 0,834 GiB. Estas cifras describen los recursos medidos en las fases reportadas.
 
-Se registraron dos incidencias sin efecto sobre los resultados de prueba. Antes de la primera época, una corrida de Zona 777 no resolvía un parámetro de hilos de CPU; la corrección se aplicó antes de producir entrenamiento o prueba y no se contabilizó como una inicialización adicional. Más tarde, un primer intento de verificación no pudo serializar una ruta relativa después de crear archivos parciales de reproducción. La verificación final se ejecutó en un directorio nuevo y los archivos parciales quedaron fuera de la evidencia. Ninguna incidencia modificó \textit{checkpoints}, resultados congelados ni la liberación de prueba.
+Se registraron dos incidencias, resueltas antes de afectar los resultados de prueba. Antes de la primera época, una corrida de Zona 777 requirió corregir un parámetro de hilos de CPU; la corrección se aplicó antes del entrenamiento. Más tarde, un intento de verificación encontró una ruta relativa no serializable después de crear archivos parciales de reproducción; la verificación final se ejecutó en un directorio nuevo. El Anexo~\ref{anexo:controles_ejecucion} conserva la bitácora técnica y las verificaciones correspondientes.
 
 El Anexo~\ref{anexo:controles_ejecucion} reúne el desglose de recursos por corrida, las verificaciones de soporte y conservación de masa, y la bitácora de incidencias técnicas resueltas.
 
 \subsection{Resultado del análisis complementario de atribuciones predictivas}
 \label{sec:resultado_xai}
 
-El análisis complementario evaluó tres aproximaciones para atribuir cambios en la log-probabilidad condicional de un destino dentro del soporte completo de cada origen. Las explicaciones se definieron como sensibilidades predictivas dependientes de la salida, de la muestra y de las referencias de entrenamiento. No se interpretaron como efectos causales.
+El análisis complementario evaluó tres aproximaciones para atribuir cambios en la log-probabilidad condicional de un destino dentro del soporte completo de cada origen. Las explicaciones se definieron como sensibilidades predictivas dependientes de la salida, de la muestra y de las referencias de entrenamiento. El estudio caracteriza contribuciones predictivas del comportamiento del modelo.
 
-La primera aproximación, basada en gradientes integrados, no acreditó completitud para una consulta crítica aun al aumentar la cuadratura hasta 4.096 nodos. La segunda, basada en permutaciones agrupadas, no acreditó la estabilidad entre dos conjuntos independientes de fondos en dos de las tres inicializaciones de la primera consulta obligatoria. La tercera, basada en valores de Shapley exactos para grupos jerárquicos, acreditó una primera consulta con 24 fondos por conjunto, pero una segunda consulta crítica no alcanzó la estabilidad requerida de los tres supergrupos con 24 ni con 48 fondos.
+En gradientes integrados, una consulta crítica quedó fuera del umbral de completitud incluso con cuadratura de 4.096 nodos. En permutaciones agrupadas, dos de las tres inicializaciones presentaron inestabilidad entre conjuntos independientes de fondos en la primera consulta obligatoria. En valores de Shapley exactos para grupos jerárquicos, la primera consulta cumplió el control con 24 fondos por conjunto, mientras la segunda dejó los tres supergrupos fuera del umbral de estabilidad con 24 y 48 fondos.
 
-Ninguna aproximación superó todos los controles definidos antes de la ejecución. Por ello, no se publican rankings, atribuciones, figuras SHAP ni casos locales. El resultado es metodológico: bajo las configuraciones evaluadas no se obtuvieron atribuciones suficientemente estables para una interpretación sustantiva de las características territoriales. Este desenlace limita la interpretabilidad disponible, pero no modifica las métricas predictivas ni las comparaciones con referencias, que se obtuvieron con un protocolo de evaluación distinto.
+Las tres aproximaciones dejaron al menos un control predefinido pendiente. El resultado se reporta como una evaluación de viabilidad: bajo estas configuraciones, las atribuciones quedaron fuera del umbral de estabilidad para una lectura sustantiva de las características territoriales. El manuscrito presenta los controles técnicos y reserva rankings, atribuciones, figuras SHAP y casos locales para configuraciones que superen dichos umbrales. Las métricas predictivas y las comparaciones con referencias proceden de un protocolo de evaluación distinto.
 
 \subsection{Discusión y amenazas a la validez}
 \label{sec:discusion_amenazas_validez}
 
 La evaluación muestra que Deep Gravity puede ejecutarse de forma trazable sobre la cohorte DTPM y producir una distribución de destinos que supera las referencias uniforme y de gravedad exponencial en las tres representaciones examinadas. La atracción entrenada obtiene un CPC medio mayor, pero su ventaja pasa de 14,68\% en Zona 777 y 11,48\% en H3-r8 a sólo 0,46\% en H3-r7. Este perfil de brechas constituye la evidencia principal de sensibilidad del desempeño a la discretización espacial.
 
-La reproducción técnica previa del código con datos de Nueva York se conserva como antecedente de compatibilidad de implementación. No reproduce el contexto empírico de Santiago ni funciona como un control equivalente, por lo que sus métricas no se comparan con los CPC de este capítulo.
+La reproducción técnica previa del código con datos de Nueva York se conserva como antecedente de compatibilidad de implementación. Sus métricas pertenecen a otro contexto empírico y se mantienen separadas de los CPC de Santiago.
 
-La discretización espacial modifica los destinos disponibles, la densidad de pares OD positivos, la masa de prueba y la agregación de atributos. En ese contexto, el cambio de las brechas relativas frente a referencias evaluadas sobre el mismo soporte caracteriza la sensibilidad observada, sin convertir el CPC absoluto en un criterio para seleccionar una resolución ganadora.
+La discretización espacial modifica los destinos disponibles, la densidad de pares OD positivos, la masa de prueba y la agregación de atributos. En ese contexto, las brechas relativas frente a referencias evaluadas sobre el mismo soporte caracterizan la sensibilidad observada. Los CPC absolutos permanecen asociados a tareas con soporte diferente.
 
-La validez temporal queda acotada a las 29 fechas disponibles de noviembre de 2024. La validez espacial queda acotada a una sola partición de origen, concentrada en un \textit{tile} de prueba, y a las 34 comunas del dominio definido. El piloto comparte la geografía de prueba y una de las fechas del agregado mensual. En consecuencia, los resultados no constituyen una validación temporal ni espacial independiente del piloto.
+El experimento aporta evidencia para las 29 fechas disponibles de noviembre de 2024, una partición de origen concentrada en un \textit{tile} de prueba y las 34 comunas del dominio definido. El piloto comparte la geografía de prueba e incluye una de las fechas del agregado mensual; una validación temporal y espacial independiente requeriría nuevos períodos y particiones.
 
-La fuente DTPM representa viajes reconstruibles de transporte público y no toda la movilidad urbana. La distribución predicha está condicionada al flujo saliente observado, por lo que no estima la generación de viajes por origen. Además, la cobertura de OpenStreetMap corresponde a una instantánea anterior a los viajes y la interpolación del Censo 2024 supone distribución uniforme dentro de cada geometría censal. Las decisiones de reconstrucción de viajes, exclusión de zonas sin polígono y asignación a unidades espaciales también condicionan el resultado.
+La fuente DTPM cubre viajes reconstruibles de transporte público. El modelo distribuye el flujo saliente observado; modelar la generación de viajes por origen requeriría otra formulación. Además, la cobertura de OpenStreetMap corresponde a una instantánea anterior a los viajes y la interpolación del Censo 2024 supone distribución uniforme dentro de cada geometría censal. Las decisiones de reconstrucción de viajes, exclusión de zonas sin polígono y asignación a unidades espaciales también condicionan el resultado.
 
-Las tres inicializaciones permiten describir variación de entrenamiento, pero no reemplazan particiones espaciales adicionales ni una muestra poblacional de experimentos. El resultado no validado del análisis de atribuciones añade una limitación específica: los resultados predictivos no pueden acompañarse de una explicación estable de la contribución de cada atributo bajo las configuraciones ensayadas. Una extensión futura debería separar explícitamente la validación temporal y espacial, incorporar particiones adicionales y definir un protocolo explicativo con controles que pueda acreditar estabilidad antes de interpretar atribuciones.
+Las tres inicializaciones describen la variación de entrenamiento dentro de una partición fija. Cuantificar la variación entre particiones o la incertidumbre poblacional exigiría réplicas espaciales adicionales. El análisis de atribuciones queda circunscrito a la evaluación de viabilidad descrita en la Sección~\ref{sec:resultado_xai}. Una extensión futura debería separar explícitamente la validación temporal y espacial, incorporar particiones adicionales y definir un protocolo explicativo con controles de estabilidad antes de interpretar atribuciones.

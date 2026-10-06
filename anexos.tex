@@ -15,7 +15,7 @@
 
 \anexotitulo{Diccionario de atributos territoriales}{anexo:diccionario_atributos}
 
-Este anexo documenta los 19 atributos de localización que integran el vector de entrada aprobado para el modelo. Se excluyen variables diagnósticas que no forman parte de ese vector y el flujo observado: este último se utiliza como variable objetivo, no como predictor. Las transformaciones se ajustan únicamente con los orígenes activos del conjunto de entrenamiento de cada rama y escenario.
+Este anexo documenta los 19 atributos de localización que integran el vector de entrada aprobado para el modelo. Las variables diagnósticas se reportan por separado y el flujo observado constituye la variable objetivo. Las transformaciones se ajustan únicamente con los orígenes activos del conjunto de entrenamiento de cada rama y escenario.
 
 \begin{table}[H]
   \centering
@@ -100,12 +100,12 @@ Este anexo documenta los 19 atributos de localización que integran el vector de
   \end{tabularx}
 \end{table}
 
-La distancia $d_{ij}$ se calcula como distancia geodésica esférica WGS84 entre los centroides representativos de los pares origen--destino y se incorpora al vector sin una transformación adicional. No representa una ruta por la red. Las capas territoriales pueden superponerse; por ello, sus proporciones no deben sumarse como si constituyeran una partición del territorio. Asimismo, un valor cero de OpenStreetMap representa ausencia de objetos mapeados bajo la regla aplicada y no prueba ausencia física del servicio o uso de suelo.
+La distancia $d_{ij}$ se calcula como distancia geodésica esférica WGS84 entre los centroides representativos de los pares origen--destino y se incorpora al vector como medida de separación espacial. Una ruta por la red requiere información adicional de infraestructura y operación. Las capas territoriales pueden superponerse, por lo que sus proporciones se analizan por familia. Para OpenStreetMap, un valor cero registra ausencia de objetos mapeados conforme a la regla aplicada.
 
 \clearpage
 \anexotitulo{Trazabilidad de las corridas mensuales}{anexo:corridas_mensuales}
 
-Este anexo individualiza las nueve corridas del experimento mensual: tres inicializaciones independientes en cada representación. La época seleccionada corresponde al mayor CPC global de validación de la trayectoria, conservando la primera época ante empate; la época final indica cuándo se detuvo la corrida. Las dos continuaciones autorizadas se realizaron desde el límite inicial de 200 épocas sin modificar datos, particiones, atributos, arquitectura, optimizador ni regla de selección. Todas las corridas cerraron por meseta de validación.
+Este anexo individualiza las nueve corridas del experimento mensual: tres inicializaciones independientes en cada representación. La época seleccionada corresponde al mayor CPC global de validación de la trayectoria, conservando la primera época ante empate; la época final indica cuándo se detuvo la corrida. Las dos continuaciones autorizadas partieron del límite inicial de 200 épocas y conservaron datos, particiones, atributos, arquitectura, optimizador y regla de selección. Todas las corridas cerraron por meseta de validación.
 
 \begin{table}[H]
   \centering
@@ -131,12 +131,12 @@ Este anexo individualiza las nueve corridas del experimento mensual: tres inicia
   }
 \end{table}
 
-La prueba se evaluó después de fijar y congelar los \textit{checkpoints} seleccionados por validación. Por ello, este anexo no reporta CPC de prueba por corrida ni usa resultados de prueba para preferir semilla, época o representación. Las tres semillas se conservan completas en los resultados del Capítulo 5; la tabla solo documenta trazabilidad.
+La prueba se evaluó después de fijar y congelar los \textit{checkpoints} seleccionados por validación. Los resultados de las tres semillas se presentan completos en el Capítulo 5; esta tabla conserva la trazabilidad de la selección.
 
 \clearpage
 \anexotitulo{Controles de soporte, conservación de masa y ejecución}{anexo:controles_ejecucion}
 
-Este anexo complementa los resultados globales del Capítulo 5 con controles de reproducibilidad y el detalle de los recursos medidos. No incorpora resultados predictivos adicionales ni reemplaza las tablas del capítulo: conserva los denominadores mínimos de la repetición independiente, la conservación del flujo por origen, el detalle por corrida y las incidencias técnicas resueltas.
+Este anexo reúne los controles de reproducibilidad y el detalle de los recursos medidos junto con los denominadores de la repetición independiente, la conservación del flujo por origen, el detalle por corrida y las incidencias técnicas resueltas.
 
 \subsubsection*{Soporte de prueba, repetición independiente y conservación de masa}
 
@@ -158,9 +158,9 @@ Este anexo complementa los resultados globales del Capítulo 5 con controles de 
   }
 \end{table}
 
-\noindent\footnotesize\textit{Nota.} El error máximo corresponde al máximo entre las tres semillas y los dos esquemas de ponderación. La repetición independiente usa la semilla 20260909 y el conjunto completo de destinos. Las unidades sin origen asignado no se incorporan como pares de prueba ni constituyen fuga de información.\normalsize
+\noindent\footnotesize\textit{Nota.} El error máximo corresponde al máximo entre las tres semillas y los dos esquemas de ponderación. La repetición independiente usa la semilla 20260909 y el conjunto completo de destinos. El soporte de prueba comprende los orígenes asignados al bloque de prueba; las unidades sin origen se registran por separado y se excluyen del cálculo del CPC.\normalsize
 
-La repetición independiente recuperó el CPC congelado de cada representación, con diferencias inferiores a $10^{-6}$. Las nueve corridas preservaron el flujo por origen; el mayor error observado fue $1{,}863\times10^{-9}$. Estos controles verifican consistencia técnica de la ejecución, no validación espacial o temporal externa.
+La repetición independiente recuperó el CPC congelado de cada representación, con diferencias inferiores a $10^{-6}$. Las nueve corridas preservaron el flujo por origen; el mayor error observado fue $1{,}863\times10^{-9}$. Estos controles verifican la consistencia técnica de la ejecución; la evaluación espacial y temporal se desarrolla mediante el protocolo del Capítulo 5.
 
 \subsubsection*{Recursos medidos por corrida}
 
@@ -188,7 +188,7 @@ La repetición independiente recuperó el CPC congelado de cada representación,
   \end{tabular}
 \end{table}
 
-Las horas corresponden solo a las épocas de entrenamiento y validación; excluyen la carga inicial y la escritura de \textit{checkpoints}, por lo que son una cota inferior del tiempo total de ejecución. La RAM se informa como máximo observado y el tamaño corresponde a los artefactos conservados de cada corrida. No se comparan mediante tiempo calendario, debido a que las condiciones de ejecución no son homogéneas.
+Las horas corresponden a las épocas de entrenamiento y validación. La carga inicial y la escritura de \textit{checkpoints} se registran fuera de esa medida, por lo que las horas son una cota inferior del tiempo total de ejecución. La RAM se informa como máximo observado y el tamaño corresponde a los artefactos conservados de cada corrida. Las condiciones de ejecución difieren entre ramas, por lo que la tabla reporta tiempo de entrenamiento y validación en vez de tiempo calendario.
 
 \subsubsection*{Incidencias técnicas resueltas}
 
@@ -203,10 +203,10 @@ Las horas corresponden solo a las épocas de entrenamiento y validación; excluy
     \midrule
     Zona 777, semilla 20260909 &
     Se detectó la ausencia del parámetro de hilos de CPU antes de iniciar el entrenamiento. Se corrigió antes de entrenar y evaluar la corrida. &
-    No se agregó una corrida ni se modificaron sus resultados. \\
+    La corrección se realizó antes del entrenamiento y la evaluación; la corrida conservó su plan y sus resultados. \\
     Cierre y repetición independiente &
     Una ruta relativa de serialización se detectó luego de generar productos parciales. La repetición se ejecutó en un directorio nuevo y se excluyeron los productos parciales. &
-    Sin efecto sobre los \textit{checkpoints} congelados ni sobre la evaluación de prueba. \\
+    Los \textit{checkpoints} congelados y la evaluación de prueba conservaron los resultados reportados. \\
     \bottomrule
   \end{tabularx}
 \end{table}
