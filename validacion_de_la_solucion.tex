@@ -15,7 +15,36 @@ El experimento mensual no se interpreta como una réplica completamente independ
 \subsection{Soporte de prueba y caracterización espacial}
 \label{sec:soporte_prueba}
 
-El experimento principal agrega la cohorte final de 60.511.977 viajes, con masa expandida de 85.774.522,4070, observados entre el 1 y el 29 de noviembre de 2024. La Tabla~\ref{tab:soporte_prueba} hace explícitos los denominadores de prueba. Aunque la cohorte fuente es común, cada adaptador espacial asigna unidades, pares candidatos y masa de prueba propios. La evaluación mantiene el soporte completo de destinos para cada origen de prueba; las unidades sin origen asignado no se convierten en observaciones inactivas ni se eliminan del conjunto de destinos.
+El experimento principal agrega la cohorte final de 60.511.977 viajes, con masa expandida de 85.774.522,4070, observados entre el 1 y el 29 de noviembre de 2024. La Tabla~\ref{tab:particiones_mensuales} muestra los orígenes, viajes y masa de entrenamiento, validación y prueba después de la exclusión común. La agenda de siete, dos y un \textit{tiles}, respectivamente, es idéntica en las tres ramas; algunos bloques no contienen un origen activo en todas las representaciones, pero permanecen en la agenda congelada.
+
+\begin{table}[htbp]
+\centering
+\small
+\renewcommand{\arraystretch}{1.08}
+\caption{Soporte de las particiones del experimento mensual. Los orígenes son unidades con flujo saliente positivo; los viajes y la masa corresponden al origen de cada flujo. El número de \textit{tiles} describe la agenda común, incluso cuando un bloque no contiene orígenes activos en una rama. Fuente: elaboración propia a partir de las particiones aprobadas de la cohorte final.}
+\label{tab:particiones_mensuales}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}llrrrr@{}}
+\toprule
+\textbf{Rama} & \textbf{Partición} & \textbf{Tiles} & \textbf{Orígenes} & \textbf{Viajes} & \textbf{Masa exp. (M)} \\
+\midrule
+Zona 777 & Entrenamiento & 7 & 507 & 41.303.960 & 58,49 \\
+Zona 777 & Validación & 2 & 185 & 7.455.614 & 11,17 \\
+Zona 777 & Prueba & 1 & 101 & 11.752.403 & 16,11 \\
+\midrule
+H3-r7 & Entrenamiento & 7 & 126 & 40.097.642 & 56,86 \\
+H3-r7 & Validación & 2 & 60 & 7.706.503 & 11,52 \\
+H3-r7 & Prueba & 1 & 32 & 12.707.832 & 17,39 \\
+\midrule
+H3-r8 & Entrenamiento & 7 & 701 & 41.789.595 & 59,18 \\
+H3-r8 & Validación & 2 & 299 & 7.203.738 & 10,80 \\
+H3-r8 & Prueba & 1 & 189 & 11.518.644 & 15,80 \\
+\bottomrule
+\end{tabular}
+}
+\end{table}
+
+El único bloque de prueba es \texttt{E23\_N420}, identificado espacialmente en la Figura~\ref{fig:mapa_tiles_particiones}. La Tabla~\ref{tab:soporte_prueba} detalla los denominadores utilizados al calcular las métricas de prueba. Aunque la cohorte fuente es común, cada adaptador espacial asigna unidades, pares candidatos y masa de prueba propios. La evaluación mantiene el soporte completo de destinos para cada origen de prueba; las unidades sin origen asignado no se convierten en observaciones inactivas ni se eliminan del conjunto de destinos.
 
 \begin{table}[htbp]
 \centering
@@ -49,10 +78,45 @@ La Figura~\ref{fig:concentracion_zona777} caracteriza la distribución espacial 
 \label{fig:concentracion_zona777}
 \end{figure}
 
+\subsection{Presencia espacial de los atributos OSM}
+\label{sec:cobertura_atributos_osm}
+
+La Figura~\ref{fig:cobertura_atributos_osm} examina los atributos físicos de la configuración \textit{paper19} que efectivamente alimentó las corridas mensuales. El panel izquierdo suma las densidades de puntos de interés de transporte, alimentación, salud, educación y comercio minorista. El derecho muestra, para cada unidad, la proporción de los 18 atributos OSM con valor mayor que cero. Esta proporción es un indicador interno de presencia cartografiada y no una estimación externa de completitud.
+
+\begin{figure}[p]
+\centering
+\includegraphics[height=0.78\textheight]{figures/mapa_cobertura_atributos_osm.pdf}
+\caption{Presencia espacial de los atributos OSM usados por \textit{Deep Gravity} en las tres representaciones. La densidad total de POI suma las cinco familias incluidas en el vector de entrada y se muestra como $\log_{10}(1+\mathrm{POI/km^2})$; las unidades grises no contienen POI cartografiados. La presencia OSM corresponde a la fracción de los 18 atributos OSM con valor físico positivo. Los polígonos H3 se conservan completos según la política de borde del experimento. Fuente: elaboración propia a partir de los atributos \textit{paper19} aprobados.}
+\label{fig:cobertura_atributos_osm}
+\end{figure}
+
+Para cuantificar el patrón centro--borde, se definió operacionalmente como periferia el cuartil de unidades más distante del centroide del área de 34 comunas, por separado para cada representación. La Tabla~\ref{tab:cobertura_atributos_osm} muestra que ese cuartil no está vacío, pero presenta medianas menores tanto de densidad de POI como de presencia de atributos. Las correlaciones de Spearman con la distancia son negativas en las tres ramas. En H3-r8, donde los ceros se distinguen con mayor detalle, el 14,85\% de las celdas periféricas no contiene POI cartografiados, frente al 6,28\% en el resto de las celdas.
+
+\begin{table}[htbp]
+\centering
+\scriptsize
+\renewcommand{\arraystretch}{1.12}
+\caption{Presencia de atributos OSM y distancia al centroide del área de estudio. ``Interior/periferia'' compara el 75\% de unidades más cercanas con el cuartil más distante dentro de cada representación; $\rho$ es la correlación de Spearman con la distancia. Fuente: elaboración propia a partir de los atributos físicos \textit{paper19}.}
+\label{tab:cobertura_atributos_osm}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}lrrrrrr@{}}
+\toprule
+\textbf{Rama} & \textbf{Sin POI, total} & \textbf{Sin POI, int./per.} & \textbf{POI/km$^2$, int./per.} & \textbf{Presencia OSM, int./per.} & \textbf{$\rho$ POI} & \textbf{$\rho$ presencia} \\
+\midrule
+Zona 777 & 0 (0,00\%) & 0,00\% / 0,00\% & 43,40 / 31,24 & 72,22\% / 61,11\% & $-0{,}239$ & $-0{,}340$ \\
+H3-r7 & 8 (3,59\%) & 3,59\% / 3,57\% & 28,95 / 3,69 & 83,33\% / 55,56\% & $-0{,}409$ & $-0{,}374$ \\
+H3-r8 & 102 (8,43\%) & 6,28\% / 14,85\% & 32,96 / 7,87 & 66,67\% / 44,44\% & $-0{,}319$ & $-0{,}362$ \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+El patrón es compatible con una menor cantidad de información territorial cartografiada hacia el borde del dominio, aunque no permite separar ausencia real de servicios y omisión en OSM. Para la interpretación predictiva, estas zonas ofrecen a la red menos señales positivas para diferenciar la atractividad de los destinos; esta limitación se considera junto con la información observada que utiliza la referencia de atracción.
+
 \subsection{Resultados globales en prueba}
 \label{sec:resultados_globales_prueba}
 
-La Tabla~\ref{tab:resultados_prueba} reúne el CPC global de prueba con peso expandido. Deep Gravity se resume mediante media, desviación estándar muestral y rango de las tres inicializaciones; los modelos de referencia son deterministas y se ajustan solamente con los flujos de entrenamiento de la rama correspondiente. Las cifras no ordenan las representaciones entre sí, porque cambian las unidades, el soporte y la masa de prueba.
+La Tabla~\ref{tab:resultados_prueba} reúne el CPC global de prueba con peso expandido. Deep Gravity se resume mediante media, desviación estándar muestral y rango de las tres inicializaciones; los modelos de referencia son deterministas y se ajustan solamente con los flujos de entrenamiento de la rama correspondiente.
 
 \begin{table}[H]
 \centering
@@ -73,7 +137,26 @@ H3-r8 & 0,6079 $\pm$ 0,0047 & 0,6046--0,6133 & 0,2611 & 0,6867 & 0,3777 \\
 }
 \end{table}
 
-La Figura~\ref{fig:cpc_semillas_referencias} muestra los mismos resultados sin ocultar las tres semillas. Los cuadrados corresponden a los modelos de referencia y los círculos a inicializaciones de Deep Gravity; la lectura válida sigue siendo dentro de cada panel o rama.
+Para comparar el desempeño de la red con cada referencia dentro de una misma rama, se calculó la diferencia relativa $100\,(\mathrm{CPC}_{DG}-\mathrm{CPC}_{ref})/\mathrm{CPC}_{ref}$. La Tabla~\ref{tab:brechas_relativas_cpc} presenta este contraste; un valor positivo indica una ventaja de Deep Gravity y uno negativo, una desventaja.
+
+\begin{table}[H]
+\centering
+\small
+\renewcommand{\arraystretch}{1.12}
+\caption{Diferencia relativa del CPC medio de Deep Gravity frente a cada modelo de referencia, calculada dentro de cada rama. Fuente: elaboración propia a partir de los resultados mensuales congelados.}
+\label{tab:brechas_relativas_cpc}
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+\textbf{Rama} & \textbf{Uniforme} & \textbf{Atracción} & \textbf{Gravedad exp.} \\
+\midrule
+Zona 777 & $+87{,}45\%$ & $-14{,}68\%$ & $+46{,}89\%$ \\
+H3-r7 & $+108{,}59\%$ & $-0{,}46\%$ & $+25{,}49\%$ \\
+H3-r8 & $+132{,}81\%$ & $-11{,}48\%$ & $+60{,}97\%$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+La Figura~\ref{fig:cpc_semillas_referencias} muestra los CPC que originan estas brechas y conserva las tres inicializaciones. Los cuadrados corresponden a los modelos de referencia y los círculos a inicializaciones de Deep Gravity.
 
 \begin{figure}[H]
 \centering
@@ -84,9 +167,9 @@ La Figura~\ref{fig:cpc_semillas_referencias} muestra los mismos resultados sin o
 
 \FloatBarrier
 
-Deep Gravity superó las referencias uniforme y de gravedad exponencial en las tres representaciones. En Zona 777, el CPC medio fue 0,5609, frente a 0,2992 para la referencia uniforme y 0,3819 para la referencia gravitacional. En H3-r7, los valores fueron 0,7722, 0,3702 y 0,6153. En H3-r8, fueron 0,6079, 0,2611 y 0,3777. La magnitud de esas diferencias sólo se interpreta dentro de cada representación porque el soporte y la agregación cambian entre ellas.
+Deep Gravity superó las referencias uniforme y de gravedad exponencial en las tres representaciones, pero la magnitud de la ventaja dependió de la discretización: frente a la uniforme varió entre 87,45\% y 132,81\%, y frente a la gravitacional entre 25,49\% y 60,97\%. La atracción entrenada obtuvo el mayor CPC medio en las tres ramas, aunque su ventaja también cambió: Deep Gravity quedó 14,68\% por debajo en Zona 777 y 11,48\% en H3-r8, mientras que en H3-r7 la diferencia se redujo a 0,46\%. En esta última rama, una inicialización alcanzó 0,7787 y superó individualmente el CPC de atracción de 0,7757; el resumen principal conserva la media de las tres inicializaciones.
 
-La referencia de atracción entrenada superó la media de Deep Gravity en las tres representaciones: 0,6574 frente a 0,5609 en Zona 777, 0,7757 frente a 0,7722 en H3-r7 y 0,6867 frente a 0,6079 en H3-r8. La diferencia fue particularmente pequeña en H3-r7, donde una inicialización de Deep Gravity alcanzó 0,7787 y superó individualmente el valor de atracción. Esa observación no altera el resumen de las tres inicializaciones ni autoriza seleccionar una semilla a partir de prueba. El resultado principal es que, bajo esta configuración, la red mejora sobre las referencias uniforme y gravitacional, pero no supera en promedio a la referencia de atracción ajustada con entrenamiento.
+Por tanto, la respuesta experimental a la pregunta central no consiste en ordenar los CPC absolutos de las representaciones, sino en observar cómo cambia el desempeño relativo de la red frente a referencias comunes a cada tarea. La cercanía con atracción en H3-r7 y las brechas mayores en Zona 777 y H3-r8 muestran que el desempeño relativo de Deep Gravity es sensible a la discretización espacial.
 
 La conservación de masa se verificó para todos los orígenes de prueba. El mayor error absoluto por origen fue $1{,}863\times10^{-9}$. Este control confirma que la conversión de probabilidades en flujos preserva el flujo saliente observado, sin convertir la tarea en un modelo de generación total de viajes.
 
@@ -167,11 +250,11 @@ Ninguna aproximación superó todos los controles definidos antes de la ejecuci�
 \subsection{Discusión y amenazas a la validez}
 \label{sec:discusion_amenazas_validez}
 
-La evaluación muestra que Deep Gravity puede ejecutarse de forma trazable sobre la cohorte DTPM y producir una distribución de destinos que supera las referencias uniforme y de gravedad exponencial en las tres representaciones examinadas. Sin embargo, la referencia de atracción entrenada obtiene un CPC medio mayor en las tres ramas. Este resultado evita presentar la red como una mejora general sobre todas las referencias y concentra la interpretación en las condiciones concretas de la evaluación.
+La evaluación muestra que Deep Gravity puede ejecutarse de forma trazable sobre la cohorte DTPM y producir una distribución de destinos que supera las referencias uniforme y de gravedad exponencial en las tres representaciones examinadas. La atracción entrenada obtiene un CPC medio mayor, pero su ventaja pasa de 14,68\% en Zona 777 y 11,48\% en H3-r8 a sólo 0,46\% en H3-r7. Este perfil de brechas constituye la evidencia principal de sensibilidad del desempeño a la discretización espacial.
 
 La reproducción técnica previa del código con datos de Nueva York se conserva como antecedente de compatibilidad de implementación. No reproduce el contexto empírico de Santiago ni funciona como un control equivalente, por lo que sus métricas no se comparan con los CPC de este capítulo.
 
-La discretización espacial modifica el problema evaluado. H3-r7, H3-r8 y Zona 777 no sólo difieren en tamaño o forma de unidad: cambian los destinos disponibles, la densidad de pares OD positivos, la masa de prueba y la agregación de atributos. La sensibilidad observada entre representaciones es informativa para describir ese efecto de agregación, pero no permite declarar una resolución ganadora a partir del CPC global.
+La discretización espacial modifica los destinos disponibles, la densidad de pares OD positivos, la masa de prueba y la agregación de atributos. En ese contexto, el cambio de las brechas relativas frente a referencias evaluadas sobre el mismo soporte caracteriza la sensibilidad observada, sin convertir el CPC absoluto en un criterio para seleccionar una resolución ganadora.
 
 La validez temporal queda acotada a las 29 fechas disponibles de noviembre de 2024. La validez espacial queda acotada a una sola partición de origen, concentrada en un \textit{tile} de prueba, y a las 34 comunas del dominio definido. El piloto comparte la geografía de prueba y una de las fechas del agregado mensual. En consecuencia, los resultados no constituyen una validación temporal ni espacial independiente del piloto.
 

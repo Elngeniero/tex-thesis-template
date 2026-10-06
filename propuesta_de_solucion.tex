@@ -90,6 +90,27 @@ El dominio de estudio es el núcleo urbano referencial de 34 comunas. Cada extre
 
 Después del recorte territorial se excluyen, en las tres ramas, los 1.904 viajes que tienen al menos un extremo en las zonas 848, 849 o 852, ya que no disponen de polígono oficial verificable para construir atributos. La cohorte comparativa resultante contiene 60.511.977 viajes y 85.774.522,4070 de masa expandida. Esta exclusión se aplica antes de agregar OD y no se reemplaza mediante geometrías de otra codificación.
 
+La Tabla~\ref{tab:cascada_filtros_dtpm} resume la reducción desde la entrega DTPM hasta la cohorte comparativa. De los 86.327.914 viajes entregados para las 29 fechas procesables, 25.325.042 (29,34\%) tienen \texttt{ultimaetapaconbajada}=0 y se excluyen porque el destino de la etapa final no puede reconstruirse bajo el contrato adoptado. Los filtros posteriores reúnen las condiciones de consistencia canónica, el recorte territorial y la disponibilidad de geometría zonal.
+
+\begin{table}[htbp]
+\centering
+\small
+\renewcommand{\arraystretch}{1.12}
+\caption{Cascada de filtros desde la entrega DTPM hasta la cohorte comparativa final. El porcentaje retenido usa como denominador los 86.327.914 viajes de los días 1--29; la columna de exclusión se calcula respecto de la fila anterior. Fuente: elaboración propia a partir de las auditorías F2-B--F2-D y del contrato aprobado F2-I.}
+\label{tab:cascada_filtros_dtpm}
+\begin{tabularx}{\textwidth}{@{}Xrrr@{}}
+\toprule
+\textbf{Etapa} & \textbf{Viajes retenidos} & \textbf{Excluidos} & \textbf{Retención} \\
+\midrule
+Entrega DTPM procesable, días 1--29 & 86.327.914 & --- & 100,00\% \\
+Indicador de bajada en etapa final igual a uno & 61.002.872 & 25.325.042 & 70,66\% \\
+Cohorte canónica primaria & 60.682.293 & 320.579 & 70,29\% \\
+Ambos extremos dentro de las 34 comunas & 60.513.881 & 168.412 & 70,10\% \\
+Cohorte comparativa final & 60.511.977 & 1.904 & 70,10\% \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
 La Figura~\ref{fig:serie_diaria_cohorte_final} muestra la cobertura diaria de esta cohorte final. Las 29 fechas disponibles se mantienen con su tipo de día observado; el 30 de noviembre no aparece como cero porque se excluyó por problemas en los archivos de origen.
 
 \begin{figure}[htbp]
@@ -104,7 +125,33 @@ La Figura~\ref{fig:serie_diaria_cohorte_final} muestra la cobertura diaria de es
 
 La rama Zona 777 usa las zonas de origen y destino auditadas en el viaje canónico y la geometría oficial publicada por DTPM. La rama H3 transforma las coordenadas válidas desde EPSG:32719 a WGS84 con \texttt{always\_xy=True} y asigna cada extremo mediante \texttt{latlng\_to\_cell}. La política de borde conserva la celda H3 completa observada: los viajes se recortan por el dominio de estudio, pero las huellas de las celdas no se recortan ni se reparte flujo por superficie.
 
-H3 es un sistema jerárquico de índices geoespaciales. Sus áreas y distancias varían geográficamente, existen pentágonos y la vecindad no puede resumirse como seis vecinos para toda celda. Por ello, H3 no elimina el problema de la unidad espacial modificable (MAUP, por sus siglas en inglés): la comparación trata la discretización espacial como una fuente de sensibilidad empírica. El análisis de factibilidad consideró H3-r3 a H3-r8; H3-r7 y H3-r8 pasaron al piloto junto con Zona 777. La Tabla~\ref{tab:representaciones} presenta las representaciones operativas de la cohorte común, sin inferir superioridad entre ellas.
+H3 es un sistema jerárquico de índices geoespaciales. Sus áreas y distancias varían geográficamente, existen pentágonos y la vecindad no puede resumirse como seis vecinos para toda celda. Por ello, H3 no elimina el problema de la unidad espacial modificable (MAUP, por sus siglas en inglés): la comparación trata la discretización espacial como una fuente de sensibilidad empírica.
+
+La factibilidad se evaluó sobre los 60.513.881 viajes del recorte territorial, antes de la exclusión común posterior de 1.904 viajes. Para cada resolución se exigió conservar esa cohorte y su masa expandida, disponer de al menos 100 unidades de origen activas y requerir como máximo 128 MiB para una matriz densa de puntajes de una pasada. La Tabla~\ref{tab:factibilidad_h3} muestra que H3-r3 a H3-r6 no alcanzan el umbral de soporte, mientras que H3-r7 y H3-r8 lo satisfacen; la memoria estimada tampoco restringe estas dos candidatas.
+
+\begin{table}[htbp]
+\centering
+\scriptsize
+\renewcommand{\arraystretch}{1.12}
+\caption{Factibilidad de las resoluciones H3-r3 a H3-r8 sobre la cohorte territorial. Todas las filas conservan 60.513.881 viajes y 85.777.662,9386 de masa expandida. La densidad OD corresponde a pares observados sobre pares posibles entre unidades activas. Fuente: elaboración propia a partir del análisis F2-E con asignación directa de cada coordenada mediante \texttt{latlng\_to\_cell}.}
+\label{tab:factibilidad_h3}
+\resizebox{\textwidth}{!}{%
+\begin{tabular}{@{}lrrrrrrl@{}}
+\toprule
+\textbf{Resolución} & \textbf{Orígenes activos} & \textbf{Pares OD} & \textbf{Densidad OD} & \textbf{Masa intraunidad} & \textbf{Área mediana (km$^2$)} & \textbf{Matriz (MiB)} & \textbf{Decisión} \\
+\midrule
+H3-r3 & 1 & 1 & 100,00\% & 100,00\% & 10.691,59 & $<0{,}01$ & Descartada \\
+H3-r4 & 4 & 16 & 100,00\% & 69,85\% & 1.529,98 & $<0{,}01$ & Descartada \\
+H3-r5 & 9 & 81 & 100,00\% & 52,20\% & 218,89 & $<0{,}01$ & Descartada \\
+H3-r6 & 44 & 1.760 & 90,91\% & 18,63\% & 31,24 & $<0{,}01$ & Descartada \\
+H3-r7 & 220 & 37.196 & 76,16\% & 5,06\% & 4,46 & 0,19 & Seleccionada \\
+H3-r8 & 1.194 & 617.070 & 43,76\% & 0,80\% & 0,64 & 5,38 & Seleccionada \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+H3-r7 y H3-r8 pasaron al piloto junto con Zona 777. La Tabla~\ref{tab:representaciones} presenta las representaciones operativas de la cohorte común después de la exclusión compartida, sin inferir superioridad entre ellas.
 
 \begin{table}[htbp]
 \centering
@@ -132,6 +179,15 @@ La Figura~\ref{fig:areas_y_soporte_representaciones} complementa esta descripci�
 \end{figure}
 
 Una zona o celda es una unidad OD. Un \textit{tile} es un bloque mayor, de 15.000 m de lado en EPSG:32719, indexado por $\operatorname{floor}(x/15000)$ y $\operatorname{floor}(y/15000)$. Se fijaron diez \textit{tiles} comunes y una agenda determinista con semilla 20260909: siete para entrenamiento, dos para validación y uno para prueba. La partición se aplica al origen; todos los destinos del dominio de estudio, incluidos los de otros \textit{tiles} o particiones, permanecen candidatos y los flujos cruzados se conservan. La Figura~\ref{fig:objetos_espaciales} distingue estos objetos y evita equiparar un \textit{tile} con una unidad OD.
+
+La Figura~\ref{fig:mapa_tiles_particiones} sitúa la agenda sobre las 34 comunas. El único bloque de prueba es \texttt{E23\_N420}, cuyos límites son 345--360 km Este y 6.300--6.315 km Norte en EPSG:32719. Intersecta sectores de Santiago, Conchalí, Huechuraba, Independencia, La Reina, Las Condes, Lo Barnechea, Providencia, Recoleta y Vitacura. Las tres representaciones comparten esta agenda de \textit{tiles}; cambian las unidades asignadas y, por ello, los orígenes y la masa de cada partición.
+
+\begin{figure}[H]
+\centering
+\includegraphics[width=0.92\textwidth]{figures/mapa_tiles_particiones.pdf}
+\caption{Ubicación de los diez \textit{tiles} de 15 km sobre el área de estudio y rol de cada bloque en la partición de orígenes. El bloque de prueba \texttt{E23\_N420} se destaca en rojo; los destinos de todo el dominio permanecen disponibles en las tres particiones. Fuente: elaboración propia a partir del dominio territorial aprobado y la agenda congelada de particiones.}
+\label{fig:mapa_tiles_particiones}
+\end{figure}
 
 \begin{figure}[htbp]
 \centering
