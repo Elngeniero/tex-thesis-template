@@ -19,12 +19,11 @@ El experimento principal agrega la cohorte final de 60.511.977 viajes, con masa 
 
 \begin{table}[htbp]
 \centering
-\small
+\fontsize{11}{13.6}\selectfont
 \renewcommand{\arraystretch}{1.08}
 \caption{Soporte de las particiones del experimento mensual. Los orígenes son unidades con flujo saliente positivo; los viajes y la masa corresponden al origen de cada flujo. El número de \textit{tiles} describe la agenda común de las tres ramas. Fuente: elaboración propia a partir de las particiones aprobadas de la cohorte final.}
 \label{tab:particiones_mensuales}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{@{}llrrrr@{}}
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}llrrrr@{}}
 \toprule
 \textbf{Rama} & \textbf{Partición} & \textbf{Tiles} & \textbf{Orígenes} & \textbf{Viajes} & \textbf{Masa exp. (M)} \\
 \midrule
@@ -40,8 +39,7 @@ H3-r8 & Entrenamiento & 7 & 701 & 41.789.595 & 59,18 \\
 H3-r8 & Validación & 2 & 299 & 7.203.738 & 10,80 \\
 H3-r8 & Prueba & 1 & 189 & 11.518.644 & 15,80 \\
 \bottomrule
-\end{tabular}
-}
+\end{tabular*}
 \end{table}
 
 El único bloque de prueba es \texttt{E23\_N420}, identificado espacialmente en la Figura~\ref{fig:mapa_tiles_particiones}. La Tabla~\ref{tab:soporte_prueba} detalla los denominadores utilizados al calcular las métricas de prueba. Aunque la cohorte fuente es común, cada adaptador espacial asigna unidades, pares candidatos y masa de prueba propios. La evaluación mantiene el soporte completo de destinos para cada origen de prueba; las unidades sin origen asignado no se convierten en observaciones inactivas ni se eliminan del conjunto de destinos.
@@ -90,7 +88,7 @@ La Figura~\ref{fig:cobertura_atributos_osm} examina los atributos físicos de la
 \label{fig:cobertura_atributos_osm}
 \end{figure}
 
-Para cuantificar el patrón centro--borde, se definió operacionalmente como periferia el cuartil de unidades más distante del centroide del área de 34 comunas, por separado para cada representación. La Tabla~\ref{tab:cobertura_atributos_osm} muestra medianas menores de densidad de POI y presencia de atributos en ese cuartil. Las correlaciones de Spearman con la distancia son negativas en las tres ramas. En H3-r8, donde los ceros se distinguen con mayor detalle, el 14,85\% de las celdas periféricas presenta cero POI cartografiados, frente al 6,28\% en el resto de las celdas.
+Para cuantificar el patrón centro--borde, se definió operacionalmente como periferia el cuartil de unidades más distante del centroide del área de 34 comunas, por separado para cada representación. La periferia operacional, considerada en conjunto, contiene POI y atributos OSM en las tres representaciones, aunque presenta menores medianas de densidad de POI y presencia de atributos que el interior (Tabla~\ref{tab:cobertura_atributos_osm}). Los vacíos de POI son parciales: en H3-r8, el 14,85\% de las celdas periféricas registra cero POI cartografiados, frente al 6,28\% de las celdas interiores. Las correlaciones de Spearman con la distancia son negativas en las tres ramas.
 
 \begin{table}[htbp]
 \centering
