@@ -122,8 +122,7 @@ La Tabla~\ref{tab:resultados_prueba} reúne el CPC global de prueba con peso exp
 \renewcommand{\arraystretch}{1.15}
 \caption{CPC global de prueba con peso expandido y salida condicionada al flujo saliente observado. Deep Gravity se resume con tres inicializaciones independientes; DE es la desviación estándar muestral. Uniforme, atracción entrenada y gravedad exponencial se calculan una vez por rama sobre el mismo soporte de prueba. Fuente: elaboración propia a partir de los resultados mensuales congelados.}
 \label{tab:resultados_prueba}
-\resizebox{\textwidth}{!}{%
-\begin{tabular}{@{}lccccc@{}}
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lccccc@{}}
 \toprule
 \textbf{Rama} & \textbf{Deep Gravity} & \textbf{Rango} & \textbf{Uniforme} & \textbf{Atracción} & \textbf{Gravedad exp.} \\
 \midrule
@@ -131,8 +130,7 @@ Zona 777 & 0,5609 $\pm$ 0,0062 & 0,5537--0,5647 & 0,2992 & 0,6574 & 0,3819 \\
 H3-r7 & 0,7722 $\pm$ 0,0060 & 0,7671--0,7787 & 0,3702 & 0,7757 & 0,6153 \\
 H3-r8 & 0,6079 $\pm$ 0,0047 & 0,6046--0,6133 & 0,2611 & 0,6867 & 0,3777 \\
 \bottomrule
-\end{tabular}
-}
+\end{tabular*}
 \end{table}
 
 Para comparar el desempeño de la red con cada referencia dentro de una misma rama, se calculó la diferencia relativa $100\,(\mathrm{CPC}_{DG}-\mathrm{CPC}_{ref})/\mathrm{CPC}_{ref}$. La Tabla~\ref{tab:brechas_relativas_cpc} presenta este contraste; un valor positivo indica una ventaja de Deep Gravity y uno negativo, una desventaja.
@@ -143,7 +141,7 @@ Para comparar el desempeño de la red con cada referencia dentro de una misma ra
 \renewcommand{\arraystretch}{1.12}
 \caption{Diferencia relativa del CPC medio de Deep Gravity frente a cada modelo de referencia, calculada dentro de cada rama. Fuente: elaboración propia a partir de los resultados mensuales congelados.}
 \label{tab:brechas_relativas_cpc}
-\begin{tabular}{@{}lrrr@{}}
+\begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lrrr@{}}
 \toprule
 \textbf{Rama} & \textbf{Uniforme} & \textbf{Atracción} & \textbf{Gravedad exp.} \\
 \midrule
@@ -151,7 +149,7 @@ Zona 777 & $+87{,}45\%$ & $-14{,}68\%$ & $+46{,}89\%$ \\
 H3-r7 & $+108{,}59\%$ & $-0{,}46\%$ & $+25{,}49\%$ \\
 H3-r8 & $+132{,}81\%$ & $-11{,}48\%$ & $+60{,}97\%$ \\
 \bottomrule
-\end{tabular}
+\end{tabular*}
 \end{table}
 
 La Figura~\ref{fig:cpc_semillas_referencias} muestra los CPC que originan estas brechas y conserva las tres inicializaciones. Los cuadrados corresponden a los modelos de referencia y los círculos a inicializaciones de Deep Gravity.
