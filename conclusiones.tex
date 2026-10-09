@@ -64,7 +64,7 @@ Estos resultados valen para los viajes de transporte público observables en DTP
 
 \textbf{Diseño experimental.} Las tres inicializaciones miden variación de entrenamiento bajo una sola partición espacial fija y un único período de 29 días. Si la relación entre orígenes y destinos cambia en otra partición o período, también podrían cambiar el CPC y la comparación con las referencias. Esta memoria no cuantificó esa variación espacial y temporal, por lo que las tres inicializaciones no representan incertidumbre entre períodos ni entre zonas de prueba.
 
-\textbf{Alcance predictivo y explicabilidad.} El modelo distribuye un flujo saliente conocido entre destinos; no estima cuántos viajes se generan ni optimiza rutas, frecuencias o capacidad. En XAI, ninguna configuración superó todos los controles exigidos por su protocolo, por lo que las atribuciones no sustentan explicaciones sobre las decisiones del modelo. Las métricas predictivas proceden de un protocolo de evaluación independiente.
+\textbf{Alcance predictivo y explicabilidad.} El alcance predictivo se limita a distribuir entre destinos un flujo saliente conocido por origen. Por ello, los resultados no abarcan la generación total de viajes ni la optimización de rutas, frecuencias o capacidad, que corresponden a problemas distintos. En el análisis XAI, ninguna configuración cumplió todos los controles exigidos por su protocolo. En consecuencia, las atribuciones se consideran todavía insuficientemente validadas para explicar las decisiones del modelo. Esta restricción corresponde al componente explicativo, mientras que el desempeño predictivo se evaluó mediante un protocolo independiente.
 
 
 \subsection{Trabajo futuro}
