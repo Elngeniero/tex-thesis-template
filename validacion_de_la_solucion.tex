@@ -248,32 +248,32 @@ El Anexo~\ref{anexo:controles_ejecucion} reúne el desglose de recursos por corr
 
 El análisis complementario evaluó tres aproximaciones para atribuir cambios en la log-probabilidad condicional de un destino dentro del soporte completo de cada origen. Las explicaciones se definieron como sensibilidades predictivas dependientes de la salida, de la muestra y de las referencias de entrenamiento. El estudio caracteriza contribuciones predictivas del comportamiento del modelo.
 
-La Tabla~\ref{tab:controles_xai} presenta los umbrales y valores obtenidos en los controles que determinaron la decisión de cada método. Los casos corresponden a las consultas críticas ejecutadas en Zona~777; por tanto, describen la viabilidad de esas configuraciones y no un resultado para las tres representaciones. En gradientes integrados se exigió que ambos fondos cumplieran el criterio de completitud. En permutaciones agrupadas, las tres semillas debían superar los dos controles de estabilidad entre conjuntos independientes de fondos. En el método exacto jerárquico, cada nivel debía cumplir conjuntamente los controles de los tres supergrupos.
+La Tabla~\ref{tab:controles_xai} presenta los umbrales y valores obtenidos en los controles que determinaron la decisión de cada método. Los casos se ejecutaron en Zona~777; por tanto, describen la viabilidad de esas configuraciones y no un resultado para las tres representaciones. En gradientes integrados se exigió que los dos orígenes de referencia cumplieran el criterio de completitud; su residuo mide cuánto difiere la suma de las atribuciones del cambio total que deben explicar. En permutaciones agrupadas, las tres semillas del estimador debían superar los controles entre dos conjuntos independientes de orígenes de referencia. Spearman compara el orden de las magnitudes de atribución y Jaccard mide la coincidencia entre los diez atributos con mayor magnitud. En el método exacto jerárquico se comparó cómo se repartía la atribución entre los atributos de origen, de destino y la distancia. La diferencia máxima identifica el mayor cambio entre esas participaciones y la similitud coseno mide cuán parecida es su distribución; ambos criterios debían cumplirse simultáneamente.
 
 \begin{table}[htbp]
 \centering
 \footnotesize
 \setlength{\tabcolsep}{3pt}
 \renewcommand{\arraystretch}{1.15}
-\caption{Controles decisivos del análisis complementario de explicabilidad en Zona~777. En filas con varios valores, el orden corresponde a los fondos, semillas o comparaciones indicados. Fuente: elaboración propia a partir de los registros técnicos F2-L, F2-M y F2-N.}
+\caption{Controles decisivos del análisis complementario de explicabilidad en Zona~777. En las filas con varios valores, el orden corresponde a los orígenes de referencia, semillas o tamaños indicados. Fuente: elaboración propia a partir de los registros de ejecución del análisis.}
 \label{tab:controles_xai}
 \begin{tabularx}{\textwidth}{@{}p{2.25cm}p{3.5cm}p{2.75cm}Xp{1.15cm}@{}}
 \toprule
 \textbf{Método} & \textbf{Control y caso} & \textbf{Umbral} & \textbf{Valor obtenido} & \textbf{¿Pasó?} \\
 \midrule
-Gradientes integrados & Residuo relativo de completitud en \texttt{q011}, 4.096 nodos, fondos 295 y 676 & $\leq 1\%$ en ambos & $1{,}052843\%$; $0{,}153752\%$ & No (1/2) \\
+Gradientes integrados & Residuo relativo de completitud en el caso crítico, 4.096 nodos y dos orígenes de referencia & $\leq 1\%$ en ambos & $1{,}052843\%$; $0{,}153752\%$ & No; 1 de 2 \\
 \addlinespace
-Permutaciones agrupadas & Spearman de $|\phi|$ entre fondos A/B en \texttt{q001}, semillas 20261001--03 & $\geq 0{,}80$ en las tres & $0{,}776316$; $0{,}814575$; $0{,}783603$ & No (1/3) \\
-Permutaciones agrupadas & Jaccard top-10 entre fondos A/B en \texttt{q001}, mismas semillas & $\geq 0{,}60$ en las tres & $0{,}666667$ en las tres & Sí (3/3) \\
+Permutaciones agrupadas & Spearman de $|\phi|$ entre dos conjuntos de referencia, tres semillas del estimador & $\geq 0{,}80$ en las tres & $0{,}776316$; $0{,}814575$; $0{,}783603$ & No; 1 de 3 \\
+Permutaciones agrupadas & Jaccard top-10 entre los mismos conjuntos y semillas & $\geq 0{,}60$ en las tres & $0{,}666667$ en las tres & Sí; 3 de 3 \\
 \addlinespace
-Shapley exacto jerárquico & Diferencia máxima de participación A/B en \texttt{q011}, con 24 y 48 fondos por conjunto & $\leq 0{,}10$ & $0{,}107741$; $0{,}130261$ & No (0/2) \\
-Shapley exacto jerárquico & Coseno A/B en \texttt{q011}, con 24 y 48 fondos por conjunto & $\geq 0{,}95$ & $0{,}978649$; $0{,}970355$ & Sí (2/2) \\
-Shapley exacto jerárquico & Coseno entre tamaños de fondo en \texttt{q011}: A24/A48 y B24/B48 & $\geq 0{,}95$ & $0{,}903762$; $0{,}930160$ & No (0/2) \\
+Shapley exacto jerárquico & Diferencia máxima entre dos conjuntos de referencia, con 24 y 48 orígenes por conjunto & $\leq 0{,}10$ & $0{,}107741$; $0{,}130261$ & No; 0 de 2 \\
+Shapley exacto jerárquico & Similitud coseno entre los mismos conjuntos, con 24 y 48 orígenes por conjunto & $\geq 0{,}95$ & $0{,}978649$; $0{,}970355$ & Sí; 2 de 2 \\
+Shapley exacto jerárquico & Similitud coseno al aumentar cada conjunto de 24 a 48 orígenes & $\geq 0{,}95$ & $0{,}903762$; $0{,}930160$ & No; 0 de 2 \\
 \bottomrule
 \end{tabularx}
 \end{table}
 
-En gradientes integrados, el fondo 295 excedió el límite de completitud por $0{,}052843$ puntos porcentuales; el otro fondo sí pasó. En permutaciones agrupadas, las semillas 20261001 y 20261003 quedaron $0{,}023684$ y $0{,}016397$ bajo el mínimo de Spearman, aunque las tres pasaron Jaccard. En Shapley exacto jerárquico, la diferencia máxima de participación excedió el límite por $0{,}007741$ con 24 fondos y por $0{,}030261$ con 48; además, los cosenos entre tamaños quedaron $0{,}046238$ y $0{,}019840$ bajo el mínimo. La consulta \texttt{q001} de este último método había cumplido sus controles con 24 fondos por conjunto, pero la consulta crítica \texttt{q011} no superó el criterio conjunto de estabilidad.
+En gradientes integrados, uno de los dos orígenes de referencia excedió el límite de completitud por $0{,}052843$ puntos porcentuales; el otro sí pasó. En permutaciones agrupadas, la primera y la tercera semilla del estimador quedaron $0{,}023684$ y $0{,}016397$ bajo el mínimo de Spearman, aunque las tres pasaron Jaccard. En Shapley exacto jerárquico, la diferencia máxima entre los conjuntos de referencia excedió el límite por $0{,}007741$ con 24 orígenes y por $0{,}030261$ con 48; además, las similitudes al aumentar el tamaño de cada conjunto quedaron $0{,}046238$ y $0{,}019840$ bajo el mínimo. El primer caso de este último método había cumplido sus controles con 24 orígenes por conjunto, pero el segundo no superó el criterio conjunto de estabilidad.
 
 Ninguna de las tres configuraciones superó todos los controles exigidos por su protocolo. Por ello, el resultado se reporta como una evaluación de viabilidad y las atribuciones, rankings, figuras SHAP y casos locales quedan fuera del manuscrito. Las métricas predictivas y las comparaciones con referencias proceden de un protocolo de evaluación distinto.
 
