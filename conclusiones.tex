@@ -13,9 +13,11 @@ Hay tres hipótesis para explicar por qué \textit{Deep Gravity} no supera a la 
 
 La primera hipótesis es la mejor sustentada porque el uso directo de llegadas observadas es una diferencia comprobada del diseño y el perfil aprendido por atracción mantuvo capacidad predictiva al evaluar otros orígenes. El experimento no aisló cuánto de su ventaja proviene de esa información, por lo que las tres explicaciones conservan carácter hipotético.
 
-Esta conclusión se obtuvo a partir de una cohorte común de 60.511.977 viajes canónicos DTPM, observados entre el 1 y el 29 de noviembre de 2024 en 34 comunas. Se construyeron tres representaciones espaciales, Zona~777 (793 unidades), H3-r7 (223 celdas) y H3-r8 (1.210 celdas), y se entrenaron nueve modelos mensuales, tres por representación. La prueba se liberó una sola vez después de seleccionar por validación los modelos que se evaluarían.
+Con la evidencia de esta memoria, \textit{Deep Gravity} sirve para distribuir entre destinos un total conocido de viajes que salen de cada origen y para estudiar cómo esa distribución cambia con la representación espacial. Como aplicación potencial, podría evaluarse para estimar patrones de destino en áreas o períodos donde se conozca ese total saliente, pero no se disponga de llegadas observadas para construir la referencia de atracción; esa transferencia requiere una validación independiente. La configuración actual todavía no justifica sustituir la atracción cuando esas llegadas están disponibles, pues esta referencia obtuvo un CPC medio mayor en las tres representaciones.
 
-En el análisis complementario de explicabilidad, ninguna de las tres configuraciones superó todos los controles exigidos por su protocolo. La Tabla~\ref{tab:controles_xai} informa los umbrales, los valores obtenidos y cuánto faltó en los controles decisivos; las atribuciones, los rankings y las figuras SHAP se reservan para configuraciones que superen esos controles.
+En explicabilidad, ninguna de las tres configuraciones superó todos sus controles, aunque algunas aprobaron controles individuales; por ello, sus atribuciones todavía no constituyen explicaciones validadas (Tabla~\ref{tab:controles_xai}).
+
+Esta conclusión se obtuvo a partir de una cohorte común de 60.511.977 viajes canónicos DTPM, observados entre el 1 y el 29 de noviembre de 2024 en 34 comunas. Se construyeron tres representaciones espaciales, Zona~777 (793 unidades), H3-r7 (223 celdas) y H3-r8 (1.210 celdas), y se entrenaron nueve modelos mensuales, tres por representación. La prueba se liberó una sola vez después de seleccionar por validación los modelos que se evaluarían.
 
 
 \subsection{Cumplimiento de objetivos}
