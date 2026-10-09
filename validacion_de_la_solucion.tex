@@ -250,7 +250,7 @@ El análisis complementario evaluó tres aproximaciones para atribuir cambios en
 
 La Tabla~\ref{tab:controles_xai} presenta los umbrales y valores obtenidos en los controles que determinaron la decisión de cada método. Los casos se ejecutaron en Zona~777; por tanto, describen la viabilidad de esas configuraciones y no un resultado para las tres representaciones. En gradientes integrados se exigió que los dos orígenes de referencia cumplieran el criterio de completitud; su residuo mide cuánto difiere la suma de las atribuciones del cambio total que deben explicar. En permutaciones agrupadas, las tres semillas del estimador debían superar los controles entre dos conjuntos independientes de orígenes de referencia. Spearman compara el orden de las magnitudes de atribución y Jaccard mide la coincidencia entre los diez atributos con mayor magnitud. En el método exacto jerárquico se comparó cómo se repartía la atribución entre los atributos de origen, de destino y la distancia. La diferencia máxima identifica el mayor cambio entre esas participaciones y la similitud coseno mide cuán parecida es su distribución; ambos criterios debían cumplirse simultáneamente.
 
-\begin{table}[htbp]
+\begin{table}[H]
 \centering
 \footnotesize
 \setlength{\tabcolsep}{3pt}
