@@ -248,9 +248,34 @@ El Anexo~\ref{anexo:controles_ejecucion} reúne el desglose de recursos por corr
 
 El análisis complementario evaluó tres aproximaciones para atribuir cambios en la log-probabilidad condicional de un destino dentro del soporte completo de cada origen. Las explicaciones se definieron como sensibilidades predictivas dependientes de la salida, de la muestra y de las referencias de entrenamiento. El estudio caracteriza contribuciones predictivas del comportamiento del modelo.
 
-En gradientes integrados, una consulta crítica quedó fuera del umbral de completitud incluso con cuadratura de 4.096 nodos. En permutaciones agrupadas, dos de las tres inicializaciones presentaron inestabilidad entre conjuntos independientes de fondos en la primera consulta obligatoria. En valores de Shapley exactos para grupos jerárquicos, la primera consulta cumplió el control con 24 fondos por conjunto, mientras la segunda dejó los tres supergrupos fuera del umbral de estabilidad con 24 y 48 fondos.
+La Tabla~\ref{tab:controles_xai} presenta los umbrales y valores obtenidos en los controles que determinaron la decisión de cada método. Los casos corresponden a las consultas críticas ejecutadas en Zona~777; por tanto, describen la viabilidad de esas configuraciones y no un resultado para las tres representaciones. En gradientes integrados se exigió que ambos fondos cumplieran el criterio de completitud. En permutaciones agrupadas, las tres semillas debían superar los dos controles de estabilidad entre conjuntos independientes de fondos. En el método exacto jerárquico, cada nivel debía cumplir conjuntamente los controles de los tres supergrupos.
 
-Las tres aproximaciones dejaron al menos un control predefinido pendiente. El resultado se reporta como una evaluación de viabilidad: bajo estas configuraciones, las atribuciones quedaron fuera del umbral de estabilidad para una lectura sustantiva de las características territoriales. El manuscrito presenta los controles técnicos y reserva rankings, atribuciones, figuras SHAP y casos locales para configuraciones que superen dichos umbrales. Las métricas predictivas y las comparaciones con referencias proceden de un protocolo de evaluación distinto.
+\begin{table}[htbp]
+\centering
+\footnotesize
+\setlength{\tabcolsep}{3pt}
+\renewcommand{\arraystretch}{1.15}
+\caption{Controles decisivos del análisis complementario de explicabilidad en Zona~777. En filas con varios valores, el orden corresponde a los fondos, semillas o comparaciones indicados. Fuente: elaboración propia a partir de los registros técnicos F2-L, F2-M y F2-N.}
+\label{tab:controles_xai}
+\begin{tabularx}{\textwidth}{@{}p{2.25cm}p{3.35cm}p{1.75cm}Xp{1.15cm}@{}}
+\toprule
+\textbf{Método} & \textbf{Control y caso} & \textbf{Umbral} & \textbf{Valor obtenido} & \textbf{¿Pasó?} \\
+\midrule
+Gradientes integrados & Residuo relativo de completitud en \texttt{q011}, 4.096 nodos, fondos 295 y 676 & $\leq 1\%$ en ambos & $1{,}052843\%$; $0{,}153752\%$ & No (1/2) \\
+\addlinespace
+Permutaciones agrupadas & Spearman de $|\phi|$ entre fondos A/B en \texttt{q001}, semillas 20261001--03 & $\geq 0{,}80$ en las tres & $0{,}776316$; $0{,}814575$; $0{,}783603$ & No (1/3) \\
+Permutaciones agrupadas & Jaccard top-10 entre fondos A/B en \texttt{q001}, mismas semillas & $\geq 0{,}60$ en las tres & $0{,}666667$ en las tres & Sí (3/3) \\
+\addlinespace
+Shapley exacto jerárquico & Diferencia máxima de participación A/B en \texttt{q011}, con 24 y 48 fondos por conjunto & $\leq 0{,}10$ & $0{,}107741$; $0{,}130261$ & No (0/2) \\
+Shapley exacto jerárquico & Coseno A/B en \texttt{q011}, con 24 y 48 fondos por conjunto & $\geq 0{,}95$ & $0{,}978649$; $0{,}970355$ & Sí (2/2) \\
+Shapley exacto jerárquico & Coseno entre tamaños de fondo en \texttt{q011}: A24/A48 y B24/B48 & $\geq 0{,}95$ & $0{,}903762$; $0{,}930160$ & No (0/2) \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+En gradientes integrados, el fondo 295 excedió el límite de completitud por $0{,}052843$ puntos porcentuales; el otro fondo sí pasó. En permutaciones agrupadas, las semillas 20261001 y 20261003 quedaron $0{,}023684$ y $0{,}016397$ bajo el mínimo de Spearman, aunque las tres pasaron Jaccard. En Shapley exacto jerárquico, la diferencia máxima de participación excedió el límite por $0{,}007741$ con 24 fondos y por $0{,}030261$ con 48; además, los cosenos entre tamaños quedaron $0{,}046238$ y $0{,}019840$ bajo el mínimo. La consulta \texttt{q001} de este último método había cumplido sus controles con 24 fondos por conjunto, pero la consulta crítica \texttt{q011} no superó el criterio conjunto de estabilidad.
+
+Ninguna de las tres configuraciones superó todos los controles exigidos por su protocolo. Por ello, el resultado se reporta como una evaluación de viabilidad y las atribuciones, rankings, figuras SHAP y casos locales quedan fuera del manuscrito. Las métricas predictivas y las comparaciones con referencias proceden de un protocolo de evaluación distinto.
 
 \subsection{Discusión y amenazas a la validez}
 \label{sec:discusion_amenazas_validez}
