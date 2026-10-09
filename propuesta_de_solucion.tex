@@ -90,13 +90,13 @@ El dominio de estudio es el núcleo urbano referencial de 34 comunas. Cada extre
 
 Después del recorte territorial se excluyen, en las tres ramas, los 1.904 viajes que tienen al menos un extremo en las zonas 848, 849 o 852, cuyas geometrías oficiales verificables no están disponibles para construir atributos. La cohorte comparativa resultante contiene 60.511.977 viajes y 85.774.522,4070 de masa expandida. Esta exclusión se aplica antes de agregar OD.
 
-La Tabla~\ref{tab:cascada_filtros_dtpm} resume la reducción desde la entrega DTPM hasta la cohorte comparativa. De los 86.327.914 viajes entregados para las 29 fechas procesables, 25.325.042 (29,34\%) tienen \texttt{ultimaetapaconbajada}=0 y se excluyen porque el destino de la etapa final no puede reconstruirse bajo el contrato adoptado. Los filtros posteriores reúnen las condiciones de consistencia canónica, el recorte territorial y la disponibilidad de geometría zonal.
+La Tabla~\ref{tab:cascada_filtros_dtpm} resume la reducción desde la entrega DTPM hasta la cohorte comparativa. De los 86.327.914 viajes entregados para las 29 fechas procesables, 25.325.042 (29,34\%) tienen \texttt{ultimaetapaconbajada}=0 y se excluyen porque el destino de la etapa final no puede reconstruirse bajo el procedimiento adoptado. Los filtros posteriores reúnen las condiciones de consistencia canónica, el recorte territorial y la disponibilidad de geometría zonal.
 
 \begin{table}[htbp]
 \centering
 \small
 \renewcommand{\arraystretch}{1.12}
-\caption{Cascada de filtros desde la entrega DTPM hasta la cohorte comparativa final. El porcentaje retenido usa como denominador los 86.327.914 viajes de los días 1--29; la columna de exclusión se calcula respecto de la fila anterior. Fuente: elaboración propia a partir de las auditorías F2-B--F2-D y del contrato aprobado F2-I.}
+\caption{Cascada de filtros desde la entrega DTPM hasta la cohorte comparativa final. El porcentaje retenido usa como denominador los 86.327.914 viajes de los días 1--29; la columna de exclusión se calcula respecto de la fila anterior. Fuente: elaboración propia a partir de los registros auditados de reconstrucción y filtrado territorial.}
 \label{tab:cascada_filtros_dtpm}
 \begin{tabularx}{\textwidth}{@{}Xrrr@{}}
 \toprule
@@ -134,7 +134,7 @@ La factibilidad se evaluó sobre los 60.513.881 viajes del recorte territorial, 
 \fontsize{11}{13.6}\selectfont
 \setlength{\tabcolsep}{2.5pt}
 \renewcommand{\arraystretch}{1.15}
-\caption{Factibilidad de las resoluciones H3-r3 a H3-r8 sobre la cohorte territorial. Todas las filas conservan 60.513.881 viajes y 85.777.662,9386 de masa expandida. La densidad OD corresponde a pares observados sobre pares posibles entre unidades activas. Fuente: elaboración propia a partir del análisis F2-E con asignación directa de cada coordenada mediante \texttt{latlng\_to\_cell}.}
+\caption{Factibilidad de las resoluciones H3-r3 a H3-r8 sobre la cohorte territorial. Todas las filas conservan 60.513.881 viajes y 85.777.662,9386 de masa expandida. La densidad OD corresponde a pares observados sobre pares posibles entre unidades activas. Fuente: elaboración propia a partir del análisis de factibilidad con asignación directa de cada coordenada mediante \texttt{latlng\_to\_cell}.}
 \label{tab:factibilidad_h3}
 \begin{tabular*}{\textwidth}{@{\extracolsep{\fill}}lrrrrrrl@{}}
 \toprule
@@ -173,7 +173,7 @@ La Figura~\ref{fig:areas_y_soporte_representaciones} complementa esta descripci�
 \begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth]{figures/v07_areas_y_soporte_representaciones.pdf}
-\caption{Escalas físicas y soporte de las tres representaciones sobre la misma cohorte final. El panel izquierdo muestra $\log_{10}$ del área de cada unidad en km$^2$; el derecho distingue unidades totales y orígenes con salida observada. Las diferencias de área, agregación y soporte sitúan la comparación del CPC dentro de cada rama. Fuente: elaboración propia con el contrato territorial y de atributos aprobado y el soporte del experimento mensual.}
+\caption{Escalas físicas y soporte de las tres representaciones sobre la misma cohorte final. El panel izquierdo muestra $\log_{10}$ del área de cada unidad en km$^2$; el derecho distingue unidades totales y orígenes con salida observada. Las diferencias de área, agregación y soporte sitúan la comparación del CPC dentro de cada rama. Fuente: elaboración propia con la definición territorial y de atributos utilizada y el soporte del experimento mensual.}
 \label{fig:areas_y_soporte_representaciones}
 \end{figure}
 

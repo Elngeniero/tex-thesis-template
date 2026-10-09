@@ -79,12 +79,12 @@ La Figura~\ref{fig:concentracion_zona777} caracteriza la distribución espacial 
 \subsection{Presencia espacial de los atributos OSM}
 \label{sec:cobertura_atributos_osm}
 
-La Figura~\ref{fig:cobertura_atributos_osm} examina los atributos físicos de la configuración \textit{paper19} que efectivamente alimentó las corridas mensuales. El panel izquierdo suma las densidades de puntos de interés de transporte, alimentación, salud, educación y comercio minorista. El derecho muestra, para cada unidad, la proporción de los 18 atributos OSM con valor mayor que cero. Esta proporción resume la presencia cartografiada de atributos por unidad.
+La Figura~\ref{fig:cobertura_atributos_osm} examina los atributos físicos de la configuración principal de 19 atributos que alimentó las corridas mensuales. El panel izquierdo suma las densidades de puntos de interés de transporte, alimentación, salud, educación y comercio minorista. El derecho muestra, para cada unidad, la proporción de los 18 atributos OSM con valor mayor que cero. Esta proporción resume la presencia cartografiada de atributos por unidad.
 
 \begin{figure}[H]
 \centering
 \includegraphics[width=\textwidth]{figures/mapa_cobertura_atributos_osm.pdf}
-\caption{Presencia espacial de los atributos OSM usados por \textit{Deep Gravity} en las tres representaciones. La densidad total de POI suma las cinco familias incluidas en el vector de entrada y se muestra como $\log_{10}(1+\mathrm{POI/km^2})$; las unidades grises corresponden a valores cero de POI cartografiados. La presencia OSM corresponde a la fracción de los 18 atributos OSM con valor físico positivo. Los polígonos H3 se conservan completos según la política de borde del experimento. Fuente: elaboración propia a partir de los atributos \textit{paper19} aprobados.}
+\caption{Presencia espacial de los atributos OSM usados por \textit{Deep Gravity} en las tres representaciones. La densidad total de POI suma las cinco familias incluidas en el vector de entrada y se muestra como $\log_{10}(1+\mathrm{POI/km^2})$; las unidades grises corresponden a valores cero de POI cartografiados. La presencia OSM corresponde a la fracción de los 18 atributos OSM con valor físico positivo. Los polígonos H3 se conservan completos según la política de borde del experimento. Fuente: elaboración propia a partir de los atributos de la configuración principal.}
 \label{fig:cobertura_atributos_osm}
 \end{figure}
 
@@ -94,7 +94,7 @@ Para cuantificar el patrón centro--borde, se definió operacionalmente como per
 \centering
 \scriptsize
 \renewcommand{\arraystretch}{1.12}
-\caption{Presencia de atributos OSM y distancia al centroide del área de estudio. ``Interior/periferia'' compara el 75\% de unidades más cercanas con el cuartil más distante dentro de cada representación; $\rho$ es la correlación de Spearman con la distancia. Fuente: elaboración propia a partir de los atributos físicos \textit{paper19}.}
+\caption{Presencia de atributos OSM y distancia al centroide del área de estudio. ``Interior/periferia'' compara el 75\% de unidades más cercanas con el cuartil más distante dentro de cada representación; $\rho$ es la correlación de Spearman con la distancia. Fuente: elaboración propia a partir de los atributos físicos de la configuración principal.}
 \label{tab:cobertura_atributos_osm}
 \resizebox{\textwidth}{!}{%
 \begin{tabular}{@{}lrrrrrr@{}}
