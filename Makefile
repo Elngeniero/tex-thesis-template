@@ -9,6 +9,7 @@ document: clean
 	bibtex main || true
 	xelatex main.tex
 	xelatex main.tex
+	xelatex main.tex
 
 clean:
 	rm main.log main.aux main.blg main.out main.bbl main.pdf missfont.log main.lof main.lot main.toc || true
